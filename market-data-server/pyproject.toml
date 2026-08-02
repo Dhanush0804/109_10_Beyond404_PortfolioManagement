@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "market-data-server"
+version = "1.0.0"
+description = "Production-Ready FastAPI Yahoo Finance Market Data Server"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]
+asyncio_mode = "auto"
