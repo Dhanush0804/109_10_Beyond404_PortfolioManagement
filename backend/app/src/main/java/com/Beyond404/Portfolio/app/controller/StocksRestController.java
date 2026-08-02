@@ -1,4 +1,4 @@
-package com.Beyond404.Portfolio.app.api;
+package com.Beyond404.Portfolio.app.controller;
 
 import com.Beyond404.Portfolio.app.model.Stocks;
 import com.Beyond404.Portfolio.app.service.StocksService;
