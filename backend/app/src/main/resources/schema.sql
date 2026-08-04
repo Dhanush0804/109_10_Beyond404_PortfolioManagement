@@ -43,25 +43,26 @@ CREATE TABLE IF NOT EXISTS investments
 
     stock_id BIGINT NOT NULL,
 
-    transaction_type ENUM('BUY','SELL') NOT NULL,
+    transaction_type ENUM(
+        'BUY',
+        'SELL'
+    ) NOT NULL,
 
-    transaction_amount DECIMAL(12,2) NOT NULL,
+    quantity DECIMAL(12,4) NOT NULL,
 
-    transaction_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    transaction_amount DECIMAL(15,2) NOT NULL,
 
+    transaction_timestamp TIMESTAMP NOT NULL,
 
     CONSTRAINT pk_investments PRIMARY KEY (asset_id),
 
-
     CONSTRAINT fk_investments_customer
-    FOREIGN KEY (customer_id)
-    REFERENCES customers(customer_id)
-    ON DELETE CASCADE,
-
+        FOREIGN KEY (customer_id)
+        REFERENCES customers(customer_id)
+        ON DELETE CASCADE,
 
     CONSTRAINT fk_investments_stock
-    FOREIGN KEY (stock_id)
-    REFERENCES stocks(stock_id)
-    ON DELETE CASCADE
-
+        FOREIGN KEY (stock_id)
+        REFERENCES stocks(stock_id)
+        ON DELETE CASCADE
 );
