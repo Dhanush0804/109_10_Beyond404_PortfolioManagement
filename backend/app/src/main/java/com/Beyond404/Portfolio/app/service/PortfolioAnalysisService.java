@@ -2,34 +2,35 @@ package com.Beyond404.Portfolio.app.service;
 
 import com.Beyond404.Portfolio.app.model.PortfolioData;
 import com.Beyond404.Portfolio.app.recommendation.PortfolioAnalyzer;
-import com.Beyond404.Portfolio.app.repository.RecommendationRepository;
+import com.Beyond404.Portfolio.app.repository.PortfolioAnalysisRepository;
+import com.Beyond404.Portfolio.app.model.PortfolioAnalysisResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Map;
 
 @Service
-public class RecommendationService {
+public class PortfolioAnalysisService {
 
-    private final RecommendationRepository recommendationRepository;
+    private final PortfolioAnalysisRepository portfolioAnalysisRepository;
     private final PortfolioAnalyzer portfolioAnalyzer;
 
-    public RecommendationService(
-            RecommendationRepository recommendationRepository,
+    public PortfolioAnalysisService(
+            PortfolioAnalysisRepository portfolioAnalysisRepository,
             PortfolioAnalyzer portfolioAnalyzer) {
 
-        this.recommendationRepository = recommendationRepository;
+        this.portfolioAnalysisRepository = portfolioAnalysisRepository;
         this.portfolioAnalyzer = portfolioAnalyzer;
     }
 
     public ArrayList<PortfolioData> getCustomerPortfolio(Long customerId) {
-        return recommendationRepository.getCustomerPortfolio(customerId);
+        return portfolioAnalysisRepository.getCustomerPortfolio(customerId);
     }
 
     public double getPortfolioValue(Long customerId) {
 
         ArrayList<PortfolioData> portfolio =
-                recommendationRepository.getCustomerPortfolio(customerId);
+                portfolioAnalysisRepository.getCustomerPortfolio(customerId);
 
         return portfolioAnalyzer.calculatePortfolioValue(portfolio);
     }
@@ -37,7 +38,7 @@ public class RecommendationService {
     public int getTransactionCount(Long customerId) {
 
         ArrayList<PortfolioData> portfolio =
-                recommendationRepository.getCustomerPortfolio(customerId);
+                portfolioAnalysisRepository.getCustomerPortfolio(customerId);
 
         return portfolioAnalyzer.calculateTotalTransactions(portfolio);
     }
@@ -45,7 +46,7 @@ public class RecommendationService {
     public int getBuyCount(Long customerId) {
 
         ArrayList<PortfolioData> portfolio =
-                recommendationRepository.getCustomerPortfolio(customerId);
+                portfolioAnalysisRepository.getCustomerPortfolio(customerId);
 
         return portfolioAnalyzer.calculateBuyTransactions(portfolio);
     }
@@ -53,7 +54,7 @@ public class RecommendationService {
     public int getSellCount(Long customerId) {
 
         ArrayList<PortfolioData> portfolio =
-                recommendationRepository.getCustomerPortfolio(customerId);
+                portfolioAnalysisRepository.getCustomerPortfolio(customerId);
 
         return portfolioAnalyzer.calculateSellTransactions(portfolio);
     }
@@ -61,7 +62,7 @@ public class RecommendationService {
     public double getCurrentHoldings(Long customerId) {
 
         ArrayList<PortfolioData> portfolio =
-                recommendationRepository.getCustomerPortfolio(customerId);
+                portfolioAnalysisRepository.getCustomerPortfolio(customerId);
 
         return portfolioAnalyzer.calculateCurrentHoldings(portfolio);
     }
@@ -69,7 +70,7 @@ public class RecommendationService {
     public int getUniqueStocks(Long customerId) {
 
         ArrayList<PortfolioData> portfolio =
-                recommendationRepository.getCustomerPortfolio(customerId);
+                portfolioAnalysisRepository.getCustomerPortfolio(customerId);
 
         return portfolioAnalyzer.calculateUniqueStocks(portfolio);
     }
@@ -77,7 +78,7 @@ public class RecommendationService {
     public double getAverageInvestment(Long customerId) {
 
         ArrayList<PortfolioData> portfolio =
-                recommendationRepository.getCustomerPortfolio(customerId);
+                portfolioAnalysisRepository.getCustomerPortfolio(customerId);
 
         return portfolioAnalyzer.calculateAverageInvestment(portfolio);
     }
@@ -85,8 +86,20 @@ public class RecommendationService {
     public Map<String, Double> getMarketDistribution(Long customerId) {
 
         ArrayList<PortfolioData> portfolio =
-                recommendationRepository.getCustomerPortfolio(customerId);
+                portfolioAnalysisRepository.getCustomerPortfolio(customerId);
 
         return portfolioAnalyzer.calculateMarketDistribution(portfolio);
+    }
+
+    public PortfolioAnalysisResponse getPortfolioAnalysis(Long customerId) {
+
+
+        ArrayList<PortfolioData> portfolio =
+                portfolioAnalysisRepository
+                        .getCustomerPortfolio(customerId);
+
+
+        return portfolioAnalyzer
+                .analyzePortfolio(portfolio);
     }
 }
