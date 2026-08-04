@@ -1,0 +1,122 @@
+import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RiArrowUpLine, RiArrowDownLine, RiArrowRightSLine } from 'react-icons/ri';
+import { formatCurrency, formatPercent } from '../../utils/formatters';
+import { setSelectedStock } from '../../store/slices/stocksSlice';
+import { loadChartData, setChartMode } from '../../store/slices/analyticsSlice';
+import SectionLoader from '../common/SectionLoader';
+
+function StockChip({ stock, isActive, onClick }) {
+  const current  = stock.currentPrice ?? stock.lastPrice ?? 0;
+  const previous = stock.previousPrice ?? stock.prevPrice ?? 0;
+  const gain     = current >= previous;
+  const diff     = current - previous;
+  const pct      = previous > 0 ? (diff / previous) * 100 : 0;
+  const ticker   = stock.ticker ?? stock.companyName?.split(' ')[0]?.slice(0, 4)?.toUpperCase() ?? '—';
+
+  return (
+    <button
+      onClick={onClick}
+      className="flex-shrink-0 flex flex-col gap-1.5 p-3.5 rounded-xl text-left transition-all duration-200 min-w-[120px]"
+      style={{
+        background: isActive ? 'var(--accent-glow)' : 'var(--bg-elevated)',
+        border: `1px solid ${isActive ? 'var(--border-active)' : 'var(--border-subtle)'}`,
+        boxShadow: isActive ? 'var(--shadow-accent)' : 'none',
+      }}
+    >
+      {/* Ticker */}
+      <div className="flex items-center justify-between gap-2">
+        <span
+          className="text-[10px] font-black uppercase tracking-wide px-1.5 py-0.5 rounded"
+          style={{
+            background: isActive ? 'var(--accent)' : 'var(--bg-card)',
+            color: isActive ? '#fff' : 'var(--accent)',
+          }}
+        >
+          {ticker}
+        </span>
+        <span
+          className="text-[9px] font-bold flex items-center gap-0.5"
+          style={{ color: gain ? 'var(--gain)' : 'var(--loss)' }}
+        >
+          {gain ? <RiArrowUpLine /> : <RiArrowDownLine />}
+          {formatPercent(pct)}
+        </span>
+      </div>
+
+      {/* Price */}
+      <p className="text-sm font-bold" style={{ color: 'var(--txt-primary)' }}>
+        {formatCurrency(current)}
+      </p>
+
+      {/* Company name */}
+      <p className="text-[9px] truncate max-w-[100px]" style={{ color: 'var(--txt-secondary)' }}>
+        {stock.companyName ?? '—'}
+      </p>
+    </button>
+  );
+}
+
+export default function MyPortfolioCards() {
+  const dispatch                            = useDispatch();
+  const { stockWise, loadingStockWise, chartRange } = useSelector((s) => s.analytics);
+  const { selectedStock }                   = useSelector((s) => s.stocks);
+  const [showAll, setShowAll]               = useState(false);
+
+  const visible = showAll ? stockWise : stockWise.slice(0, 6);
+
+  const handleStockClick = (stock) => {
+    dispatch(setSelectedStock(stock));
+    dispatch(setChartMode('stock'));
+    dispatch(loadChartData({ mode: 'stock', stockId: stock.stockId, ticker: stock.ticker, range: chartRange }));
+  };
+
+  return (
+    <div
+      className="rounded-xl p-5"
+      style={{
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border-subtle)',
+        boxShadow: 'var(--shadow-card)',
+      }}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <p className="text-sm font-bold" style={{ color: 'var(--txt-primary)' }}>My Portfolio</p>
+          <p className="text-[10px] mt-0.5" style={{ color: 'var(--txt-secondary)' }}>
+            Click a stock to view its chart
+          </p>
+        </div>
+        {stockWise.length > 6 && (
+          <button
+            onClick={() => setShowAll((p) => !p)}
+            className="flex items-center gap-0.5 text-[10px] font-semibold transition-colors"
+            style={{ color: 'var(--accent)' }}
+          >
+            {showAll ? 'Show less' : `See all (${stockWise.length})`}
+            <RiArrowRightSLine className={`transition-transform ${showAll ? 'rotate-180' : ''}`} />
+          </button>
+        )}
+      </div>
+
+      <SectionLoader loading={loadingStockWise} minHeight={100}>
+        {stockWise.length === 0 ? (
+          <div className="flex items-center justify-center py-8">
+            <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>Select a user to view portfolio</p>
+          </div>
+        ) : (
+          <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: 'thin' }}>
+            {visible.map((stock) => (
+              <StockChip
+                key={stock.stockId}
+                stock={stock}
+                isActive={selectedStock?.stockId === stock.stockId}
+                onClick={() => handleStockClick(stock)}
+              />
+            ))}
+          </div>
+        )}
+      </SectionLoader>
+    </div>
+  );
+}
