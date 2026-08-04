@@ -15,27 +15,42 @@ public class StocksService {
         this.stocksRepository = stocksRepository;
     }
 
+    // Get all stocks
     public ArrayList<Stocks> getAllStocksS() {
         return stocksRepository.getAllStocksR();
     }
 
+    // Get stock by ID
     public Stocks findById(Long id) {
         return stocksRepository.findById(id);
     }
 
+    // Get stock by ticker
+    public Stocks findByTicker(String ticker) {
+        return stocksRepository.findByTicker(ticker);
+    }
+
+    // Add a new stock
     public Stocks createStock(Stocks stock) {
         return stocksRepository.createStock(stock);
     }
 
+    // Update stock
     public boolean updateStock(Long id, Stocks stock) {
         return stocksRepository.updateStock(id, stock);
     }
 
+    // Delete stock
     public boolean deleteStock(Long id) {
         return stocksRepository.deleteStock(id);
     }
 
-    public ArrayList<Stocks> findBySector(String sector) {
-        return stocksRepository.findBySector(sector);
+    // Filter stocks by market
+    public ArrayList<Stocks> findByMarket(String market) {
+        return stocksRepository.findByMarket(market);
+    }
+
+    public ArrayList<Stocks> findByStockName(String stockName) {
+        return stocksRepository.findByStockName(stockName);
     }
 }
