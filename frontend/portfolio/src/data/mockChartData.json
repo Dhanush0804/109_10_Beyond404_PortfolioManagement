@@ -1,0 +1,67 @@
+{
+  "AAPL": {
+    "tickerId": "AAPL",
+    "stockId": 1,
+    "companyName": "Apple Inc.",
+    "currency": "USD",
+    "currentPrice": 189.50,
+    "previousClose": 182.30,
+    "ranges": {
+      "1D": [
+        { "timestamp": "2024-01-01T09:30:00Z", "date": "09:30 AM", "price": 182.30, "volume": 120000 },
+        { "timestamp": "2024-01-01T10:30:00Z", "date": "10:30 AM", "price": 184.10, "volume": 340000 },
+        { "timestamp": "2024-01-01T11:30:00Z", "date": "11:30 AM", "price": 183.80, "volume": 210000 },
+        { "timestamp": "2024-01-01T12:30:00Z", "date": "12:30 PM", "price": 186.20, "volume": 450000 },
+        { "timestamp": "2024-01-01T13:30:00Z", "date": "01:30 PM", "price": 187.90, "volume": 520000 },
+        { "timestamp": "2024-01-01T14:30:00Z", "date": "02:30 PM", "price": 188.40, "volume": 310000 },
+        { "timestamp": "2024-01-01T15:30:00Z", "date": "03:30 PM", "price": 189.50, "volume": 680000 }
+      ],
+      "1W": [
+        { "timestamp": "2023-12-25T00:00:00Z", "date": "Mon", "price": 181.20, "volume": 14200000 },
+        { "timestamp": "2023-12-26T00:00:00Z", "date": "Tue", "price": 183.40, "volume": 18500000 },
+        { "timestamp": "2023-12-27T00:00:00Z", "date": "Wed", "price": 182.90, "volume": 16100000 },
+        { "timestamp": "2023-12-28T00:00:00Z", "date": "Thu", "price": 186.50, "volume": 22300000 },
+        { "timestamp": "2023-12-29T00:00:00Z", "date": "Fri", "price": 189.50, "volume": 28900000 }
+      ],
+      "1M": [
+        { "timestamp": "2023-12-01T00:00:00Z", "date": "Dec 01", "price": 175.20, "volume": 45000000 },
+        { "timestamp": "2023-12-08T00:00:00Z", "date": "Dec 08", "price": 178.60, "volume": 42000000 },
+        { "timestamp": "2023-12-15T00:00:00Z", "date": "Dec 15", "price": 181.40, "volume": 51000000 },
+        { "timestamp": "2023-12-22T00:00:00Z", "date": "Dec 22", "price": 185.10, "volume": 48000000 },
+        { "timestamp": "2023-12-29T00:00:00Z", "date": "Dec 29", "price": 189.50, "volume": 55000000 }
+      ],
+      "1Y": [
+        { "timestamp": "2023-01-01T00:00:00Z", "date": "Jan 23", "price": 140.50, "volume": 68000000 },
+        { "timestamp": "2023-04-01T00:00:00Z", "date": "Apr 23", "price": 158.20, "volume": 61000000 },
+        { "timestamp": "2023-07-01T00:00:00Z", "date": "Jul 23", "price": 172.40, "volume": 59000000 },
+        { "timestamp": "2023-10-01T00:00:00Z", "date": "Oct 23", "price": 168.10, "volume": 64000000 },
+        { "timestamp": "2024-01-01T00:00:00Z", "date": "Jan 24", "price": 189.50, "volume": 62100000 }
+      ]
+    }
+  },
+  "MSFT": {
+    "tickerId": "MSFT",
+    "stockId": 3,
+    "companyName": "Microsoft Corp.",
+    "currency": "USD",
+    "currentPrice": 415.60,
+    "previousClose": 398.10,
+    "ranges": {
+      "1D": [
+        { "timestamp": "2024-01-01T09:30:00Z", "date": "09:30 AM", "price": 398.10, "volume": 90000 },
+        { "timestamp": "2024-01-01T12:30:00Z", "date": "12:30 PM", "price": 405.40, "volume": 310000 },
+        { "timestamp": "2024-01-01T15:30:00Z", "date": "03:30 PM", "price": 415.60, "volume": 540000 }
+      ],
+      "1M": [
+        { "timestamp": "2023-12-01T00:00:00Z", "date": "Dec 01", "price": 375.00, "volume": 22000000 },
+        { "timestamp": "2023-12-15T00:00:00Z", "date": "Dec 15", "price": 392.50, "volume": 25000000 },
+        { "timestamp": "2023-12-29T00:00:00Z", "date": "Dec 29", "price": 415.60, "volume": 28000000 }
+      ],
+      "1Y": [
+        { "timestamp": "2023-01-01T00:00:00Z", "date": "Jan 23", "price": 240.00, "volume": 32000000 },
+        { "timestamp": "2023-06-01T00:00:00Z", "date": "Jun 23", "price": 330.00, "volume": 29000000 },
+        { "timestamp": "2024-01-01T00:00:00Z", "date": "Jan 24", "price": 415.60, "volume": 21300000 }
+      ]
+    }
+  }
+}
