@@ -16,12 +16,21 @@ CREATE TABLE IF NOT EXISTS stocks
 (
     stock_id BIGINT NOT NULL AUTO_INCREMENT,
 
-    company_name VARCHAR(100) NOT NULL,
+    stock_name VARCHAR(150) NOT NULL,
 
-    sector VARCHAR(100),
+    ticker VARCHAR(20) NOT NULL,
 
+    stock_market ENUM(
+        'NYSE',
+        'NASDAQ',
+        'EURONEXT',
+        'NSE',
+        'BSE'
+    ) NOT NULL,
 
-    CONSTRAINT pk_stocks PRIMARY KEY (stock_id)
+    CONSTRAINT pk_stocks PRIMARY KEY (stock_id),
+
+    CONSTRAINT uk_ticker_market UNIQUE (ticker, stock_market)
 );
 
 

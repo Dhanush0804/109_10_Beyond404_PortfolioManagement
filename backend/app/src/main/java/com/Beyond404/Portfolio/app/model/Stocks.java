@@ -3,13 +3,15 @@ package com.Beyond404.Portfolio.app.model;
 public class Stocks {
 
     private Long stockId;
-    private String companyName;
-    private String sector;
+    private String stockName;
+    private String ticker;
+    private String stockMarket;
 
-    public Stocks(Long stockId, String companyName, String sector) {
+    public Stocks(Long stockId, String stockName, String ticker, String stockMarket) {
         this.stockId = stockId;
-        this.companyName = companyName;
-        this.sector = sector;
+        this.stockName = stockName;
+        this.ticker = ticker;
+        this.stockMarket = stockMarket;
     }
 
     public Long getStockId() {
@@ -20,19 +22,27 @@ public class Stocks {
         this.stockId = stockId;
     }
 
-    public String getCompanyName() {
-        return companyName;
+    public String getStockName() {
+        return stockName;
     }
 
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+    public void setStockName(String stockName) {
+        this.stockName = stockName;
     }
 
-    public String getSector() {
-        return sector;
+    public String getTicker() {
+        return ticker;
     }
 
-    public void setSector(String sector) {
-        this.sector = sector;
+    public void setTicker(String ticker) {
+        this.ticker = ticker;
+    }
+
+    public String getStockMarket() {
+        return stockMarket;
+    }
+
+    public void setStockMarket(String stockMarket) {
+        this.stockMarket = stockMarket;
     }
 }
