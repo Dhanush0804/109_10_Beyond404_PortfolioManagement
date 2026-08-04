@@ -7,12 +7,12 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 
 @Repository
-public class RecommendationRepository {
+public class PortfolioAnalysisRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final PortfolioDataRowMapper portfolioDataRowMapper;
 
-    public RecommendationRepository(
+    public PortfolioAnalysisRepository(
             JdbcTemplate jdbcTemplate,
             PortfolioDataRowMapper portfolioDataRowMapper) {
 

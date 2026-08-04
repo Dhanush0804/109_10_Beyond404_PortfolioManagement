@@ -1,6 +1,7 @@
 package com.Beyond404.Portfolio.app.recommendation;
 
 import com.Beyond404.Portfolio.app.model.PortfolioData;
+import com.Beyond404.Portfolio.app.model.PortfolioAnalysisResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -199,7 +200,83 @@ public class PortfolioAnalyzer {
 
         }
 
-        return total / count;
+        double avg = total / count;
+
+        return avg;
+    }
+
+    public PortfolioAnalysisResponse analyzePortfolio(
+            List<PortfolioData> portfolio) {
+
+
+        if (portfolio.isEmpty()) {
+            return null;
+        }
+
+
+        PortfolioData customerData = portfolio.get(0);
+
+
+        return new PortfolioAnalysisResponse(
+
+                customerData.getCustomerId(),
+
+                customerData.getCustomerName(),
+
+                customerData.getRiskLevel(),
+
+                calculateTotalInvestment(portfolio),
+
+                calculateTotalSellValue(portfolio),
+
+                calculatePortfolioValue(portfolio),
+
+                calculateCurrentHoldings(portfolio),
+
+                calculateTotalTransactions(portfolio),
+
+                calculateBuyTransactions(portfolio),
+
+                calculateSellTransactions(portfolio),
+
+                calculateUniqueStocks(portfolio),
+
+                calculateAverageInvestment(portfolio),
+
+                calculateMarketDistribution(portfolio)
+        );
+    }
+
+    private Double calculateTotalInvestment(List<PortfolioData> portfolio) {
+
+        double totalInvestment = 0.0;
+
+        for (PortfolioData investment : portfolio) {
+
+            if (investment.getTransactionType().equalsIgnoreCase("BUY")) {
+
+                totalInvestment += investment.getTransactionAmount();
+
+            }
+        }
+
+        return totalInvestment;
+    }
+
+    private Double calculateTotalSellValue(List<PortfolioData> portfolio) {
+
+        double totalSellValue = 0.0;
+
+        for (PortfolioData investment : portfolio) {
+
+            if (investment.getTransactionType().equalsIgnoreCase("SELL")) {
+
+                totalSellValue += investment.getTransactionAmount();
+
+            }
+        }
+
+        return totalSellValue;
     }
 
 }

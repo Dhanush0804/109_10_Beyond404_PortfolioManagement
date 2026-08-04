@@ -1,7 +1,8 @@
 package com.Beyond404.Portfolio.app.controller;
 
 import com.Beyond404.Portfolio.app.model.PortfolioData;
-import com.Beyond404.Portfolio.app.service.RecommendationService;
+import com.Beyond404.Portfolio.app.service.PortfolioAnalysisService;
+import com.Beyond404.Portfolio.app.model.PortfolioAnalysisResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,13 +11,13 @@ import java.util.ArrayList;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/beyond404/recommendation")
-public class RecommendationRestController {
+@RequestMapping("/beyond404/Portfolio/analysis")
+public class PortfolioAnalysisRestController {
 
-    private final RecommendationService recommendationService;
+    private final PortfolioAnalysisService portfolioAnalysisService;
 
-    public RecommendationRestController(RecommendationService recommendationService) {
-        this.recommendationService = recommendationService;
+    public PortfolioAnalysisRestController(PortfolioAnalysisService portfolioAnalysisService) {
+        this.portfolioAnalysisService = portfolioAnalysisService;
     }
 
     /**
@@ -30,7 +31,7 @@ public class RecommendationRestController {
             @PathVariable Long customerId) {
 
         ArrayList<PortfolioData> portfolio =
-                recommendationService.getCustomerPortfolio(customerId);
+                portfolioAnalysisService.getCustomerPortfolio(customerId);
 
         if (portfolio.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -50,7 +51,7 @@ public class RecommendationRestController {
             @PathVariable Long customerId) {
 
         return ResponseEntity.ok(
-                recommendationService.getPortfolioValue(customerId)
+                portfolioAnalysisService.getPortfolioValue(customerId)
         );
     }
 
@@ -65,7 +66,7 @@ public class RecommendationRestController {
             @PathVariable Long customerId) {
 
         return ResponseEntity.ok(
-                recommendationService.getTransactionCount(customerId)
+                portfolioAnalysisService.getTransactionCount(customerId)
         );
     }
 
@@ -80,7 +81,7 @@ public class RecommendationRestController {
             @PathVariable Long customerId) {
 
         return ResponseEntity.ok(
-                recommendationService.getBuyCount(customerId)
+                portfolioAnalysisService.getBuyCount(customerId)
         );
     }
 
@@ -95,7 +96,7 @@ public class RecommendationRestController {
             @PathVariable Long customerId) {
 
         return ResponseEntity.ok(
-                recommendationService.getSellCount(customerId)
+                portfolioAnalysisService.getSellCount(customerId)
         );
     }
 
@@ -110,7 +111,7 @@ public class RecommendationRestController {
             @PathVariable Long customerId) {
 
         return ResponseEntity.ok(
-                recommendationService.getCurrentHoldings(customerId)
+                portfolioAnalysisService.getCurrentHoldings(customerId)
         );
     }
 
@@ -125,7 +126,7 @@ public class RecommendationRestController {
             @PathVariable Long customerId) {
 
         return ResponseEntity.ok(
-                recommendationService.getUniqueStocks(customerId)
+                portfolioAnalysisService.getUniqueStocks(customerId)
         );
     }
 
@@ -140,7 +141,7 @@ public class RecommendationRestController {
             @PathVariable Long customerId) {
 
         return ResponseEntity.ok(
-                recommendationService.getAverageInvestment(customerId)
+                portfolioAnalysisService.getAverageInvestment(customerId)
         );
     }
 
@@ -155,8 +156,28 @@ public class RecommendationRestController {
             @PathVariable Long customerId) {
 
         return ResponseEntity.ok(
-                recommendationService.getMarketDistribution(customerId)
+                portfolioAnalysisService.getMarketDistribution(customerId)
         );
     }
 
+    @GetMapping("/{customerId}/analysis")
+    public ResponseEntity<PortfolioAnalysisResponse> getPortfolioAnalysis(
+            @PathVariable Long customerId) {
+
+
+        PortfolioAnalysisResponse analysis =
+                portfolioAnalysisService
+                        .getPortfolioAnalysis(customerId);
+
+
+        if(analysis == null) {
+
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .build();
+        }
+
+
+        return ResponseEntity.ok(analysis);
+    }
 }
