@@ -1,122 +1,57 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { RiToolsLine } from 'react-icons/ri';
+import Sidebar        from './components/layout/Sidebar';
+import Topbar         from './components/layout/Topbar';
+import DashboardPage  from './pages/DashboardPage';
+import UserProfilePage from './pages/UserProfilePage';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <BrowserRouter>
+      {/* Fixed sidebar */}
+      <Sidebar />
 
-      <div className="ticks"></div>
+      {/* Fixed topbar */}
+      <Topbar />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {/* Scrollable page content */}
+      <main
+        className="min-h-screen pb-12"
+        style={{
+          marginLeft: 'var(--sidebar-width)',
+          paddingTop: 'var(--topbar-height)',
+          background: 'var(--bg-canvas)',
+        }}
+      >
+        <Routes>
+          <Route path="/"         element={<DashboardPage />} />
+          <Route path="/profile"  element={<UserProfilePage />} />
+          <Route path="/portfolio" element={<ComingSoon label="Portfolio" />} />
+          <Route path="/analysis"  element={<ComingSoon label="Analysis" />} />
+          <Route path="/market"    element={<ComingSoon label="Market" />} />
+          <Route path="/community" element={<ComingSoon label="Community" />} />
+          <Route path="/help"      element={<ComingSoon label="Help & Support" />} />
+        </Routes>
+      </main>
+    </BrowserRouter>
+  );
 }
 
-export default App
+function ComingSoon({ label }) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[70vh] gap-5 anim-fade-in">
+      <div
+        className="w-16 h-16 rounded-2xl flex items-center justify-center"
+        style={{ background: 'var(--accent-glow)', border: '1px solid var(--border-active)' }}
+      >
+        <RiToolsLine className="text-2xl" style={{ color: 'var(--accent)' }} />
+      </div>
+      <div className="text-center">
+        <h2 className="text-xl font-bold" style={{ color: 'var(--txt-primary)' }}>{label}</h2>
+        <p className="text-sm mt-1" style={{ color: 'var(--txt-secondary)' }}>
+          This section is under development
+        </p>
+      </div>
+    </div>
+  );
+}

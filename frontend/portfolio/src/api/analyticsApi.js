@@ -1,4 +1,5 @@
 import axiosInstance from './axiosInstance';
+import mockChartData from '../data/mockChartData.json';
 
 /* ── Dummy: overall P&L stats ── */
 const buildDummySummary = () => ({
@@ -21,7 +22,7 @@ const buildDummyStockWise = () => [
   { stockId: 6, ticker: 'AMZN', companyName: 'Amazon Inc.',      invested: 19840, currentValue: 17856, pnl: -1984, pnlPercent: -10.00, lastPrice: 198.40, prevPrice: 205.60, marketCap: '2.0T', volume: '33.5M' },
 ];
 
-/* ── Dummy: overall portfolio chart (1Y daily) ── */
+/* ── Dummy: overall portfolio chart ── */
 const buildDummyPortfolioChart = () => {
   const data = [];
   const now = new Date('2024-01-01');
@@ -35,30 +36,28 @@ const buildDummyPortfolioChart = () => {
   return data;
 };
 
-/* ── Dummy: stock-specific chart (1Y daily, extensible to 5m) ── */
-const buildDummyStockChart = (stockId) => {
-  const prices = { 1: 189.50, 2: 248.20, 3: 415.60, 4: 178.90, 5: 875.30, 6: 198.40 };
-  const base = prices[stockId] ?? 200;
-  const data = [];
-  const now = new Date('2024-01-01');
-  let price = base * 0.85;
-  for (let i = 0; i < 365; i++) {
-    const d = new Date(now);
-    d.setDate(now.getDate() + i);
-    price += (Math.random() - 0.47) * (base * 0.012);
-    data.push({
-      date:   d.toISOString().split('T')[0],
-      price:  parseFloat(price.toFixed(2)),
-      volume: Math.round(Math.random() * 50_000_000 + 10_000_000),
-      // Future: add { time, open, high, low, close } for 5m OHLCV
-    });
+/* ── Get mock stock chart data by ticker or stockId and range ── */
+const getMockStockChartData = (stockId, ticker, range = '1Y') => {
+  const tickerMap = { 1: 'AAPL', 2: 'TSLA', 3: 'MSFT', 4: 'GOOG', 5: 'NVDA', 6: 'AMZN' };
+  const key = ticker || tickerMap[stockId] || 'AAPL';
+  const stockObj = mockChartData[key] || mockChartData['AAPL'];
+  
+  if (stockObj.ranges && stockObj.ranges[range]) {
+    return stockObj.ranges[range];
   }
-  return data;
+
+  // Generated fallback if requested range isn't explicitly defined in JSON
+  const base = stockObj.currentPrice || 200;
+  const count = range === '1D' ? 7 : range === '1W' ? 7 : range === '1M' ? 30 : 90;
+  return Array.from({ length: count }, (_, i) => ({
+    date: `Point ${i + 1}`,
+    price: parseFloat((base * (0.9 + Math.sin(i * 0.5) * 0.1)).toFixed(2)),
+    volume: Math.round(Math.random() * 50_000_000 + 10_000_000),
+  }));
 };
 
 export const fetchPortfolioSummary = async (customerId) => {
   try {
-    // PSEUDO endpoint
     const { data } = await axiosInstance.get('/api/analytics/summary', { params: { customerId } });
     return data;
   } catch {
@@ -69,7 +68,6 @@ export const fetchPortfolioSummary = async (customerId) => {
 
 export const fetchStockWisePnL = async (customerId) => {
   try {
-    // PSEUDO endpoint
     const { data } = await axiosInstance.get('/api/analytics/stock-wise', { params: { customerId } });
     return data;
   } catch {
@@ -80,22 +78,24 @@ export const fetchStockWisePnL = async (customerId) => {
 
 /**
  * Fetch time-series chart data.
- * @param {string} mode  - 'portfolio' | 'stock'
- * @param {string} range - '1D' | '1W' | '1M' | '6M' | '1Y'  (future: '5m')
- * @param {number} stockId - required when mode === 'stock'
+ * @param {string} mode     - 'portfolio' | 'stock'
+ * @param {number} stockId  - stock ID
+ * @param {string} ticker   - stock ticker symbol (e.g. 'AAPL', 'MSFT')
+ * @param {string} range    - '1D' | '1W' | '1M' | '6M' | '1Y'
+ * @param {number} customerId
  */
-export const fetchChartData = async ({ mode = 'portfolio', stockId = null, range = '1Y', customerId = null } = {}) => {
+export const fetchChartData = async ({ mode = 'portfolio', stockId = null, ticker = null, range = '1Y', customerId = null } = {}) => {
   try {
-    if (mode === 'stock' && stockId) {
-      // PSEUDO endpoint – replace once market-data-server endpoint is ready
-      const { data } = await axiosInstance.get(`/api/chart-data/${stockId}`, { params: { range } });
+    if (mode === 'stock' && (stockId || ticker)) {
+      // Backend Endpoint: GET /api/chart-data/{tickerOrStockId}?range={range}
+      const identifier = ticker || stockId;
+      const { data } = await axiosInstance.get(`/api/chart-data/${identifier}`, { params: { range } });
       return data;
     }
-    // PSEUDO endpoint for overall portfolio chart
     const { data } = await axiosInstance.get('/api/analytics/portfolio-chart', { params: { customerId, range } });
     return data;
   } catch {
-    console.warn('fetchChartData → using dummy data');
-    return mode === 'stock' ? buildDummyStockChart(stockId) : buildDummyPortfolioChart();
+    console.warn('fetchChartData → using mock JSON response structure');
+    return mode === 'stock' ? getMockStockChartData(stockId, ticker, range) : buildDummyPortfolioChart();
   }
 };
