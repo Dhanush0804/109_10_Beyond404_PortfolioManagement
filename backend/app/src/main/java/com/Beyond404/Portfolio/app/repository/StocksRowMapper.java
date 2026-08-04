@@ -13,10 +13,19 @@ public class StocksRowMapper implements RowMapper<Stocks> {
     @Override
     public Stocks mapRow(ResultSet resultSet, int rowNumber) throws SQLException {
 
-        long stockId = resultSet.getLong("stock_id");
-        String companyName = resultSet.getString("company_name");
-        String sector = resultSet.getString("sector");
+        long stockId=resultSet.getLong("stock_id");
 
-        return new Stocks(stockId, companyName, sector);
+        String stockName=resultSet.getString("stock_name");
+
+        String ticker=resultSet.getString("ticker");
+
+        String stockMarket=resultSet.getString("stock_market");
+
+        return new Stocks(
+                stockId,
+                stockName,
+                ticker,
+                stockMarket
+        );
     }
 }
