@@ -66,6 +66,7 @@ export default function PortfolioPage() {
       const details = await fetchStockAnalyticsDetails({
         ticker: baseStock.ticker,
         customerId: selectedUser.customerId,
+        source,
       });
 
       const merged = {

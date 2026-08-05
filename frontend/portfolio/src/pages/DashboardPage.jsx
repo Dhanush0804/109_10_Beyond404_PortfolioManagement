@@ -1,5 +1,4 @@
 import { useSelector } from 'react-redux';
-import UserSelector from '../components/dashboard/UserSelector';
 import StatsSummaryBar from '../components/dashboard/StatsSummaryBar';
 import TotalHoldingCard from '../components/dashboard/TotalHoldingCard';
 import MyPortfolioCards from '../components/dashboard/MyPortfolioCards';
@@ -25,11 +24,8 @@ export default function DashboardPage() {
           <p className="text-xs mt-1" style={{ color: 'var(--txt-secondary)' }}>
             {selectedUser
               ? 'Here\'s a live overview of your stock portfolio'
-              : 'Select a user from the dropdown to load their portfolio data'}
+              : 'Use the top-right user menu to select a user and load portfolio data'}
           </p>
-        </div>
-        <div className="w-64 z-20 relative">
-          <UserSelector />
         </div>
       </div>
 

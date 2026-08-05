@@ -78,8 +78,24 @@ export const searchStocksByTickerQuery = async (query) => {
   }
 };
 
-export const fetchStockAnalyticsDetails = async ({ ticker, customerId }) => {
+export const fetchStockAnalyticsDetails = async ({ ticker, customerId, source = 'owned' }) => {
   try {
+    if (source === 'market') {
+      const { data } = await axiosInstance.get(`/api/market/${ticker}/quote`);
+      return {
+        customerId,
+        ticker: data?.symbol ?? ticker,
+        companyName: ticker,
+        currentValue: Number(data?.price ?? 0),
+        lastPrice: Number(data?.price ?? 0),
+        prevPrice: Number(data?.previous_close ?? 0),
+        pnl: Number(data?.change ?? 0),
+        pnlPercent: Number(data?.percent_change ?? 0),
+        volume: data?.volume ? `${(Number(data.volume) / 1_000_000).toFixed(1)}M` : '—',
+        marketCap: '',
+      };
+    }
+
     const { data } = await axiosInstance.get(`/api/chart-data/${ticker}`, { params: { range: '1d' } });
     const latestPoint = Array.isArray(data?.ranges?.['1D']) && data.ranges['1D'].length > 0
       ? data.ranges['1D'][data.ranges['1D'].length - 1]
