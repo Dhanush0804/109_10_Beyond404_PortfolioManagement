@@ -10,6 +10,7 @@ public class Investment {
     private Long stockId;
     private String transactionType;
     private BigDecimal transactionAmount;
+    private BigDecimal quantity;
     private Timestamp transactionTimestamp;
 
     public Investment() {
@@ -17,12 +18,13 @@ public class Investment {
 
     public Investment(Long assetId, Long customerId, Long stockId,
                       String transactionType, BigDecimal transactionAmount,
-                      Timestamp transactionTimestamp) {
+                      BigDecimal quantity, Timestamp transactionTimestamp) {
         this.assetId = assetId;
         this.customerId = customerId;
         this.stockId = stockId;
         this.transactionType = transactionType;
         this.transactionAmount = transactionAmount;
+        this.quantity = quantity;
         this.transactionTimestamp = transactionTimestamp;
     }
 
@@ -64,6 +66,14 @@ public class Investment {
 
     public void setTransactionAmount(BigDecimal transactionAmount) {
         this.transactionAmount = transactionAmount;
+    }
+
+    public BigDecimal getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(BigDecimal quantity) {
+        this.quantity = quantity;
     }
 
     public Timestamp getTransactionTimestamp() {
