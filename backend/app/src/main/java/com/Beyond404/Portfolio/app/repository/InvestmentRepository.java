@@ -24,7 +24,7 @@ public class InvestmentRepository {
     public ArrayList<Investment> getAllInvestments() {
         return new ArrayList<>(
                 jdbcTemplate.query(
-                        "SELECT asset_id, customer_id, stock_id, transaction_type, transaction_amount, transaction_timestamp FROM investments ORDER BY asset_id",
+                        "SELECT asset_id, customer_id, stock_id, transaction_type, transaction_amount, quantity, transaction_timestamp FROM investments ORDER BY asset_id",
                         investmentRowMapper
                 )
         );
@@ -33,7 +33,7 @@ public class InvestmentRepository {
     public Investment findById(Long id) {
         try {
             return jdbcTemplate.queryForObject(
-                    "SELECT asset_id, customer_id, stock_id, transaction_type, transaction_amount, transaction_timestamp FROM investments WHERE asset_id = ?",
+                    "SELECT asset_id, customer_id, stock_id, transaction_type, transaction_amount, quantity, transaction_timestamp FROM investments WHERE asset_id = ?",
                     investmentRowMapper,
                     id
             );
@@ -49,7 +49,7 @@ public class InvestmentRepository {
         jdbcTemplate.update(connection -> {
 
             PreparedStatement ps = connection.prepareStatement(
-                    "INSERT INTO investments (customer_id, stock_id, transaction_type, transaction_amount) VALUES (?, ?, ?, ?)",
+                    "INSERT INTO investments (customer_id, stock_id, transaction_type, transaction_amount, quantity, transaction_timestamp) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
                     Statement.RETURN_GENERATED_KEYS
             );
 
@@ -57,12 +57,17 @@ public class InvestmentRepository {
             ps.setLong(2, investment.getStockId());
             ps.setString(3, investment.getTransactionType());
             ps.setBigDecimal(4, investment.getTransactionAmount());
+            ps.setBigDecimal(5, investment.getQuantity());
 
             return ps;
 
         }, keyHolder);
 
-        investment.setAssetId(keyHolder.getKey().longValue());
+        Number generatedId = keyHolder.getKey();
+        if (generatedId == null) {
+            throw new IllegalStateException("Failed to create investment: no generated asset_id returned");
+        }
+        investment.setAssetId(generatedId.longValue());
 
         return findById(investment.getAssetId());
     }
@@ -70,11 +75,12 @@ public class InvestmentRepository {
     public boolean updateInvestment(Long id, Investment investment) {
 
         return jdbcTemplate.update(
-                "UPDATE investments SET customer_id = ?, stock_id = ?, transaction_type = ?, transaction_amount = ? WHERE asset_id = ?",
+                "UPDATE investments SET customer_id = ?, stock_id = ?, transaction_type = ?, transaction_amount = ?, quantity = ?, transaction_timestamp = CURRENT_TIMESTAMP WHERE asset_id = ?",
                 investment.getCustomerId(),
                 investment.getStockId(),
                 investment.getTransactionType(),
                 investment.getTransactionAmount(),
+                investment.getQuantity(),
                 id
         ) > 0;
     }

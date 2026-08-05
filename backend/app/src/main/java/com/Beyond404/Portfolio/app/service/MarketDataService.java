@@ -335,15 +335,7 @@ public class MarketDataService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid input for ticker/range");
             }
             throw e;
-        } catch (
-        
-        
-        
-        
-        
-        
-        
-        e) {
+        } catch (RestClientException e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Market data server is unavailable");
         }
     }
