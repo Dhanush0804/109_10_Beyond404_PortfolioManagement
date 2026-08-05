@@ -348,6 +348,33 @@ public class PortfolioAnalyzer {
         return count;
     }
 
+    public Map<String, Double> getStockHoldings(List<PortfolioData> portfolio) {
+    return calculateStockHoldings(portfolio);
+}
+
+public Map<String, Double> getNetInvestedByStock(List<PortfolioData> portfolio) {
+    Map<String, Double> invested = new HashMap<>();
+
+    for (PortfolioData tx : portfolio) {
+        String ticker = tx.getTicker();
+        double amount = tx.getTransactionAmount();
+
+        if (tx.getTransactionType().equalsIgnoreCase("BUY")) {
+            invested.put(ticker, invested.getOrDefault(ticker, 0.0) + amount);
+        } else {
+            invested.put(ticker, invested.getOrDefault(ticker, 0.0) - amount);
+        }
+    }
+
+    return invested;
+}
+
+
+
+
+
+
+
     public double calculateCurrentHoldings(
             List<PortfolioData> portfolio) {
 
