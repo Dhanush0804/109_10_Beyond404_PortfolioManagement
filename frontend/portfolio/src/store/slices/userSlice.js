@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchAllCustomers, fetchCustomerById } from '../../api/customerApi';
+import { createCustomer, deleteCustomer, fetchAllCustomers, fetchCustomerById } from '../../api/customerApi';
 
 export const loadAllUsers = createAsyncThunk('user/loadAll', async () => {
   return await fetchAllCustomers();
@@ -7,6 +7,32 @@ export const loadAllUsers = createAsyncThunk('user/loadAll', async () => {
 
 export const loadUserById = createAsyncThunk('user/loadById', async (id) => {
   return await fetchCustomerById(id);
+});
+
+export const addUser = createAsyncThunk('user/add', async ({ customerName, riskLevel }, { dispatch, rejectWithValue }) => {
+  try {
+    const result = await createCustomer({ customerName, riskLevel });
+    await dispatch(loadAllUsers()).unwrap();
+    return result.payload;
+  } catch (error) {
+    return rejectWithValue(error?.response?.data?.message ?? error?.message ?? 'Unable to add user');
+  }
+});
+
+export const deleteUser = createAsyncThunk('user/delete', async ({ customerId, customerName }, { dispatch, getState, rejectWithValue }) => {
+  try {
+    await deleteCustomer(customerId);
+
+    const selectedUser = getState().user.selectedUser;
+    if (selectedUser?.customerId === customerId) {
+      dispatch(clearSelectedUser());
+    }
+
+    await dispatch(loadAllUsers()).unwrap();
+    return { customerId, customerName };
+  } catch (error) {
+    return rejectWithValue(error?.response?.data?.message ?? error?.message ?? 'Unable to delete user');
+  }
 });
 
 const userSlice = createSlice({
@@ -17,10 +43,22 @@ const userSlice = createSlice({
     loadingUsers:  false,
     loadingProfile: false,
     error: null,
+    creatingUser: false,
+    deletingUser: false,
+    createError: null,
+    deleteError: null,
+    lastCreatedUserName: null,
+    lastDeletedUserName: null,
   },
   reducers: {
     setSelectedUser(state, action) { state.selectedUser = action.payload; },
     clearSelectedUser(state)       { state.selectedUser = null; },
+    clearUserCreateState(state) {
+      state.createError = null;
+      state.deleteError = null;
+      state.lastCreatedUserName = null;
+      state.lastDeletedUserName = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -29,9 +67,35 @@ const userSlice = createSlice({
       .addCase(loadAllUsers.rejected,  (s, a) => { s.loadingUsers = false; s.error = a.error.message; })
       .addCase(loadUserById.pending,   (s) => { s.loadingProfile = true; })
       .addCase(loadUserById.fulfilled, (s, a) => { s.loadingProfile = false; s.selectedUser = a.payload; })
-      .addCase(loadUserById.rejected,  (s) => { s.loadingProfile = false; });
+      .addCase(loadUserById.rejected,  (s) => { s.loadingProfile = false; })
+      .addCase(addUser.pending, (s) => {
+        s.creatingUser = true;
+        s.createError = null;
+        s.lastCreatedUserName = null;
+      })
+      .addCase(addUser.fulfilled, (s, a) => {
+        s.creatingUser = false;
+        s.lastCreatedUserName = a.payload.customerName;
+      })
+      .addCase(addUser.rejected, (s, a) => {
+        s.creatingUser = false;
+        s.createError = a.payload ?? a.error.message;
+      })
+      .addCase(deleteUser.pending, (s) => {
+        s.deletingUser = true;
+        s.deleteError = null;
+        s.lastDeletedUserName = null;
+      })
+      .addCase(deleteUser.fulfilled, (s, a) => {
+        s.deletingUser = false;
+        s.lastDeletedUserName = a.payload.customerName;
+      })
+      .addCase(deleteUser.rejected, (s, a) => {
+        s.deletingUser = false;
+        s.deleteError = a.payload ?? a.error.message;
+      });
   },
 });
 
-export const { setSelectedUser, clearSelectedUser } = userSlice.actions;
+export const { setSelectedUser, clearSelectedUser, clearUserCreateState } = userSlice.actions;
 export default userSlice.reducer;

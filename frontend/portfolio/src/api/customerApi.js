@@ -26,3 +26,18 @@ export const fetchCustomerById = async (id) => {
     return DUMMY_CUSTOMERS.find((c) => c.customerId === Number(id)) ?? DUMMY_CUSTOMERS[0];
   }
 };
+
+export const createCustomer = async ({ customerName, riskLevel }) => {
+  const payload = {
+    customerName: String(customerName ?? '').trim(),
+    riskLevel: String(riskLevel ?? '').trim().toUpperCase(),
+  };
+
+  const { data } = await axiosInstance.post('/api/customers/add', payload);
+  return { data, payload };
+};
+
+export const deleteCustomer = async (customerId) => {
+  const { data } = await axiosInstance.delete(`/api/customers/delete/${customerId}`);
+  return data;
+};
