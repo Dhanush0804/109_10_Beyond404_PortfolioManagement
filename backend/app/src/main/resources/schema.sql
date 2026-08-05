@@ -83,6 +83,10 @@ CREATE TABLE IF NOT EXISTS investments
         ON DELETE CASCADE
 );
 
+<<<<<<< HEAD
+=======
+CREATE TABLE IF NOT EXISTS assets_holdings (
+>>>>>>> da60e28d50481fdd8aff03c02c0294e1e8c6d98f
 
 
 CREATE TABLE IF NOT EXISTS assets_holdings
