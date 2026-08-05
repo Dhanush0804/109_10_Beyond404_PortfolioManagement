@@ -7,8 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/beyond404/Portfolio/analysis")
@@ -26,16 +26,16 @@ public class PortfolioAnalysisRestController {
      * Example:
      * GET /beyond404/recommendation/1/portfolio
      */
+    // After
     @GetMapping("/{customerId}/portfolio")
-    public ResponseEntity<ArrayList<PortfolioData>> getCustomerPortfolio(
+    public ResponseEntity<List<PortfolioData>> getCustomerPortfolio(
             @PathVariable Long customerId) {
 
-        ArrayList<PortfolioData> portfolio =
-                portfolioAnalysisService.getCustomerPortfolio(customerId);
 
-        if (portfolio.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        List<PortfolioData> portfolio =
+                portfolioAnalysisService
+                        .getCustomerPortfolio(customerId);
+
 
         return ResponseEntity.ok(portfolio);
     }
