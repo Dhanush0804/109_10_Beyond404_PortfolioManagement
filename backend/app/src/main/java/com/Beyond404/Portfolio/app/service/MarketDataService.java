@@ -6,20 +6,13 @@ import com.Beyond404.Portfolio.app.model.FastApiCandleData;
 import com.Beyond404.Portfolio.app.model.FastApiMarketHistoryResponse;
 import com.Beyond404.Portfolio.app.model.FastApiQuoteResponse;
 import com.Beyond404.Portfolio.app.model.MarketSearchResponse;
-<<<<<<< HEAD
-import com.Beyond404.Portfolio.app.model.MarketQuote;
-=======
 import com.Beyond404.Portfolio.app.model.MarketSearchResult;
->>>>>>> 4e446b6398952d842838fcebb16f9d3f933b809f
+import com.Beyond404.Portfolio.app.model.MarketQuote;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-<<<<<<< HEAD
-=======
-import com.Beyond404.Portfolio.app.model.MarketQuote;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
->>>>>>> 4e446b6398952d842838fcebb16f9d3f933b809f
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
