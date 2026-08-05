@@ -10,6 +10,7 @@ import com.Beyond404.Portfolio.app.model.MarketSearchResult;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import com.Beyond404.Portfolio.app.model.MarketQuote;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -34,15 +35,160 @@ public class MarketDataService {
     @Value("${market.data.base-url:http://localhost:8000}")
     private String marketDataBaseUrl;
 
-    private final RestTemplate restTemplate = new RestTemplate();
 
+    private final RestTemplate restTemplate;
+
+    public MarketDataService(RestTemplate restTemplate){
+        this.restTemplate = restTemplate;
+    }
+
+
+
+    /**
+     * Search stock ticker/company symbols
+     *
+     * API:
+     * GET /api/v1/market/search
+     */
     public MarketSearchResponse searchSymbols(String companyName) {
+
+
         String url = UriComponentsBuilder
-                .fromUriString(marketDataBaseUrl + "/api/v1/market/search")
-                .queryParam("query", companyName)
+                .fromUriString(
+                        marketDataBaseUrl
+                                + "/api/v1/market/search"
+                )
+                .queryParam(
+                        "query",
+                        companyName
+                )
                 .toUriString();
 
-        return restTemplate.getForObject(url, MarketSearchResponse.class);
+
+        return restTemplate.getForObject(
+                url,
+                MarketSearchResponse.class
+        );
+    }
+
+
+
+
+    /**
+     * Get latest stock price and quote details
+     *
+     * API:
+     * GET /api/v1/market/quote
+     */
+    public MarketQuote getQuote(
+            String ticker,
+            String market) {
+
+
+        String url = UriComponentsBuilder
+                .fromUriString(
+                        marketDataBaseUrl
+                                + "/api/v1/market/quote"
+                )
+                .queryParam(
+                        "symbol",
+                        ticker
+                )
+                .toUriString();
+
+
+        return restTemplate.getForObject(
+                url,
+                MarketQuote.class
+        );
+    }
+
+
+
+
+
+    /**
+     * Get historical stock market data
+     *
+     * API:
+     * GET /api/v1/market/history
+     */
+    public Map<String,Object> getHistoricalData(
+            String ticker,
+            String market,
+            String startDate,
+            String endDate) {
+
+
+        String url = UriComponentsBuilder
+                .fromUriString(
+                        marketDataBaseUrl
+                                + "/api/v1/market/history"
+                )
+                .queryParam(
+                        "ticker",
+                        ticker
+                )
+                .queryParam(
+                        "market",
+                        market
+                )
+                .queryParam(
+                        "startDate",
+                        startDate
+                )
+                .queryParam(
+                        "endDate",
+                        endDate
+                )
+                .toUriString();
+
+
+
+        return restTemplate.getForObject(
+                url,
+                Map.class
+        );
+
+    }
+
+
+
+
+
+    /**
+     * Get recent candle data
+     *
+     * API:
+     * GET /api/v1/market/recent
+     */
+    public Map<String,Object> getRecentData(
+            String ticker,
+            String market) {
+
+
+        String url = UriComponentsBuilder
+                .fromUriString(
+                        marketDataBaseUrl
+                                + "/api/v1/market/recent"
+                )
+                .queryParam(
+                        "ticker",
+                        ticker
+                )
+                .queryParam(
+                        "market",
+                        market
+                )
+                .toUriString();
+
+
+
+        return restTemplate.getForObject(
+                url,
+                Map.class
+        );
+
     }
 
     public ChartDataResponse getChartData(String ticker, String range) {
@@ -74,7 +220,15 @@ public class MarketDataService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid input for ticker/range");
             }
             throw e;
-        } catch (RestClientException e) {
+        } catch (
+        
+        
+        
+        
+        
+        
+        
+        e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Market data server is unavailable");
         }
     }
