@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RiArrowUpLine, RiArrowDownLine } from 'react-icons/ri';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
@@ -21,8 +21,17 @@ export default function PortfolioOverviewTable() {
   const dispatch = useDispatch();
   const STOCKWISE_CURRENCY = 'INR';
   const { stockWise, loadingStockWise, chartRange } = useSelector((s) => s.analytics);
+  const { items: holdings } = useSelector((s) => s.assetHoldings);
   const { selectedStock } = useSelector((s) => s.stocks);
   const [filter, setFilter] = useState('All');
+
+  const holdingsByStockId = useMemo(() => {
+    const map = new Map();
+    holdings.forEach((item) => {
+      map.set(Number(item.stockId), Number(item.quantity ?? 0));
+    });
+    return map;
+  }, [holdings]);
 
   const filtered = stockWise.filter((s) => {
     if (filter === 'Gainers') return (s.pnl ?? 0) >= 0;
@@ -105,7 +114,7 @@ export default function PortfolioOverviewTable() {
             <table className="data-table">
               <thead>
                 <tr>
-                  {['Stock', 'Last Price', 'Change', 'P&L', 'Volume', '7D Trend'].map((h) => (
+                  {['Stock', 'Last Price', 'Change', 'P&L', 'Shares', '7D Trend'].map((h) => (
                     <th key={h}>
                       {h}
                     </th>
@@ -184,9 +193,9 @@ export default function PortfolioOverviewTable() {
                         {gain ? '+' : ''}{formatCurrency(stock.pnl, 2, STOCKWISE_CURRENCY)}
                       </td>
 
-                      {/* Volume */}
+                      {/* Shares */}
                       <td className="text-[12px]" style={{ color: 'var(--txt-secondary)' }}>
-                        {stock.volume ?? '—'}
+                        {(holdingsByStockId.get(Number(stock.stockId)) ?? 0).toLocaleString('en-US', { maximumFractionDigits: 4 })}
                       </td>
 
                       {/* Sparkline */}

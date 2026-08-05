@@ -4,6 +4,7 @@ import { loadAllUsers, setSelectedUser } from '../../store/slices/userSlice';
 import { loadAllStocks } from '../../store/slices/stocksSlice';
 import { loadInvestments } from '../../store/slices/investmentSlice';
 import { loadPortfolioSummary, loadStockWisePnL, loadChartData } from '../../store/slices/analyticsSlice';
+import { loadAssetHoldings } from '../../store/slices/assetHoldingsSlice';
 import { RiUserLine, RiArrowDownSLine, RiLoaderLine } from 'react-icons/ri';
 
 export default function UserSelector({ onSelected = null }) {
@@ -22,6 +23,7 @@ export default function UserSelector({ onSelected = null }) {
     dispatch(loadPortfolioSummary(id));
     dispatch(loadStockWisePnL(id));
     dispatch(loadChartData({ mode: 'portfolio', customerId: id, range: '1Y' }));
+    dispatch(loadAssetHoldings(id));
     onSelected?.(user);
   };
 

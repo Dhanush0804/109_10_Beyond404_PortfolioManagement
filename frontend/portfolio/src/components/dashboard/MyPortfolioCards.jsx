@@ -7,7 +7,7 @@ import { setSelectedStock } from '../../store/slices/stocksSlice';
 import { loadChartData, setChartMode } from '../../store/slices/analyticsSlice';
 import SectionLoader from '../common/SectionLoader';
 
-function StockChip({ stock, isActive, onClick }) {
+function StockChip({ stock, isActive, onClick, sharesHeld = 0 }) {
   const STOCKWISE_CURRENCY = 'INR';
   const current  = stock.currentPrice ?? stock.lastPrice ?? 0;
   const previous = stock.previousPrice ?? stock.prevPrice ?? 0;
@@ -58,6 +58,10 @@ function StockChip({ stock, isActive, onClick }) {
       <p className="text-[10px] font-medium truncate max-w-[132px]" style={{ color: 'var(--txt-secondary)' }}>
         {stock.companyName ?? '—'}
       </p>
+
+      <p className="text-[10px] font-semibold" style={{ color: 'var(--txt-muted)' }}>
+        Shares own: {Number(sharesHeld).toLocaleString('en-US', { maximumFractionDigits: 4 })}
+      </p>
     </button>
   );
 }
@@ -66,7 +70,16 @@ export default function MyPortfolioCards() {
   const dispatch                            = useDispatch();
   const navigate = useNavigate();
   const { stockWise, loadingStockWise, chartRange } = useSelector((s) => s.analytics);
+  const { items: holdings } = useSelector((s) => s.assetHoldings);
   const { selectedStock }                   = useSelector((s) => s.stocks);
+
+  const holdingsByStockId = useMemo(() => {
+    const map = new Map();
+    holdings.forEach((item) => {
+      map.set(Number(item.stockId), Number(item.quantity ?? 0));
+    });
+    return map;
+  }, [holdings]);
 
   // Dashboard should surface the most urgent movers by absolute return impact.
   const visible = useMemo(() => {
@@ -132,6 +145,7 @@ export default function MyPortfolioCards() {
                 key={stock.stockId}
                 stock={stock}
                 isActive={selectedStock?.stockId === stock.stockId}
+                sharesHeld={holdingsByStockId.get(Number(stock.stockId)) ?? 0}
                 onClick={() => handleStockClick(stock)}
               />
             ))}
