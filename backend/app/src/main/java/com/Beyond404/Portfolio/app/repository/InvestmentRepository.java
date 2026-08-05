@@ -30,6 +30,27 @@ public class InvestmentRepository {
         );
     }
 
+        public ArrayList<Investment> getInvestmentsByCustomer(Long customerId) {
+        return new ArrayList<>(
+            jdbcTemplate.query(
+                "SELECT asset_id, customer_id, stock_id, transaction_type, transaction_amount, quantity, transaction_timestamp FROM investments WHERE customer_id = ? ORDER BY transaction_timestamp DESC, asset_id DESC",
+                investmentRowMapper,
+                customerId
+            )
+        );
+        }
+
+        public ArrayList<Investment> getInvestmentsByCustomerAndStock(Long customerId, Long stockId) {
+        return new ArrayList<>(
+            jdbcTemplate.query(
+                "SELECT asset_id, customer_id, stock_id, transaction_type, transaction_amount, quantity, transaction_timestamp FROM investments WHERE customer_id = ? AND stock_id = ? ORDER BY transaction_timestamp DESC, asset_id DESC",
+                investmentRowMapper,
+                customerId,
+                stockId
+            )
+        );
+        }
+
     public Investment findById(Long id) {
         try {
             return jdbcTemplate.queryForObject(

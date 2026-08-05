@@ -19,7 +19,18 @@ public class InvestmentController {
     }
 
     @GetMapping
-    public ArrayList<Investment> getAllInvestments() {
+    public ArrayList<Investment> getInvestments(
+            @RequestParam(required = false) Long customerId,
+            @RequestParam(required = false) Long stockId) {
+
+        if (customerId != null && stockId != null) {
+            return investmentService.getInvestmentsByCustomerAndStock(customerId, stockId);
+        }
+
+        if (customerId != null) {
+            return investmentService.getInvestmentsByCustomer(customerId);
+        }
+
         return investmentService.getAllInvestments();
     }
 

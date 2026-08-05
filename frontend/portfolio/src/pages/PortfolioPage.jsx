@@ -14,10 +14,11 @@ import {
   RiShieldCheckLine,
 } from 'react-icons/ri';
 import SectionLoader from '../components/common/SectionLoader';
-import { formatCurrency, formatPercent } from '../utils/formatters';
+import { formatCurrency, formatDate, formatPercent } from '../utils/formatters';
 import { loadStockWisePnL } from '../store/slices/analyticsSlice';
 import { loadInvestments, placeDummyBuyOrder, placeDummySellOrder } from '../store/slices/investmentSlice';
 import { fetchStockAnalyticsDetails } from '../api/stocksApi';
+import { fetchInvestmentsByCustomerAndStock } from '../api/investmentApi';
 import MarketStockSearchPanel from '../components/portfolio/MarketStockSearchPanel';
 
 const INR = 'INR';
@@ -45,6 +46,7 @@ export default function PortfolioPage() {
   const [loadingSelectedDetails, setLoadingSelectedDetails] = useState(false);
   const [placingOrderType, setPlacingOrderType] = useState(null);
   const [orderConfirmDialog, setOrderConfirmDialog] = useState({ open: false, type: null });
+  const [historyDialog, setHistoryDialog] = useState({ open: false, loading: false, items: [], error: null });
   const [actionMessage, setActionMessage] = useState(null);
 
   useEffect(() => {
@@ -177,6 +179,28 @@ export default function PortfolioPage() {
   const closeOrderConfirmDialog = () => {
     if (placingOrderType) return;
     setOrderConfirmDialog({ open: false, type: null });
+  };
+
+  const closeHistoryDialog = () => {
+    setHistoryDialog({ open: false, loading: false, items: [], error: null });
+  };
+
+  const handleViewTransactionHistory = async () => {
+    if (!selectedUser?.customerId || !selectedStock?.stockId || selectedSource !== 'owned') return;
+
+    setHistoryDialog({ open: true, loading: true, items: [], error: null });
+
+    try {
+      const items = await fetchInvestmentsByCustomerAndStock(selectedUser.customerId, selectedStock.stockId);
+      setHistoryDialog({ open: true, loading: false, items, error: null });
+    } catch (error) {
+      setHistoryDialog({
+        open: true,
+        loading: false,
+        items: [],
+        error: error?.message ?? 'Unable to load transaction history.',
+      });
+    }
   };
 
   const handleOrder = async () => {
@@ -389,6 +413,20 @@ export default function PortfolioPage() {
                   </div>
 
                   <div className="flex items-center gap-3">
+                    {selectedSource === 'owned' ? (
+                      <button
+                        type="button"
+                        onClick={handleViewTransactionHistory}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
+                        style={{
+                          background: 'var(--bg-elevated)',
+                          border: '1px solid var(--border-soft)',
+                          color: 'var(--txt-primary)',
+                        }}
+                      >
+                        History
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       onClick={() => openOrderConfirmDialog('BUY')}
@@ -553,6 +591,99 @@ export default function PortfolioPage() {
                 Confirm {orderConfirmDialog.type}
               </button>
             </div>
+          </div>
+        </div>
+      ) : null}
+
+      {historyDialog.open ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'var(--bg-overlay)' }}>
+          <div className="w-full max-w-4xl rounded-3xl p-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)', boxShadow: 'var(--shadow-elevated)' }}>
+            <div className="flex items-start justify-between gap-3 mb-5">
+              <div>
+                <h3 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>
+                  Transaction History
+                </h3>
+                <p className="text-sm mt-1" style={{ color: 'var(--txt-secondary)' }}>
+                  {selectedStock?.ticker} transactions for {selectedUser?.customerName}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeHistoryDialog}
+                className="w-8 h-8 rounded-xl flex items-center justify-center"
+                style={{ color: 'var(--txt-muted)', border: '1px solid var(--border-subtle)', background: 'var(--bg-elevated)' }}
+              >
+                <RiCloseLine />
+              </button>
+            </div>
+
+            <SectionLoader loading={historyDialog.loading} minHeight={240}>
+              {historyDialog.error ? (
+                <div className="rounded-2xl px-4 py-10 text-center" style={{ background: 'var(--loss-bg)', border: '1px solid var(--loss-border)', color: 'var(--loss)' }}>
+                  {historyDialog.error}
+                </div>
+              ) : historyDialog.items.length === 0 ? (
+                <div className="rounded-2xl px-4 py-10 text-center" style={{ background: 'var(--bg-elevated)', border: '1px dashed var(--border-soft)' }}>
+                  <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>No transactions found for this stock.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+                    <thead>
+                      <tr>
+                        {['Asset ID', 'Type', 'Quantity', 'Amount', 'Date'].map((heading) => (
+                          <th
+                            key={heading}
+                            className="text-left pb-3 pr-5"
+                            style={{
+                              color: 'var(--txt-muted)',
+                              fontSize: 10,
+                              fontWeight: 700,
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.08em',
+                              borderBottom: '1px solid var(--border-subtle)',
+                            }}
+                          >
+                            {heading}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {historyDialog.items.map((item) => {
+                        const isBuy = item.transactionType === 'BUY';
+                        return (
+                          <tr key={item.assetId}>
+                            <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>
+                              #{item.assetId}
+                            </td>
+                            <td className="py-3 pr-5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                              <span
+                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold"
+                                style={isBuy
+                                  ? { background: 'var(--gain-bg)', color: 'var(--gain)', border: '1px solid var(--gain-border)' }
+                                  : { background: 'var(--loss-bg)', color: 'var(--loss)', border: '1px solid var(--loss-border)' }}
+                              >
+                                {item.transactionType}
+                              </span>
+                            </td>
+                            <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>
+                              {toNumber(item.quantity).toLocaleString('en-US')}
+                            </td>
+                            <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>
+                              {formatCurrency(toNumber(item.transactionAmount), 2, INR)}
+                            </td>
+                            <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
+                              {formatDate(item.transactionTimestamp)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </SectionLoader>
           </div>
         </div>
       ) : null}

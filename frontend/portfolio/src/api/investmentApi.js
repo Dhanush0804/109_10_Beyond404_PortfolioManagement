@@ -31,6 +31,18 @@ export const fetchAllInvestments = async () => {
   }
 };
 
+export const fetchInvestmentsByCustomerAndStock = async (customerId, stockId) => {
+  try {
+    const { data } = await axiosInstance.get('/api/investments', {
+      params: { customerId, stockId },
+    });
+    return Array.isArray(data) ? data : [];
+  } catch {
+    console.warn('fetchInvestmentsByCustomerAndStock → using dummy filtered data');
+    return buildDummyInvestments(customerId).filter((item) => Number(item.stockId) === Number(stockId));
+  }
+};
+
 export const placeDummyBuyOrder = async (payload) => {
   try {
     const { data } = await axiosInstance.post('/api/orders/dummy/buy', payload);

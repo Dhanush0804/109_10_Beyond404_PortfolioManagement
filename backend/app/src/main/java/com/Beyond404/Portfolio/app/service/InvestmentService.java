@@ -19,6 +19,14 @@ public class InvestmentService {
         return investmentRepository.getAllInvestments();
     }
 
+    public ArrayList<Investment> getInvestmentsByCustomer(Long customerId) {
+        return investmentRepository.getInvestmentsByCustomer(customerId);
+    }
+
+    public ArrayList<Investment> getInvestmentsByCustomerAndStock(Long customerId, Long stockId) {
+        return investmentRepository.getInvestmentsByCustomerAndStock(customerId, stockId);
+    }
+
     public Investment findById(Long id) {
         return investmentRepository.findById(id);
     }
