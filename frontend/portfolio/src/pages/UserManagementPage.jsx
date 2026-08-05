@@ -2,12 +2,15 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   RiAddLine,
+  RiAlertLine,
   RiCheckLine,
+  RiCloseLine,
+  RiDeleteBinLine,
   RiLoaderLine,
   RiShieldCheckLine,
   RiUserLine,
 } from 'react-icons/ri';
-import { addUser, clearUserCreateState, loadAllUsers, setSelectedUser } from '../store/slices/userSlice';
+import { addUser, clearUserCreateState, deleteUser, loadAllUsers, setSelectedUser } from '../store/slices/userSlice';
 
 const RISK_OPTIONS = ['High', 'Medium', 'Low'];
 
@@ -23,11 +26,19 @@ export default function UserManagementPage() {
     allUsers,
     loadingUsers,
     creatingUser,
+    deletingUser,
     createError,
+    deleteError,
     lastCreatedUserName,
+    lastDeletedUserName,
     selectedUser,
   } = useSelector((state) => state.user);
   const [form, setForm] = useState({ customerName: '', riskLevel: 'Medium' });
+  const [deleteDialog, setDeleteDialog] = useState({
+    open: false,
+    user: null,
+    confirmText: '',
+  });
 
   useEffect(() => {
     dispatch(loadAllUsers());
@@ -55,6 +66,44 @@ export default function UserManagementPage() {
       setForm({ customerName: '', riskLevel: 'Medium' });
     }
   };
+
+  const openDeleteDialog = (user) => {
+    setDeleteDialog({
+      open: true,
+      user,
+      confirmText: '',
+    });
+  };
+
+  const closeDeleteDialog = () => {
+    if (deletingUser) return;
+    setDeleteDialog({
+      open: false,
+      user: null,
+      confirmText: '',
+    });
+  };
+
+  const handleDeleteConfirm = async (event) => {
+    event.preventDefault();
+    if (!deleteDialog.user || deletingUser) return;
+
+    const typedName = deleteDialog.confirmText.trim();
+    if (typedName !== deleteDialog.user.customerName) return;
+
+    const result = await dispatch(deleteUser({
+      customerId: deleteDialog.user.customerId,
+      customerName: deleteDialog.user.customerName,
+    }));
+
+    if (deleteUser.fulfilled.match(result)) {
+      closeDeleteDialog();
+    }
+  };
+
+  const isDeleteNameMatch = deleteDialog.user
+    ? deleteDialog.confirmText.trim() === deleteDialog.user.customerName
+    : false;
 
   return (
     <div className="p-6 max-w-[1500px] mx-auto flex flex-col gap-6 anim-fade-in">
@@ -127,7 +176,7 @@ export default function UserManagementPage() {
               <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
                 <thead>
                   <tr>
-                    {['User', 'Customer ID', 'Risk Level', 'Status'].map((heading) => (
+                    {['User', 'Customer ID', 'Risk Level', 'Status', 'Actions'].map((heading) => (
                       <th
                         key={heading}
                         className="text-left pb-3 px-3"
@@ -198,6 +247,24 @@ export default function UserManagementPage() {
                           >
                             {isActive ? 'Active user' : 'Available'}
                           </span>
+                        </td>
+                        <td className="px-3 py-3.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              openDeleteDialog(user);
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-opacity hover:opacity-85"
+                            style={{
+                              color: 'var(--loss)',
+                              background: 'var(--loss-bg)',
+                              border: '1px solid var(--loss-border)',
+                            }}
+                          >
+                            <RiDeleteBinLine />
+                            Delete
+                          </button>
                         </td>
                       </tr>
                     );
@@ -273,6 +340,16 @@ export default function UserManagementPage() {
               </div>
             ) : null}
 
+            {lastDeletedUserName ? (
+              <div
+                className="rounded-2xl px-3 py-3 text-sm flex items-center gap-2"
+                style={{ background: 'var(--gain-bg)', color: 'var(--gain)', border: '1px solid var(--gain-border)' }}
+              >
+                <RiCheckLine />
+                {lastDeletedUserName} was deleted successfully.
+              </div>
+            ) : null}
+
             <button
               type="submit"
               disabled={creatingUser || !form.customerName.trim()}
@@ -285,6 +362,93 @@ export default function UserManagementPage() {
           </form>
         </section>
       </div>
+
+      {deleteDialog.open && deleteDialog.user ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'var(--bg-overlay)' }}
+        >
+          <div
+            className="w-full max-w-lg rounded-3xl p-6"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)', boxShadow: 'var(--shadow-elevated)' }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div
+                  className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
+                  style={{ color: 'var(--loss)', background: 'var(--loss-bg)', border: '1px solid var(--loss-border)' }}
+                >
+                  <RiAlertLine />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>
+                    Delete user confirmation
+                  </h3>
+                  <p className="text-sm mt-1" style={{ color: 'var(--txt-secondary)' }}>
+                    This action will permanently delete {deleteDialog.user.customerName} and related investments.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeDeleteDialog}
+                className="w-8 h-8 rounded-xl flex items-center justify-center"
+                style={{ color: 'var(--txt-muted)', border: '1px solid var(--border-subtle)', background: 'var(--bg-elevated)' }}
+                disabled={deletingUser}
+              >
+                <RiCloseLine />
+              </button>
+            </div>
+
+            <form className="mt-5 flex flex-col gap-4" onSubmit={handleDeleteConfirm}>
+              <p className="text-xs" style={{ color: 'var(--txt-secondary)' }}>
+                Type <span style={{ color: 'var(--txt-primary)', fontWeight: 700 }}>{deleteDialog.user.customerName}</span> to confirm deletion.
+              </p>
+
+              <input
+                value={deleteDialog.confirmText}
+                onChange={(event) => {
+                  setDeleteDialog((current) => ({ ...current, confirmText: event.target.value }));
+                }}
+                className="input px-3 py-3 text-sm rounded-xl"
+                placeholder="Type exact user name"
+                autoFocus
+              />
+
+              {deleteError ? (
+                <div
+                  className="rounded-2xl px-3 py-3 text-sm"
+                  style={{ background: 'var(--loss-bg)', color: 'var(--loss)', border: '1px solid var(--loss-border)' }}
+                >
+                  {deleteError}
+                </div>
+              ) : null}
+
+              <div className="flex items-center justify-end gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={closeDeleteDialog}
+                  className="px-4 py-2.5 rounded-xl text-sm font-semibold"
+                  style={{ color: 'var(--txt-secondary)', border: '1px solid var(--border-soft)', background: 'var(--bg-elevated)' }}
+                  disabled={deletingUser}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!isDeleteNameMatch || deletingUser}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-55 disabled:cursor-not-allowed"
+                  style={{ background: 'var(--loss)', boxShadow: 'var(--shadow-loss)' }}
+                >
+                  {deletingUser ? <RiLoaderLine className="animate-spin" /> : <RiDeleteBinLine />}
+                  {deletingUser ? 'Deleting...' : 'Confirm delete'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { createCustomer, fetchAllCustomers, fetchCustomerById } from '../../api/customerApi';
+import { createCustomer, deleteCustomer, fetchAllCustomers, fetchCustomerById } from '../../api/customerApi';
 
 export const loadAllUsers = createAsyncThunk('user/loadAll', async () => {
   return await fetchAllCustomers();
@@ -19,6 +19,22 @@ export const addUser = createAsyncThunk('user/add', async ({ customerName, riskL
   }
 });
 
+export const deleteUser = createAsyncThunk('user/delete', async ({ customerId, customerName }, { dispatch, getState, rejectWithValue }) => {
+  try {
+    await deleteCustomer(customerId);
+
+    const selectedUser = getState().user.selectedUser;
+    if (selectedUser?.customerId === customerId) {
+      dispatch(clearSelectedUser());
+    }
+
+    await dispatch(loadAllUsers()).unwrap();
+    return { customerId, customerName };
+  } catch (error) {
+    return rejectWithValue(error?.response?.data?.message ?? error?.message ?? 'Unable to delete user');
+  }
+});
+
 const userSlice = createSlice({
   name: 'user',
   initialState: {
@@ -28,15 +44,20 @@ const userSlice = createSlice({
     loadingProfile: false,
     error: null,
     creatingUser: false,
+    deletingUser: false,
     createError: null,
+    deleteError: null,
     lastCreatedUserName: null,
+    lastDeletedUserName: null,
   },
   reducers: {
     setSelectedUser(state, action) { state.selectedUser = action.payload; },
     clearSelectedUser(state)       { state.selectedUser = null; },
     clearUserCreateState(state) {
       state.createError = null;
+      state.deleteError = null;
       state.lastCreatedUserName = null;
+      state.lastDeletedUserName = null;
     },
   },
   extraReducers: (builder) => {
@@ -59,6 +80,19 @@ const userSlice = createSlice({
       .addCase(addUser.rejected, (s, a) => {
         s.creatingUser = false;
         s.createError = a.payload ?? a.error.message;
+      })
+      .addCase(deleteUser.pending, (s) => {
+        s.deletingUser = true;
+        s.deleteError = null;
+        s.lastDeletedUserName = null;
+      })
+      .addCase(deleteUser.fulfilled, (s, a) => {
+        s.deletingUser = false;
+        s.lastDeletedUserName = a.payload.customerName;
+      })
+      .addCase(deleteUser.rejected, (s, a) => {
+        s.deletingUser = false;
+        s.deleteError = a.payload ?? a.error.message;
       });
   },
 });

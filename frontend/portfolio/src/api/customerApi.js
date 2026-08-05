@@ -36,3 +36,8 @@ export const createCustomer = async ({ customerName, riskLevel }) => {
   const { data } = await axiosInstance.post('/api/customers/add', payload);
   return { data, payload };
 };
+
+export const deleteCustomer = async (customerId) => {
+  const { data } = await axiosInstance.delete(`/api/customers/delete/${customerId}`);
+  return data;
+};
