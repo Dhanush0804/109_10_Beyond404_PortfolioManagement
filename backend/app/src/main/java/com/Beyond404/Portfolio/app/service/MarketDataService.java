@@ -9,11 +9,18 @@ import com.Beyond404.Portfolio.app.model.MarketSearchResponse;
 
 import com.Beyond404.Portfolio.app.model.MarketQuote;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+
 import com.Beyond404.Portfolio.app.model.MarketSearchResult;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+//<<<<<<< HEAD
+//=======
+//
+//>>>>>>> cfacdff206a7956eb8e54a446ab672bec1be187d
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 
@@ -39,22 +46,16 @@ public class MarketDataService {
     @Value("${market.data.base-url:http://localhost:8000}")
     private String marketDataBaseUrl;
 
-
     @Value("${currency.api.base-url:https://api.frankfurter.app}")
     private String currencyApiBaseUrl;
 
-
     private final RestTemplate restTemplate;
 
-
-    public MarketDataService(RestTemplate restTemplate){
+    public MarketDataService(RestTemplate restTemplate) {
 
         this.restTemplate = restTemplate;
 
     }
-
-
-
 
     /**
      * Search stock ticker/company symbols
@@ -65,29 +66,19 @@ public class MarketDataService {
     public MarketSearchResponse searchSymbols(
             String companyName) {
 
-
         String url = UriComponentsBuilder
                 .fromUriString(
                         marketDataBaseUrl
-                                + "/api/v1/market/search"
-                )
+                                + "/api/v1/market/search")
                 .queryParam(
                         "query",
-                        companyName
-                )
+                        companyName)
                 .toUriString();
-
 
         return restTemplate.getForObject(
                 url,
-                MarketSearchResponse.class
-        );
+                MarketSearchResponse.class);
     }
-
-
-
-
-
 
     /**
      * Get latest stock price and quote details
@@ -99,30 +90,19 @@ public class MarketDataService {
             String ticker,
             String market) {
 
-
         String url = UriComponentsBuilder
                 .fromUriString(
                         marketDataBaseUrl
-                                + "/api/v1/market/quote"
-                )
+                                + "/api/v1/market/quote")
                 .queryParam(
                         "symbol",
-                        ticker
-                )
+                        ticker)
                 .toUriString();
-
 
         return restTemplate.getForObject(
                 url,
-                MarketQuote.class
-        );
+                MarketQuote.class);
     }
-
-
-
-
-
-
 
     /**
      * Convert foreign currency amount to INR
@@ -131,13 +111,21 @@ public class MarketDataService {
      *
      * 100 USD -> INR
      */
-    public double convertToINR(
+    /**
+     * Converts any currency amount into USD
+     *
+     * Example:
+     * EUR -> USD
+     * INR -> USD
+     * USD -> USD (no conversion)
+     */
+    public double convertToUSD(
             double amount,
             String currency) {
 
 
         if(currency == null ||
-                currency.equalsIgnoreCase("INR")) {
+                currency.equalsIgnoreCase("USD")) {
 
             return amount;
         }
@@ -157,7 +145,7 @@ public class MarketDataService {
                     )
                     .queryParam(
                             "to",
-                            "INR"
+                            "USD"
                     )
                     .toUriString();
 
@@ -178,7 +166,7 @@ public class MarketDataService {
 
             Double exchangeRate =
                     Double.valueOf(
-                            rates.get("INR")
+                            rates.get("USD")
                                     .toString()
                     );
 
@@ -188,13 +176,6 @@ public class MarketDataService {
                             + " conversion rate: "
                             + exchangeRate
             );
-
-
-            if(exchangeRate == null ||
-                    exchangeRate <= 0) {
-
-                return amount;
-            }
 
 
             double convertedAmount =
@@ -207,7 +188,7 @@ public class MarketDataService {
                             + currency
                             + " -> "
                             + convertedAmount
-                            + " INR"
+                            + " USD"
             );
 
 
@@ -235,39 +216,174 @@ public class MarketDataService {
      * API:
      * GET /api/v1/market/history
      */
-    public Map<String,Object> getHistoricalData(
+    public Map<String, Object> getHistoricalData(
             String ticker,
             String market,
             String startDate,
             String endDate) {
 
-
         String url = UriComponentsBuilder
                 .fromUriString(
                         marketDataBaseUrl
-                                + "/api/v1/market/history"
-                )
+                                + "/api/v1/market/history")
                 .queryParam(
                         "ticker",
-                        ticker
-                )
+                        ticker)
                 .queryParam(
                         "market",
-                        market
-                )
+                        market)
                 .queryParam(
                         "startDate",
-                        startDate
-                )
+                        startDate)
                 .queryParam(
                         "endDate",
-                        endDate
-                )
+                        endDate)
                 .toUriString();
 
         return restTemplate.getForObject(
                 url,
-                Map.class
+                Map.class);
+
+    }
+
+    /**
+     * Fetch historical closing price at transaction timestamp
+     *
+     * Used for calculating:
+     *
+     * Transaction Value =
+     * Quantity × Historical Price
+     */
+    public Double getHistoricalPrice(
+            String ticker,
+            String transactionTime) {
+
+
+        try {
+
+
+            String formattedTime =
+                    LocalDateTime
+                            .parse(transactionTime)
+                            .atOffset(
+                                    ZoneOffset.UTC
+                            )
+                            .toString();
+
+
+
+            String url =
+                    UriComponentsBuilder
+                            .fromUriString(
+                                    marketDataBaseUrl
+                                            + "/api/v1/market/history"
+                            )
+                            .queryParam(
+                                    "symbol",
+                                    ticker
+                            )
+                            .queryParam(
+                                    "interval",
+                                    "1d"
+                            )
+                            .queryParam(
+                                    "start",
+                                    formattedTime
+                            )
+                            .queryParam(
+                                    "end",
+                                    formattedTime
+                            )
+                            .queryParam(
+                                    "adjusted",
+                                    true
+                            )
+                            .toUriString();
+
+
+
+            Map response =
+                    restTemplate.getForObject(
+                            url,
+                            Map.class
+                    );
+
+
+            return extractHistoricalClosePrice(response);
+
+
+        }
+        catch(Exception e) {
+
+
+            System.out.println(
+                    "Failed to fetch historical price for "
+                            + ticker
+                            + " at "
+                            + transactionTime
+            );
+
+
+            return null;
+        }
+
+    }
+
+    private Double extractHistoricalClosePrice(
+            Map response) {
+
+
+        if(response == null) {
+
+            return null;
+
+        }
+
+
+        List<Map<String,Object>> candles =
+                (List<Map<String,Object>>)
+                        response.get(
+                                "data"
+                        );
+
+
+    /*
+       If your API returns "candles"
+       instead of "data", use:
+
+       response.get("candles")
+    */
+
+
+        if(candles == null ||
+                candles.isEmpty()) {
+
+            return null;
+
+        }
+
+
+
+        Map<String,Object> candle =
+                candles.get(0);
+
+
+
+        Object close =
+                candle.get(
+                        "close"
+                );
+
+
+        if(close == null) {
+
+            return null;
+
+        }
+
+
+        return Double.parseDouble(
+                close.toString()
         );
 
     }
@@ -278,7 +394,7 @@ public class MarketDataService {
      * API:
      * GET /api/v1/market/recent
      */
-    public Map<String,Object> getRecentData(
+    public Map<String, Object> getRecentData(
             String ticker,
             String market) {
 
@@ -286,20 +402,17 @@ public class MarketDataService {
                 .fromUriString(
                         marketDataBaseUrl
                                 + "/api/v1/market/recent")
-                                .queryParam(
-                                        "ticker",
-                                        ticker
-                                )
-                                .queryParam(
-                                        "market",
-                                        market
-                                )
-                                .toUriString();
+                .queryParam(
+                        "ticker",
+                        ticker)
+                .queryParam(
+                        "market",
+                        market)
+                .toUriString();
 
         return restTemplate.getForObject(
                 url,
-                Map.class
-        );
+                Map.class);
 
     }
 
@@ -424,8 +537,7 @@ public class MarketDataService {
                     candle.getTimestamp(),
                     formatDateLabel(candle.getTimestamp(), range),
                     candle.getClose(),
-                    candle.getVolume()
-            ));
+                    candle.getVolume()));
         }
 
         return points;

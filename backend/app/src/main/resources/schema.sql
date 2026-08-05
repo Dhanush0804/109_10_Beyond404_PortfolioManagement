@@ -66,3 +66,29 @@ CREATE TABLE IF NOT EXISTS investments
         REFERENCES stocks(stock_id)
         ON DELETE CASCADE
 );
+
+CREATE TABLE assets_holdings (
+
+    holding_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    customer_id BIGINT NOT NULL,
+
+    stock_id BIGINT NOT NULL,
+
+    quantity DOUBLE NOT NULL,
+
+
+    CONSTRAINT fk_asset_customer
+        FOREIGN KEY (customer_id)
+        REFERENCES customers(customer_id),
+
+
+    CONSTRAINT fk_asset_stock
+        FOREIGN KEY (stock_id)
+        REFERENCES stocks(stock_id),
+
+
+    CONSTRAINT unique_customer_stock_holding
+        UNIQUE(customer_id, stock_id)
+
+);

@@ -8,7 +8,8 @@ export default defineConfig({
     react(),
   ],
   server: {
-    port: 5173,
+    port: 5144,
+    strictPort: true,
     proxy: {
       '/api': { target: 'http://localhost:8080', changeOrigin: true },
       '/beyond404': { target: 'http://localhost:8080', changeOrigin: true },

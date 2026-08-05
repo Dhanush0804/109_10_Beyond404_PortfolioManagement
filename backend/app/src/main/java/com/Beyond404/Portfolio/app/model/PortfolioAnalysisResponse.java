@@ -10,6 +10,9 @@ public class PortfolioAnalysisResponse {
 
     private String riskLevel;
 
+    // Base currency for all monetary values
+    private String currency;
+
     private Double totalInvested;
 
     private Double totalSoldValue;
@@ -17,12 +20,7 @@ public class PortfolioAnalysisResponse {
     // Current value of all holdings using live market prices
     private Double currentPortfolioValue;
 
-    // Individual stock current prices
-    // Example:
-    // {
-    //   "AAPL": 225.5,
-    //   "ICICIBANK.NS": 1400
-    // }
+    // Individual stock current prices in base currency
     private Map<String, Double> currentStockPrices;
 
     private Double gainAmount;
@@ -47,43 +45,31 @@ public class PortfolioAnalysisResponse {
 
     private Map<String, Double> marketDistribution;
 
+
     public PortfolioAnalysisResponse() {
 
     }
+
 
     public PortfolioAnalysisResponse(
             Long customerId,
             String customerName,
             String riskLevel,
-
+            String currency,
             Double totalInvested,
-
             Double totalSoldValue,
-
             Double currentPortfolioValue,
-
             Map<String, Double> currentStockPrices,
-
             Double gainAmount,
-
             Double lossAmount,
-
             Double profitLoss,
-
             Double returnPercentage,
-
             Double currentHoldings,
-
             Integer totalTransactions,
-
             Integer buyTransactions,
-
             Integer sellTransactions,
-
             Integer uniqueStocks,
-
             Double averageInvestment,
-
             Map<String, Double> marketDistribution
     ) {
 
@@ -92,6 +78,8 @@ public class PortfolioAnalysisResponse {
         this.customerName = customerName;
 
         this.riskLevel = riskLevel;
+
+        this.currency = currency;
 
         this.totalInvested = totalInvested;
 
@@ -117,6 +105,8 @@ public class PortfolioAnalysisResponse {
 
         this.sellTransactions = sellTransactions;
 
+        this.sellTransactions = sellTransactions;
+
         this.uniqueStocks = uniqueStocks;
 
         this.averageInvestment = averageInvestment;
@@ -125,112 +115,99 @@ public class PortfolioAnalysisResponse {
 
     }
 
+
     public Long getCustomerId() {
-
         return customerId;
-
     }
+
 
     public String getCustomerName() {
-
         return customerName;
-
     }
+
 
     public String getRiskLevel() {
-
         return riskLevel;
-
     }
+
+
+    public String getCurrency() {
+        return currency;
+    }
+
 
     public Double getTotalInvested() {
-
         return totalInvested;
-
     }
+
 
     public Double getTotalSoldValue() {
-
         return totalSoldValue;
-
     }
+
 
     public Double getCurrentPortfolioValue() {
-
         return currentPortfolioValue;
-
     }
+
 
     public Map<String, Double> getCurrentStockPrices() {
-
         return currentStockPrices;
-
     }
+
 
     public Double getGainAmount() {
-
         return gainAmount;
-
     }
+
 
     public Double getLossAmount() {
-
         return lossAmount;
-
     }
+
 
     public Double getProfitLoss() {
-
         return profitLoss;
-
     }
+
 
     public Double getReturnPercentage() {
-
         return returnPercentage;
-
     }
+
 
     public Double getCurrentHoldings() {
-
         return currentHoldings;
-
     }
+
 
     public Integer getTotalTransactions() {
-
         return totalTransactions;
-
     }
+
 
     public Integer getBuyTransactions() {
-
         return buyTransactions;
-
     }
+
 
     public Integer getSellTransactions() {
-
         return sellTransactions;
-
     }
+
 
     public Integer getUniqueStocks() {
-
         return uniqueStocks;
-
     }
+
 
     public Double getAverageInvestment() {
-
         return averageInvestment;
-
     }
 
+
     public Map<String, Double> getMarketDistribution() {
-
         return marketDistribution;
-
     }
 
 }
