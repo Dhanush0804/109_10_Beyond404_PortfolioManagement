@@ -3,13 +3,13 @@ import mockChartData from '../data/mockChartData.json';
 
 /* ── Dummy: overall P&L stats ── */
 const buildDummySummary = () => ({
-  totalInvested: 210590.00,
-  currentValue:  228304.11,
-  totalProfit:    17714.11,
-  totalLoss:       5230.00,
-  netPnL:         17714.11,
-  returnPercent:    8.41,
-  totalPositions:    6,
+  totalInvested: 0.00,
+  currentValue:  0.00,
+  totalProfit:    0.00,
+  totalLoss:       0.00,
+  netPnL:         0.00,
+  returnPercent:    0.00,
+  totalPositions:    0,
 });
 
 /* ── Dummy: per-stock P&L ── */
@@ -56,10 +56,34 @@ const getMockStockChartData = (stockId, ticker, range = '1Y') => {
   }));
 };
 
+const toNumber = (value, fallback = 0) => {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+};
+
+const mapPortfolioSummary = (summary) => ({
+  customerId: summary?.customerId ?? null,
+  customerName: summary?.customerName ?? '',
+  riskLevel: summary?.riskLevel ?? 'MEDIUM',
+  totalInvested: toNumber(summary?.totalInvested),
+  currentValue: toNumber(summary?.currentPortfolioValue),
+  totalProfit: toNumber(summary?.gainAmount),
+  totalLoss: toNumber(summary?.lossAmount),
+  netPnL: toNumber(summary?.profitLoss),
+  returnPercent: toNumber(summary?.returnPercentage),
+  totalPositions: toNumber(summary?.currentHoldings),
+  totalTransactions: toNumber(summary?.totalTransactions),
+  buyTransactions: toNumber(summary?.buyTransactions),
+  sellTransactions: toNumber(summary?.sellTransactions),
+  uniqueStocks: toNumber(summary?.uniqueStocks),
+  averageInvestment: toNumber(summary?.averageInvestment),
+  marketDistribution: summary?.marketDistribution ?? {},
+});
+
 export const fetchPortfolioSummary = async (customerId) => {
   try {
-    const { data } = await axiosInstance.get('/api/analytics/summary', { params: { customerId } });
-    return data;
+    const { data } = await axiosInstance.get(`/beyond404/Portfolio/analysis/${customerId}/summary`);
+    return mapPortfolioSummary(data);
   } catch {
     console.warn('fetchPortfolioSummary → using dummy data');
     return buildDummySummary();

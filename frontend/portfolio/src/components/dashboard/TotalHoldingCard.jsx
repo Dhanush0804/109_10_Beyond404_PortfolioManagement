@@ -50,7 +50,7 @@ export default function TotalHoldingCard() {
               className="text-3xl font-extrabold tracking-tight anim-count"
               style={{ color: 'var(--txt-primary)' }}
             >
-              {formatCurrency(summary.currentValue)}
+              {formatCurrency(summary.totalPositions)}
             </p>
             <div className="flex items-center gap-2 mt-1.5">
               <span
