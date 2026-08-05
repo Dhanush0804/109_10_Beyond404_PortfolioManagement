@@ -1,6 +1,7 @@
 package com.Beyond404.Portfolio.app.controller;
 
 import com.Beyond404.Portfolio.app.model.Investment;
+import com.Beyond404.Portfolio.app.model.InvestmentPageResponse;
 import com.Beyond404.Portfolio.app.service.InvestmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,16 @@ public class InvestmentController {
         }
 
         return investmentService.getAllInvestments();
+    }
+
+    @GetMapping("/history")
+    public InvestmentPageResponse getInvestmentHistory(
+            @RequestParam Long customerId,
+            @RequestParam(required = false) Long stockId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size) {
+
+        return investmentService.getPaginatedInvestments(customerId, stockId, page, size);
     }
 
     @GetMapping("/{investmentId}")

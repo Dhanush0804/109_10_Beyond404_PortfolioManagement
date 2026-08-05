@@ -1,6 +1,7 @@
 package com.Beyond404.Portfolio.app.service;
 
 import com.Beyond404.Portfolio.app.model.Investment;
+import com.Beyond404.Portfolio.app.model.InvestmentPageResponse;
 import com.Beyond404.Portfolio.app.repository.InvestmentRepository;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,10 @@ public class InvestmentService {
 
     public ArrayList<Investment> getInvestmentsByCustomerAndStock(Long customerId, Long stockId) {
         return investmentRepository.getInvestmentsByCustomerAndStock(customerId, stockId);
+    }
+
+    public InvestmentPageResponse getPaginatedInvestments(Long customerId, Long stockId, int page, int size) {
+        return investmentRepository.getPaginatedInvestments(customerId, stockId, page, size);
     }
 
     public Investment findById(Long id) {

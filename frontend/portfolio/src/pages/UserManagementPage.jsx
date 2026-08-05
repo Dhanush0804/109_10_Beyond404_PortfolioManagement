@@ -10,6 +10,8 @@ import {
   RiShieldCheckLine,
   RiUserLine,
 } from 'react-icons/ri';
+import { formatCurrency, formatDate } from '../utils/formatters';
+import { fetchPaginatedInvestmentHistory } from '../api/investmentApi';
 import { addUser, clearUserCreateState, deleteUser, loadAllUsers, setSelectedUser } from '../store/slices/userSlice';
 
 const RISK_OPTIONS = ['High', 'Medium', 'Low'];
@@ -21,6 +23,7 @@ const RISK_STYLES = {
 };
 
 export default function UserManagementPage() {
+  const PAGE_SIZE = 25;
   const dispatch = useDispatch();
   const {
     allUsers,
@@ -34,6 +37,9 @@ export default function UserManagementPage() {
     selectedUser,
   } = useSelector((state) => state.user);
   const [form, setForm] = useState({ customerName: '', riskLevel: 'Medium' });
+  const [transactionPage, setTransactionPage] = useState(0);
+  const [userTransactions, setUserTransactions] = useState({ items: [], totalItems: 0, page: 0, size: PAGE_SIZE, totalPages: 0 });
+  const [loadingTransactions, setLoadingTransactions] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
     user: null,
@@ -47,6 +53,35 @@ export default function UserManagementPage() {
       dispatch(clearUserCreateState());
     };
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!selectedUser?.customerId) {
+      setUserTransactions({ items: [], totalItems: 0, page: 0, size: PAGE_SIZE, totalPages: 0 });
+      setTransactionPage(0);
+      return;
+    }
+
+    let isCancelled = false;
+    setLoadingTransactions(true);
+
+    fetchPaginatedInvestmentHistory({
+      customerId: selectedUser.customerId,
+      page: transactionPage,
+      size: PAGE_SIZE,
+    }).then((data) => {
+      if (!isCancelled) {
+        setUserTransactions(data);
+      }
+    }).finally(() => {
+      if (!isCancelled) {
+        setLoadingTransactions(false);
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedUser?.customerId, transactionPage]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -203,7 +238,10 @@ export default function UserManagementPage() {
                       <tr
                         key={user.customerId}
                         className="cursor-pointer transition-colors"
-                        onClick={() => dispatch(setSelectedUser(user))}
+                        onClick={() => {
+                          dispatch(setSelectedUser(user));
+                          setTransactionPage(0);
+                        }}
                         onMouseEnter={(event) => { event.currentTarget.style.background = 'var(--bg-elevated)'; }}
                         onMouseLeave={(event) => { event.currentTarget.style.background = isActive ? 'rgba(26,110,247,0.08)' : 'transparent'; }}
                         style={isActive ? { background: 'rgba(26,110,247,0.08)' } : undefined}
@@ -363,6 +401,90 @@ export default function UserManagementPage() {
         </section>
       </div>
 
+      <section
+        className="rounded-3xl p-5"
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-card)' }}
+      >
+        <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
+          <div>
+            <h2 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>User transactions</h2>
+            <p className="text-xs mt-1" style={{ color: 'var(--txt-secondary)' }}>
+              {selectedUser ? `Showing transactions for ${selectedUser.customerName}` : 'Select a user to view transaction history'}
+            </p>
+          </div>
+          {selectedUser ? (
+            <p className="text-xs font-semibold" style={{ color: 'var(--txt-muted)' }}>
+              Total: {userTransactions.totalItems}
+            </p>
+          ) : null}
+        </div>
+
+        <SectionLoader loading={loadingTransactions} minHeight={260}>
+          {!selectedUser ? (
+            <div className="rounded-2xl px-4 py-12 text-center" style={{ background: 'var(--bg-elevated)', border: '1px dashed var(--border-soft)' }}>
+              <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>Select a user to view all transactions.</p>
+            </div>
+          ) : userTransactions.items.length === 0 ? (
+            <div className="rounded-2xl px-4 py-12 text-center" style={{ background: 'var(--bg-elevated)', border: '1px dashed var(--border-soft)' }}>
+              <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>No transactions found for this user.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <div className="overflow-x-auto">
+                <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+                  <thead>
+                    <tr>
+                      {['Asset ID', 'Stock ID', 'Type', 'Quantity', 'Amount', 'Date'].map((heading) => (
+                        <th
+                          key={heading}
+                          className="text-left pb-3 px-3"
+                          style={{
+                            color: 'var(--txt-muted)',
+                            fontSize: 10,
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.08em',
+                            borderBottom: '1px solid var(--border-subtle)',
+                          }}
+                        >
+                          {heading}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {userTransactions.items.map((item) => {
+                      const isBuy = item.transactionType === 'BUY';
+                      return (
+                        <tr key={item.assetId}>
+                          <td className="px-3 py-3" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>#{item.assetId}</td>
+                          <td className="px-3 py-3" style={{ color: 'var(--txt-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>#{item.stockId}</td>
+                          <td className="px-3 py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold" style={isBuy ? { background: 'var(--gain-bg)', color: 'var(--gain)', border: '1px solid var(--gain-border)' } : { background: 'var(--loss-bg)', color: 'var(--loss)', border: '1px solid var(--loss-border)' }}>
+                              {item.transactionType}
+                            </span>
+                          </td>
+                          <td className="px-3 py-3" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>{Number(item.quantity ?? 0).toLocaleString('en-US')}</td>
+                          <td className="px-3 py-3" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>{formatCurrency(item.transactionAmount, 2, 'INR')}</td>
+                          <td className="px-3 py-3" style={{ color: 'var(--txt-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>{formatDate(item.transactionTimestamp)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <PaginationControls
+                page={userTransactions.page}
+                totalPages={userTransactions.totalPages}
+                onPrevious={() => setTransactionPage((current) => Math.max(current - 1, 0))}
+                onNext={() => setTransactionPage((current) => current + 1)}
+              />
+            </div>
+          )}
+        </SectionLoader>
+      </section>
+
       {deleteDialog.open && deleteDialog.user ? (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -449,6 +571,22 @@ export default function UserManagementPage() {
           </div>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function PaginationControls({ page, totalPages, onPrevious, onNext }) {
+  if (!totalPages || totalPages <= 1) return null;
+
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <p className="text-xs" style={{ color: 'var(--txt-muted)' }}>
+        Page {page + 1} of {totalPages}
+      </p>
+      <div className="flex items-center gap-2">
+        <button type="button" onClick={onPrevious} disabled={page <= 0} className="px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50" style={{ background: 'var(--bg-elevated)', color: 'var(--txt-primary)', border: '1px solid var(--border-subtle)' }}>Previous</button>
+        <button type="button" onClick={onNext} disabled={page + 1 >= totalPages} className="px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50" style={{ background: 'var(--bg-elevated)', color: 'var(--txt-primary)', border: '1px solid var(--border-subtle)' }}>Next</button>
+      </div>
     </div>
   );
 }

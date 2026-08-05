@@ -10,6 +10,23 @@ const buildDummyInvestments = (customerId) => [
   { assetId: 7,  customerId, stockId: 6, transactionType: 'BUY',  transactionAmount: 19840.00, transactionTimestamp: '2024-06-15T10:00:00' },
 ];
 
+const buildPaginatedResponse = (items, page, size) => {
+  const safePage = Number(page) || 0;
+  const safeSize = Number(size) || 25;
+  const totalItems = items.length;
+  const totalPages = totalItems === 0 ? 0 : Math.ceil(totalItems / safeSize);
+  const start = safePage * safeSize;
+  const pagedItems = items.slice(start, start + safeSize);
+
+  return {
+    items: pagedItems,
+    totalItems,
+    page: safePage,
+    size: safeSize,
+    totalPages,
+  };
+};
+
 export const fetchInvestmentsByCustomer = async (customerId) => {
   try {
     // PSEUDO endpoint – replace with real once available
@@ -40,6 +57,24 @@ export const fetchInvestmentsByCustomerAndStock = async (customerId, stockId) =>
   } catch {
     console.warn('fetchInvestmentsByCustomerAndStock → using dummy filtered data');
     return buildDummyInvestments(customerId).filter((item) => Number(item.stockId) === Number(stockId));
+  }
+};
+
+export const fetchPaginatedInvestmentHistory = async ({ customerId, stockId = null, page = 0, size = 25 }) => {
+  try {
+    const params = { customerId, page, size };
+    if (stockId !== null && stockId !== undefined) {
+      params.stockId = stockId;
+    }
+
+    const { data } = await axiosInstance.get('/api/investments/history', { params });
+    return data;
+  } catch {
+    console.warn('fetchPaginatedInvestmentHistory → using dummy paginated data');
+    const source = buildDummyInvestments(customerId)
+      .filter((item) => (stockId == null ? true : Number(item.stockId) === Number(stockId)))
+      .sort((left, right) => new Date(right.transactionTimestamp) - new Date(left.transactionTimestamp));
+    return buildPaginatedResponse(source, page, size);
   }
 };
 

@@ -18,7 +18,7 @@ import { formatCurrency, formatDate, formatPercent } from '../utils/formatters';
 import { loadStockWisePnL } from '../store/slices/analyticsSlice';
 import { loadInvestments, placeDummyBuyOrder, placeDummySellOrder } from '../store/slices/investmentSlice';
 import { fetchStockAnalyticsDetails } from '../api/stocksApi';
-import { fetchInvestmentsByCustomerAndStock } from '../api/investmentApi';
+import { fetchPaginatedInvestmentHistory } from '../api/investmentApi';
 import MarketStockSearchPanel from '../components/portfolio/MarketStockSearchPanel';
 
 const INR = 'INR';
@@ -35,6 +35,7 @@ const toNumber = (value) => {
 };
 
 export default function PortfolioPage() {
+  const PAGE_SIZE = 25;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { selectedUser } = useSelector((state) => state.user);
@@ -46,7 +47,10 @@ export default function PortfolioPage() {
   const [loadingSelectedDetails, setLoadingSelectedDetails] = useState(false);
   const [placingOrderType, setPlacingOrderType] = useState(null);
   const [orderConfirmDialog, setOrderConfirmDialog] = useState({ open: false, type: null });
-  const [historyDialog, setHistoryDialog] = useState({ open: false, loading: false, items: [], error: null });
+  const [historyPage, setHistoryPage] = useState(0);
+  const [stockHistory, setStockHistory] = useState({ items: [], totalItems: 0, page: 0, size: PAGE_SIZE, totalPages: 0 });
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [historyError, setHistoryError] = useState(null);
   const [actionMessage, setActionMessage] = useState(null);
 
   useEffect(() => {
@@ -55,6 +59,7 @@ export default function PortfolioPage() {
     dispatch(loadInvestments(selectedUser.customerId));
     setSelectedStock(null);
     setSelectedSource('owned');
+    setHistoryPage(0);
   }, [dispatch, selectedUser?.customerId]);
 
   const loadStockDetails = async (baseStock, source = 'owned') => {
@@ -95,6 +100,41 @@ export default function PortfolioPage() {
     if (!stockWise.length || selectedStock) return;
     loadStockDetails(stockWise[0], 'owned');
   }, [stockWise, selectedStock]);
+
+  useEffect(() => {
+    if (!selectedUser?.customerId || !selectedStock?.stockId || selectedSource !== 'owned') {
+      setStockHistory({ items: [], totalItems: 0, page: 0, size: PAGE_SIZE, totalPages: 0 });
+      setHistoryError(null);
+      return;
+    }
+
+    let isCancelled = false;
+    setLoadingHistory(true);
+    setHistoryError(null);
+
+    fetchPaginatedInvestmentHistory({
+      customerId: selectedUser.customerId,
+      stockId: selectedStock.stockId,
+      page: historyPage,
+      size: PAGE_SIZE,
+    }).then((data) => {
+      if (!isCancelled) {
+        setStockHistory(data);
+      }
+    }).catch((error) => {
+      if (!isCancelled) {
+        setHistoryError(error?.message ?? 'Unable to load transaction history.');
+      }
+    }).finally(() => {
+      if (!isCancelled) {
+        setLoadingHistory(false);
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedUser?.customerId, selectedStock?.stockId, selectedSource, historyPage]);
 
   const selectedStockTransactions = useMemo(() => {
     if (!selectedStock?.stockId) return [];
@@ -164,10 +204,12 @@ export default function PortfolioPage() {
   const riskStyle = RISK_STYLES[String(selectedUser?.riskLevel ?? 'MEDIUM').toUpperCase()] ?? RISK_STYLES.MEDIUM;
 
   const handleSelectOwnedStock = (stock) => {
+    setHistoryPage(0);
     loadStockDetails(stock, 'owned');
   };
 
   const handleSelectMarketStock = (stock) => {
+    setHistoryPage(0);
     loadStockDetails(stock, 'market');
   };
 
@@ -179,28 +221,6 @@ export default function PortfolioPage() {
   const closeOrderConfirmDialog = () => {
     if (placingOrderType) return;
     setOrderConfirmDialog({ open: false, type: null });
-  };
-
-  const closeHistoryDialog = () => {
-    setHistoryDialog({ open: false, loading: false, items: [], error: null });
-  };
-
-  const handleViewTransactionHistory = async () => {
-    if (!selectedUser?.customerId || !selectedStock?.stockId || selectedSource !== 'owned') return;
-
-    setHistoryDialog({ open: true, loading: true, items: [], error: null });
-
-    try {
-      const items = await fetchInvestmentsByCustomerAndStock(selectedUser.customerId, selectedStock.stockId);
-      setHistoryDialog({ open: true, loading: false, items, error: null });
-    } catch (error) {
-      setHistoryDialog({
-        open: true,
-        loading: false,
-        items: [],
-        error: error?.message ?? 'Unable to load transaction history.',
-      });
-    }
   };
 
   const handleOrder = async () => {
@@ -413,20 +433,6 @@ export default function PortfolioPage() {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    {selectedSource === 'owned' ? (
-                      <button
-                        type="button"
-                        onClick={handleViewTransactionHistory}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
-                        style={{
-                          background: 'var(--bg-elevated)',
-                          border: '1px solid var(--border-soft)',
-                          color: 'var(--txt-primary)',
-                        }}
-                      >
-                        History
-                      </button>
-                    ) : null}
                     <button
                       type="button"
                       onClick={() => openOrderConfirmDialog('BUY')}
@@ -533,6 +539,91 @@ export default function PortfolioPage() {
                     <Stat label="Net Invested" value={formatCurrency(positionSummary.netInvested, 2, INR)} />
                   </div>
                 </div>
+
+                {selectedSource === 'owned' ? (
+                  <div
+                    className="rounded-2xl p-4 min-h-[280px]"
+                    style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
+                  >
+                    <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--txt-muted)' }}>
+                          Investment History
+                        </p>
+                        <p className="text-sm mt-1" style={{ color: 'var(--txt-secondary)' }}>
+                          Paginated transactions for {selectedStock.ticker}
+                        </p>
+                      </div>
+                      <p className="text-xs font-semibold" style={{ color: 'var(--txt-muted)' }}>
+                        Total: {stockHistory.totalItems}
+                      </p>
+                    </div>
+
+                    <SectionLoader loading={loadingHistory} minHeight={220}>
+                      {historyError ? (
+                        <div className="rounded-2xl px-4 py-10 text-center" style={{ background: 'var(--loss-bg)', border: '1px solid var(--loss-border)', color: 'var(--loss)' }}>
+                          {historyError}
+                        </div>
+                      ) : stockHistory.items.length === 0 ? (
+                        <div className="rounded-2xl px-4 py-10 text-center" style={{ background: 'var(--bg-card)', border: '1px dashed var(--border-soft)' }}>
+                          <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>No transactions found for this stock.</p>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-4">
+                          <div className="overflow-x-auto">
+                            <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+                              <thead>
+                                <tr>
+                                  {['Asset ID', 'Type', 'Quantity', 'Amount', 'Date'].map((heading) => (
+                                    <th
+                                      key={heading}
+                                      className="text-left pb-3 pr-5"
+                                      style={{
+                                        color: 'var(--txt-muted)',
+                                        fontSize: 10,
+                                        fontWeight: 700,
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.08em',
+                                        borderBottom: '1px solid var(--border-subtle)',
+                                      }}
+                                    >
+                                      {heading}
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {stockHistory.items.map((item) => {
+                                  const isBuy = item.transactionType === 'BUY';
+                                  return (
+                                    <tr key={item.assetId}>
+                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>#{item.assetId}</td>
+                                      <td className="py-3 pr-5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold" style={isBuy ? { background: 'var(--gain-bg)', color: 'var(--gain)', border: '1px solid var(--gain-border)' } : { background: 'var(--loss-bg)', color: 'var(--loss)', border: '1px solid var(--loss-border)' }}>
+                                          {item.transactionType}
+                                        </span>
+                                      </td>
+                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>{Number(item.quantity ?? 0).toLocaleString('en-US')}</td>
+                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>{formatCurrency(item.transactionAmount, 2, INR)}</td>
+                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>{formatDate(item.transactionTimestamp)}</td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+
+                          <PaginationControls
+                            page={stockHistory.page}
+                            totalPages={stockHistory.totalPages}
+                            onPrevious={() => setHistoryPage((current) => Math.max(current - 1, 0))}
+                            onNext={() => setHistoryPage((current) => current + 1)}
+                          />
+                        </div>
+                      )}
+                    </SectionLoader>
+                  </div>
+                ) : null}
               </div>
             )}
           </SectionLoader>
@@ -595,98 +686,6 @@ export default function PortfolioPage() {
         </div>
       ) : null}
 
-      {historyDialog.open ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'var(--bg-overlay)' }}>
-          <div className="w-full max-w-4xl rounded-3xl p-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)', boxShadow: 'var(--shadow-elevated)' }}>
-            <div className="flex items-start justify-between gap-3 mb-5">
-              <div>
-                <h3 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>
-                  Transaction History
-                </h3>
-                <p className="text-sm mt-1" style={{ color: 'var(--txt-secondary)' }}>
-                  {selectedStock?.ticker} transactions for {selectedUser?.customerName}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={closeHistoryDialog}
-                className="w-8 h-8 rounded-xl flex items-center justify-center"
-                style={{ color: 'var(--txt-muted)', border: '1px solid var(--border-subtle)', background: 'var(--bg-elevated)' }}
-              >
-                <RiCloseLine />
-              </button>
-            </div>
-
-            <SectionLoader loading={historyDialog.loading} minHeight={240}>
-              {historyDialog.error ? (
-                <div className="rounded-2xl px-4 py-10 text-center" style={{ background: 'var(--loss-bg)', border: '1px solid var(--loss-border)', color: 'var(--loss)' }}>
-                  {historyDialog.error}
-                </div>
-              ) : historyDialog.items.length === 0 ? (
-                <div className="rounded-2xl px-4 py-10 text-center" style={{ background: 'var(--bg-elevated)', border: '1px dashed var(--border-soft)' }}>
-                  <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>No transactions found for this stock.</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
-                    <thead>
-                      <tr>
-                        {['Asset ID', 'Type', 'Quantity', 'Amount', 'Date'].map((heading) => (
-                          <th
-                            key={heading}
-                            className="text-left pb-3 pr-5"
-                            style={{
-                              color: 'var(--txt-muted)',
-                              fontSize: 10,
-                              fontWeight: 700,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.08em',
-                              borderBottom: '1px solid var(--border-subtle)',
-                            }}
-                          >
-                            {heading}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {historyDialog.items.map((item) => {
-                        const isBuy = item.transactionType === 'BUY';
-                        return (
-                          <tr key={item.assetId}>
-                            <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>
-                              #{item.assetId}
-                            </td>
-                            <td className="py-3 pr-5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                              <span
-                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold"
-                                style={isBuy
-                                  ? { background: 'var(--gain-bg)', color: 'var(--gain)', border: '1px solid var(--gain-border)' }
-                                  : { background: 'var(--loss-bg)', color: 'var(--loss)', border: '1px solid var(--loss-border)' }}
-                              >
-                                {item.transactionType}
-                              </span>
-                            </td>
-                            <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>
-                              {toNumber(item.quantity).toLocaleString('en-US')}
-                            </td>
-                            <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>
-                              {formatCurrency(toNumber(item.transactionAmount), 2, INR)}
-                            </td>
-                            <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
-                              {formatDate(item.transactionTimestamp)}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </SectionLoader>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -703,6 +702,22 @@ function Stat({ label, value }) {
       <p className="text-sm font-bold mt-1" style={{ color: 'var(--txt-primary)' }}>
         {value}
       </p>
+    </div>
+  );
+}
+
+function PaginationControls({ page, totalPages, onPrevious, onNext }) {
+  if (!totalPages || totalPages <= 1) return null;
+
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <p className="text-xs" style={{ color: 'var(--txt-muted)' }}>
+        Page {page + 1} of {totalPages}
+      </p>
+      <div className="flex items-center gap-2">
+        <button type="button" onClick={onPrevious} disabled={page <= 0} className="px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50" style={{ background: 'var(--bg-card)', color: 'var(--txt-primary)', border: '1px solid var(--border-subtle)' }}>Previous</button>
+        <button type="button" onClick={onNext} disabled={page + 1 >= totalPages} className="px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50" style={{ background: 'var(--bg-card)', color: 'var(--txt-primary)', border: '1px solid var(--border-subtle)' }}>Next</button>
+      </div>
     </div>
   );
 }
