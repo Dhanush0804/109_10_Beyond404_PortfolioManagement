@@ -28,6 +28,13 @@ public class CustomerRepository {
                 rs.getString("risk_lvl")
         ));
     }
+
+    public boolean existsById(Long id) {
+        String sql = "SELECT COUNT(*) FROM customers WHERE customer_id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, id);
+        return count != null && count > 0;
+    }
+
     public int addCustomer(Customer customer) {
         String sql = "INSERT INTO customers (name, risk_lvl) VALUES (?, ?)";
         return jdbcTemplate.update(sql, customer.getCustomerName(), customer.getRiskLevel());
