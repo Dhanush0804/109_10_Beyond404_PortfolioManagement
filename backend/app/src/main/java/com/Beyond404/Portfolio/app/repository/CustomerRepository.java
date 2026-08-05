@@ -4,6 +4,7 @@ import com.Beyond404.Portfolio.app.model.Customer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -36,8 +37,12 @@ public class CustomerRepository {
         return jdbcTemplate.update(sql, customer.getCustomerName(), customer.getRiskLevel(), id);
     }
 
+    @Transactional
     public Integer deleteCustomer(Integer id) {
-        String sql = "DELETE FROM customers WHERE customer_id = ?";
-        return jdbcTemplate.update(sql, id);
+        String deleteInvestmentsSql = "DELETE FROM investments WHERE customer_id = ?";
+        jdbcTemplate.update(deleteInvestmentsSql, id);
+
+        String deleteCustomerSql = "DELETE FROM customers WHERE customer_id = ?";
+        return jdbcTemplate.update(deleteCustomerSql, id);
     }
 }
