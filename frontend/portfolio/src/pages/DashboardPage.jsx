@@ -9,31 +9,36 @@ export default function DashboardPage() {
   const { selectedUser } = useSelector((s) => s.user);
 
   return (
-    <div className="p-6 flex flex-col gap-6 anim-fade-in max-w-[1600px] mx-auto">
+    <div className="page-container anim-fade-in" style={{ maxWidth: 1600, margin: '0 auto' }}>
 
       {/* ── Page header ── */}
-      <div className="flex items-center justify-between gap-4 mb-2">
-        <div>
-          <h1 className="text-lg font-semibold" style={{ color: 'var(--txt-primary)' }}>
-            {selectedUser ? (
-              <>Good day, <span style={{ color: 'var(--accent)' }}>{selectedUser.customerName.split(' ')[0]}</span> 👋</>
-            ) : (
-              'Portfolio Dashboard'
-            )}
-          </h1>
-          <p className="text-xs mt-1" style={{ color: 'var(--txt-secondary)' }}>
-            {selectedUser
-              ? 'Here\'s a live overview of your stock portfolio'
-              : 'Use the top-right user menu to select a user and load portfolio data'}
-          </p>
-        </div>
+      <div style={{ marginBottom: 4 }}>
+        <h1 className="text-lg font-semibold" style={{ color: 'var(--txt-primary)' }}>
+          {selectedUser ? (
+            <>Good day, <span style={{ color: 'var(--accent)' }}>{selectedUser.customerName.split(' ')[0]}</span> 👋</>
+          ) : (
+            'Portfolio Dashboard'
+          )}
+        </h1>
+        <p className="text-xs" style={{ color: 'var(--txt-secondary)', marginTop: 4 }}>
+          {selectedUser
+            ? 'Here\'s a live overview of your stock portfolio'
+            : 'Use the top-right user menu to select a user and load portfolio data'}
+        </p>
       </div>
 
       {/* ── Stats bar ── */}
       <StatsSummaryBar />
 
       {/* ── Holdings + Portfolio cards ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-5">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(280px, 320px) 1fr',
+          gap: 20,
+          alignItems: 'stretch',
+        }}
+      >
         <TotalHoldingCard />
         <MyPortfolioCards />
       </div>

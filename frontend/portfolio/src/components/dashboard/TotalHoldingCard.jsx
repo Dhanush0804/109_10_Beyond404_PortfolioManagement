@@ -13,8 +13,9 @@ export default function TotalHoldingCard() {
     <SectionLoader loading={loadingSummary} minHeight={180}>
       {summary ? (
         <div
-          className="rounded-xl p-5 flex flex-col gap-3 anim-slide-up relative overflow-hidden"
+          className="rounded-2xl anim-slide-up relative overflow-hidden"
           style={{
+            padding: '20px 24px',
             background: 'linear-gradient(145deg, var(--bg-card) 0%, var(--bg-card-hover) 100%)',
             border: '1px solid var(--border-subtle)',
             boxShadow: 'var(--shadow-card)',
@@ -30,7 +31,7 @@ export default function TotalHoldingCard() {
           />
 
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
             <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'var(--txt-muted)' }}>
               Total Holding
             </p>
@@ -47,7 +48,7 @@ export default function TotalHoldingCard() {
           </div>
 
           {/* Big value */}
-          <div>
+          <div style={{ marginBottom: 16 }}>
             <p
               className="text-3xl font-extrabold tracking-tight anim-count"
               style={{ color: 'var(--txt-primary)' }}
@@ -74,8 +75,13 @@ export default function TotalHoldingCard() {
 
           {/* Stats row */}
           <div
-            className="grid grid-cols-3 gap-4 pt-4"
-            style={{ borderTop: '1px solid var(--border-subtle)' }}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: 16,
+              paddingTop: 16,
+              borderTop: '1px solid var(--border-subtle)',
+            }}
           >
             {[
               { label: 'Invested',  val: formatCurrency(summary.totalInvested, 2, SUMMARY_CURRENCY), color: 'var(--txt-primary)' },
@@ -93,8 +99,10 @@ export default function TotalHoldingCard() {
         </div>
       ) : (
         <div
-          className="rounded-xl p-5 flex flex-col items-center justify-center min-h-[160px] gap-2"
+          className="rounded-2xl flex flex-col items-center justify-center gap-2"
           style={{
+            padding: '20px 24px',
+            minHeight: 180,
             background: 'var(--bg-card)',
             border: '1px solid var(--border-subtle)',
           }}

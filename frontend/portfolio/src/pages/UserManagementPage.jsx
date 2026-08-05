@@ -142,19 +142,8 @@ export default function UserManagementPage() {
     : false;
 
   return (
-    <div className="p-6 max-w-[1500px] mx-auto flex flex-col gap-6 anim-fade-in">
-      <section
-        className="relative overflow-hidden rounded-3xl px-6 py-7"
-        style={{
-          background: 'linear-gradient(135deg, rgba(26,110,247,0.18) 0%, rgba(10,13,20,0.96) 56%, rgba(0,212,138,0.1) 100%)',
-          border: '1px solid var(--border-soft)',
-          boxShadow: 'var(--shadow-elevated)',
-        }}
-      >
-        <div
-          className="absolute inset-y-0 right-0 w-64 pointer-events-none"
-          style={{ background: 'radial-gradient(circle at center, rgba(26,110,247,0.24), transparent 70%)' }}
-        />
+    <div className="page-container anim-fade-in" style={{ maxWidth: 1500, margin: '0 auto' }}>
+      <section className="hero-section">
         <div className="relative flex items-start justify-between gap-5 flex-wrap">
           <div>
             <p className="text-[11px] uppercase tracking-[0.24em] font-bold" style={{ color: 'var(--accent-light)' }}>
@@ -185,11 +174,15 @@ export default function UserManagementPage() {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_420px] gap-6 items-start">
-        <section
-          className="rounded-3xl p-5"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-card)' }}
-        >
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1.25fr minmax(320px, 420px)',
+          gap: 24,
+          alignItems: 'start',
+        }}
+      >
+        <section className="card p-5">
           <div className="flex items-center justify-between gap-4 mb-5">
             <div>
               <h2 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>Current users</h2>
@@ -209,22 +202,11 @@ export default function UserManagementPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+              <table className="data-table">
                 <thead>
                   <tr>
                     {['User', 'Customer ID', 'Risk Level', 'Status', 'Actions'].map((heading) => (
-                      <th
-                        key={heading}
-                        className="text-left pb-3 px-3"
-                        style={{
-                          color: 'var(--txt-muted)',
-                          fontSize: 10,
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.08em',
-                          borderBottom: '1px solid var(--border-subtle)',
-                        }}
-                      >
+                      <th key={heading}>
                         {heading}
                       </th>
                     ))}
@@ -314,10 +296,7 @@ export default function UserManagementPage() {
           )}
         </section>
 
-        <section
-          className="rounded-3xl p-5 sticky top-[calc(var(--topbar-height)+24px)]"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-card)' }}
-        >
+        <section className="card p-5 sticky top-[calc(var(--topbar-height)+24px)]">
           <div className="flex items-center gap-3 mb-5">
             <div
               className="w-11 h-11 rounded-2xl flex items-center justify-center"
@@ -402,10 +381,7 @@ export default function UserManagementPage() {
         </section>
       </div>
 
-      <section
-        className="rounded-3xl p-5"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-card)' }}
-      >
+      <section className="card p-5">
         <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
           <div>
             <h2 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>User transactions</h2>
@@ -432,22 +408,11 @@ export default function UserManagementPage() {
           ) : (
             <div className="flex flex-col gap-4">
               <div className="overflow-x-auto">
-                <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+                <table className="data-table">
                   <thead>
                     <tr>
                       {['Asset ID', 'Stock ID', 'Type', 'Quantity', 'Amount', 'Date'].map((heading) => (
-                        <th
-                          key={heading}
-                          className="text-left pb-3 px-3"
-                          style={{
-                            color: 'var(--txt-muted)',
-                            fontSize: 10,
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.08em',
-                            borderBottom: '1px solid var(--border-subtle)',
-                          }}
-                        >
+                        <th key={heading}>
                           {heading}
                         </th>
                       ))}

@@ -38,15 +38,16 @@ export default function PortfolioOverviewTable() {
 
   return (
     <div
-      className="rounded-xl p-5"
+      className="rounded-2xl"
       style={{
+        padding: '20px 24px',
         background: 'var(--bg-card)',
         border: '1px solid var(--border-subtle)',
         boxShadow: 'var(--shadow-card)',
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+      <div className="flex items-center justify-between flex-wrap gap-3" style={{ marginBottom: 20 }}>
         <div>
           <p className="text-sm font-bold" style={{ color: 'var(--txt-primary)' }}>Portfolio Overview</p>
           <p className="text-[11px] mt-0.5" style={{ color: 'var(--txt-secondary)' }}>
@@ -90,22 +91,11 @@ export default function PortfolioOverviewTable() {
           </div>
         ) : (
           <div className="overflow-x-auto" style={{ scrollbarWidth: 'thin' }}>
-            <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+            <table className="data-table">
               <thead>
                 <tr>
                   {['Stock', 'Last Price', 'Change', 'P&L', 'Volume', '7D Trend'].map((h) => (
-                    <th
-                      key={h}
-                      className="text-left pb-3 pr-5 whitespace-nowrap"
-                      style={{
-                        color: 'var(--txt-muted)',
-                        fontSize: 10,
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.08em',
-                        borderBottom: '1px solid var(--border-subtle)',
-                      }}
-                    >
+                    <th key={h}>
                       {h}
                     </th>
                   ))}
@@ -125,17 +115,10 @@ export default function PortfolioOverviewTable() {
                       className="cursor-pointer transition-all duration-150"
                       style={{
                         background: isSelected ? 'var(--accent-glow)' : 'transparent',
-                        animationDelay: `${idx * 40}ms`,
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isSelected) e.currentTarget.style.background = 'var(--bg-elevated)';
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isSelected) e.currentTarget.style.background = 'transparent';
                       }}
                     >
                       {/* Stock */}
-                      <td className="py-2.5 pr-5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <td className="py-3 pr-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                         <div className="flex items-center gap-3">
                           <div
                             className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
@@ -167,14 +150,14 @@ export default function PortfolioOverviewTable() {
 
                       {/* Last price */}
                       <td
-                        className="py-2.5 pr-5 text-[11px] font-semibold"
+                        className="py-3 pr-4 text-[12px] font-semibold"
                         style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}
                       >
                         {formatCurrency(stock.lastPrice ?? stock.currentValue ?? 0, 2, STOCKWISE_CURRENCY)}
                       </td>
 
                       {/* Change % */}
-                      <td className="py-2.5 pr-5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <td className="py-3 pr-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                         <span
                           className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded"
                           style={{
@@ -190,7 +173,7 @@ export default function PortfolioOverviewTable() {
 
                       {/* P&L */}
                       <td
-                        className="py-2.5 pr-5 text-[11px] font-semibold"
+                        className="py-3 pr-4 text-[12px] font-semibold"
                         style={{ color: gain ? 'var(--gain)' : 'var(--loss)', borderBottom: '1px solid var(--border-subtle)' }}
                       >
                         {gain ? '+' : ''}{formatCurrency(stock.pnl, 2, STOCKWISE_CURRENCY)}
@@ -198,14 +181,14 @@ export default function PortfolioOverviewTable() {
 
                       {/* Volume */}
                       <td
-                        className="py-2.5 pr-5 text-[11px]"
+                        className="py-3 pr-4 text-[12px]"
                         style={{ color: 'var(--txt-secondary)', borderBottom: '1px solid var(--border-subtle)' }}
                       >
                         {stock.volume ?? '—'}
                       </td>
 
                       {/* Sparkline */}
-                      <td className="py-2.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <td className="py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                         <div className="w-20 h-7">
                           <Sparklines data={sparkData} min={0}>
                             <SparklinesLine

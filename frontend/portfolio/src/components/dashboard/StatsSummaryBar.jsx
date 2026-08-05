@@ -55,7 +55,7 @@ export default function StatsSummaryBar() {
           <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>Select a user to view statistics</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
           {STAT_CONFIGS.map((cfg, i) => {
             const raw  = summary[cfg.key] ?? 0;
             const val  = cfg.format === 'percent' ? formatPercent(raw) : formatCurrency(raw, 2, SUMMARY_CURRENCY);
@@ -78,15 +78,16 @@ export default function StatsSummaryBar() {
             return (
               <div
                 key={cfg.key}
-                className="rounded-xl p-4 flex flex-col gap-2 anim-slide-up transition-all duration-200 hover:scale-[1.02]"
+                className="rounded-2xl anim-slide-up transition-all duration-200 hover:scale-[1.02]"
                 style={{
+                  padding: '16px 20px',
                   background: 'var(--bg-card)',
                   border: '1px solid var(--border-subtle)',
                   boxShadow: 'var(--shadow-card)',
                   animationDelay: `${i * 60}ms`,
                 }}
               >
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
                   <p
                     className="text-[9px] font-bold uppercase tracking-widest"
                     style={{ color: 'var(--txt-muted)' }}

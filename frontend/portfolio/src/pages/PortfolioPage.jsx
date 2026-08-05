@@ -160,14 +160,9 @@ export default function PortfolioPage() {
 
   if (!selectedUser?.customerId) {
     return (
-      <div className="min-h-[calc(100vh-var(--topbar-height))] flex items-center justify-center p-6 anim-fade-in">
+      <div className="page-container flex items-center justify-center anim-fade-in" style={{ minHeight: 'calc(100vh - var(--topbar-height))' }}>
         <div
-          className="w-full max-w-md rounded-3xl p-6"
-          style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-soft)',
-            boxShadow: 'var(--shadow-elevated)',
-          }}
+          className="card w-full max-w-md p-6"
         >
           <div className="flex items-start gap-3">
             <div
@@ -261,19 +256,8 @@ export default function PortfolioPage() {
   };
 
   return (
-    <div className="p-6 max-w-[1500px] mx-auto flex flex-col gap-6 anim-fade-in">
-      <section
-        className="relative overflow-hidden rounded-3xl px-6 py-7"
-        style={{
-          background: 'linear-gradient(135deg, rgba(26,110,247,0.18) 0%, rgba(10,13,20,0.96) 56%, rgba(0,212,138,0.1) 100%)',
-          border: '1px solid var(--border-soft)',
-          boxShadow: 'var(--shadow-elevated)',
-        }}
-      >
-        <div
-          className="absolute inset-y-0 right-0 w-64 pointer-events-none"
-          style={{ background: 'radial-gradient(circle at center, rgba(26,110,247,0.24), transparent 70%)' }}
-        />
+    <div className="page-container anim-fade-in" style={{ maxWidth: 1500, margin: '0 auto' }}>
+      <section className="hero-section">
 
         <div className="relative flex items-start justify-between gap-5 flex-wrap">
           <div>
@@ -320,17 +304,21 @@ export default function PortfolioPage() {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-6 items-start">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(320px, 420px) 1fr',
+          gap: 24,
+          alignItems: 'start',
+        }}
+      >
         <div className="flex flex-col gap-6">
           <MarketStockSearchPanel
             onSelectStock={handleSelectMarketStock}
             disabled={!selectedUser || loadingSelectedDetails || placingOrderType !== null}
           />
 
-          <section
-            className="rounded-3xl p-5"
-            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-card)' }}
-          >
+          <section className="card p-5">
             <div className="flex items-center justify-between gap-3 mb-5">
               <div>
                 <h2 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>Owned stocks</h2>
@@ -409,10 +397,7 @@ export default function PortfolioPage() {
           </section>
         </div>
 
-        <section
-          className="rounded-3xl p-5"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-card)' }}
-        >
+        <section className="card p-5">
           <SectionLoader loading={loadingInvestments} minHeight={420}>
             {!selectedStock ? (
               <div
@@ -571,22 +556,11 @@ export default function PortfolioPage() {
                       ) : (
                         <div className="flex flex-col gap-4">
                           <div className="overflow-x-auto">
-                            <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+                            <table className="data-table">
                               <thead>
                                 <tr>
                                   {['Asset ID', 'Type', 'Quantity', 'Amount', 'Date'].map((heading) => (
-                                    <th
-                                      key={heading}
-                                      className="text-left pb-3 pr-5"
-                                      style={{
-                                        color: 'var(--txt-muted)',
-                                        fontSize: 10,
-                                        fontWeight: 700,
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.08em',
-                                        borderBottom: '1px solid var(--border-subtle)',
-                                      }}
-                                    >
+                                    <th key={heading}>
                                       {heading}
                                     </th>
                                   ))}
@@ -597,15 +571,15 @@ export default function PortfolioPage() {
                                   const isBuy = item.transactionType === 'BUY';
                                   return (
                                     <tr key={item.assetId}>
-                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>#{item.assetId}</td>
-                                      <td className="py-3 pr-5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)' }}>#{item.assetId}</td>
+                                      <td className="py-3 pr-5">
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold" style={isBuy ? { background: 'var(--gain-bg)', color: 'var(--gain)', border: '1px solid var(--gain-border)' } : { background: 'var(--loss-bg)', color: 'var(--loss)', border: '1px solid var(--loss-border)' }}>
                                           {item.transactionType}
                                         </span>
                                       </td>
-                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>{Number(item.quantity ?? 0).toLocaleString('en-US')}</td>
-                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>{formatCurrency(item.transactionAmount, 2, INR)}</td>
-                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>{formatDate(item.transactionTimestamp)}</td>
+                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)' }}>{Number(item.quantity ?? 0).toLocaleString('en-US')}</td>
+                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)' }}>{formatCurrency(item.transactionAmount, 2, INR)}</td>
+                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-secondary)' }}>{formatDate(item.transactionTimestamp)}</td>
                                     </tr>
                                   );
                                 })}

@@ -74,14 +74,15 @@ export default function MyPortfolioCards() {
 
   return (
     <div
-      className="rounded-xl p-5"
+      className="rounded-2xl"
       style={{
+        padding: '20px 24px',
         background: 'var(--bg-card)',
         border: '1px solid var(--border-subtle)',
         boxShadow: 'var(--shadow-card)',
       }}
     >
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between" style={{ marginBottom: 16 }}>
         <div>
           <p className="text-sm font-bold" style={{ color: 'var(--txt-primary)' }}>My Portfolio</p>
           <p className="text-[10px] mt-0.5" style={{ color: 'var(--txt-secondary)' }}>
@@ -106,7 +107,7 @@ export default function MyPortfolioCards() {
             <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>Select a user to view portfolio</p>
           </div>
         ) : (
-          <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: 'thin' }}>
+          <div className="flex gap-3 overflow-x-auto" style={{ paddingBottom: 4, scrollbarWidth: 'thin' }}>
             {visible.map((stock) => (
               <StockChip
                 key={stock.stockId}

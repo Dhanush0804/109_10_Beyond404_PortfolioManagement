@@ -18,7 +18,7 @@ export default function App() {
 
       {/* Scrollable page content */}
       <main
-        className="min-h-screen pb-12"
+        className="app-main pb-12"
         style={{
           marginLeft: 'var(--sidebar-width)',
           paddingTop: 'var(--topbar-height)',

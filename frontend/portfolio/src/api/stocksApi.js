@@ -1,158 +1,139 @@
 import axiosInstance from './axiosInstance';
 
-const DUMMY_STOCKS = [
-  { stockId: 1, companyName: 'Apple Inc.',      ticker: 'AAPL', sector: 'Technology',   currentPrice: 189.50, previousPrice: 182.30 },
-  { stockId: 2, companyName: 'Tesla Inc.',       ticker: 'TSLA', sector: 'Automotive',   currentPrice: 248.20, previousPrice: 259.80 },
-  { stockId: 3, companyName: 'Microsoft Corp.',  ticker: 'MSFT', sector: 'Technology',   currentPrice: 415.60, previousPrice: 398.10 },
-  { stockId: 4, companyName: 'Google LLC',       ticker: 'GOOG', sector: 'Technology',   currentPrice: 178.90, previousPrice: 171.40 },
-  { stockId: 5, companyName: 'NVIDIA Corp.',     ticker: 'NVDA', sector: 'Semiconductors', currentPrice: 875.30, previousPrice: 820.00 },
-  { stockId: 6, companyName: 'Amazon.com Inc.',  ticker: 'AMZN', sector: 'E-Commerce',   currentPrice: 198.40, previousPrice: 205.60 },
-];
+const toNumber = (value, fallback = 0) => {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+};
 
-const DUMMY_MARKET_RESULTS = [
-  { symbol: 'NVDA', name: 'NVIDIA Corporation', exchange: 'NMS', type: 'Equity', exchange_display: 'NASDAQ' },
-  { symbol: 'AAPL', name: 'Apple Inc.', exchange: 'NMS', type: 'Equity', exchange_display: 'NASDAQ' },
-  { symbol: 'MSFT', name: 'Microsoft Corporation', exchange: 'NMS', type: 'Equity', exchange_display: 'NASDAQ' },
-  { symbol: 'TSLA', name: 'Tesla, Inc.', exchange: 'NMS', type: 'Equity', exchange_display: 'NASDAQ' },
-  { symbol: 'TCS.NS', name: 'Tata Consultancy Services Limited', exchange: 'NSE', type: 'Equity', exchange_display: 'NSE' },
-];
+const normalizeTicker = (ticker) => String(ticker ?? '').trim().toUpperCase();
 
-const mapMarketResult = (result) => ({
-  ticker: result?.symbol ?? result?.ticker ?? '',
-  companyName: result?.name ?? result?.companyName ?? '',
-  exchange: result?.exchange ?? '',
-  type: result?.type ?? '',
-  exchangeDisplay: result?.exchange_display ?? result?.exchangeDisplay ?? '',
+const mapStockEntity = (stock) => ({
+  stockId: stock?.stockId ?? stock?.id ?? null,
+  ticker: normalizeTicker(stock?.ticker ?? stock?.symbol),
+  companyName: stock?.companyName ?? stock?.name ?? '',
+  exchange: stock?.market ?? stock?.exchange ?? '',
+  exchangeDisplay: stock?.exchangeDisplay ?? stock?.exchange_display ?? stock?.market ?? '',
 });
 
 export const fetchAllStocks = async () => {
   try {
     const { data } = await axiosInstance.get('/beyond404/stocks/all');
-    return data;
+    if (!Array.isArray(data)) return [];
+    return data.map(mapStockEntity).filter((item) => item.ticker);
   } catch {
-    console.warn('fetchAllStocks → using dummy data');
-    return DUMMY_STOCKS;
-  }
-};
-
-export const fetchStockById = async (id) => {
-  try {
-    const { data } = await axiosInstance.get(`/beyond404/stocks/${id}`);
-    return data;
-  } catch {
-    console.warn('fetchStockById → using dummy data');
-    return DUMMY_STOCKS.find((s) => s.stockId === Number(id)) ?? DUMMY_STOCKS[0];
-  }
-};
-
-export const fetchStocksBySector = async (sector) => {
-  try {
-    const { data } = await axiosInstance.get('/beyond404/stocks/sector', { params: { sector } });
-    return data;
-  } catch {
-    console.warn('fetchStocksBySector → using dummy data');
-    return DUMMY_STOCKS.filter((s) => s.sector === sector);
-  }
-};
-
-export const searchStocksByTickerQuery = async (query) => {
-  const q = String(query ?? '').trim();
-  if (!q) return [];
-
-  try {
-    const { data } = await axiosInstance.get('/api/stocks/dummy/search', { params: { q } });
-    return Array.isArray(data) ? data : [];
-  } catch {
-    console.warn('searchStocksByTickerQuery → using dummy search data');
-    const normalized = q.toUpperCase();
-    return DUMMY_STOCKS
-      .filter((stock) =>
-        stock.ticker.toUpperCase().includes(normalized)
-        || stock.companyName.toUpperCase().includes(normalized)
-      )
-      .map((stock) => ({
-        stockId: stock.stockId,
-        ticker: stock.ticker,
-        companyName: stock.companyName,
-      }));
-  }
-};
-
-export const fetchStockAnalyticsDetails = async ({ ticker, customerId, source = 'owned' }) => {
-  try {
-    if (source === 'market') {
-      const { data } = await axiosInstance.get(`/api/market/${ticker}/quote`);
-      return {
-        customerId,
-        ticker: data?.symbol ?? ticker,
-        companyName: ticker,
-        currentValue: Number(data?.price ?? 0),
-        lastPrice: Number(data?.price ?? 0),
-        prevPrice: Number(data?.previous_close ?? 0),
-        pnl: Number(data?.change ?? 0),
-        pnlPercent: Number(data?.percent_change ?? 0),
-        volume: data?.volume ? `${(Number(data.volume) / 1_000_000).toFixed(1)}M` : '—',
-        marketCap: '',
-      };
-    }
-
-    const { data } = await axiosInstance.get(`/api/chart-data/${ticker}`, { params: { range: '1d' } });
-    const latestPoint = Array.isArray(data?.ranges?.['1D']) && data.ranges['1D'].length > 0
-      ? data.ranges['1D'][data.ranges['1D'].length - 1]
-      : null;
-
-    const previousPoint = Array.isArray(data?.ranges?.['1D']) && data.ranges['1D'].length > 1
-      ? data.ranges['1D'][data.ranges['1D'].length - 2]
-      : null;
-
-    const currentPrice = Number(latestPoint?.price ?? data?.currentPrice ?? 0);
-    const prevPrice = Number(previousPoint?.price ?? data?.previousClose ?? 0);
-
-    return {
-      customerId,
-      ticker: data?.tickerId ?? ticker,
-      companyName: data?.companyName ?? ticker,
-      currentValue: currentPrice,
-      lastPrice: currentPrice,
-      prevPrice,
-      volume: latestPoint?.volume ? `${(Number(latestPoint.volume) / 1_000_000).toFixed(1)}M` : '—',
-      marketCap: '',
-    };
-  } catch {
-    console.warn('fetchStockAnalyticsDetails → using dummy stock details');
-    const stock = DUMMY_STOCKS.find((s) => s.ticker.toUpperCase() === String(ticker).toUpperCase()) ?? DUMMY_STOCKS[0];
-    return {
-      customerId,
-      stockId: stock.stockId,
-      ticker: stock.ticker,
-      companyName: stock.companyName,
-      currentValue: stock.currentPrice,
-      lastPrice: stock.currentPrice,
-      prevPrice: stock.previousPrice,
-      volume: '—',
-      marketCap: '',
-    };
+    console.warn('fetchAllStocks -> returning empty fallback');
+    return [];
   }
 };
 
 export const searchMarketByCompanyName = async (companyName) => {
-  const query = String(companyName ?? '').trim();
-  if (!query) return [];
+  const trimmed = String(companyName ?? '').trim();
+  if (!trimmed) return [];
 
   try {
     const { data } = await axiosInstance.get('/api/market/search', {
-      params: { companyName: query },
+      params: { companyName: trimmed },
     });
+
     const results = Array.isArray(data?.results) ? data.results : [];
-    return results.map(mapMarketResult).filter((item) => item.ticker);
+    return results.map((item) => ({
+      stockId: null,
+      ticker: normalizeTicker(item?.symbol),
+      companyName: item?.name ?? '',
+      exchange: item?.exchange ?? '',
+      exchangeDisplay: item?.exchangeDisplay ?? item?.exchange_display ?? item?.exchange ?? '',
+      type: item?.type ?? '',
+    })).filter((item) => item.ticker);
   } catch {
-    console.warn('searchMarketByCompanyName → using dummy search data');
-    const normalized = query.toUpperCase();
-    return DUMMY_MARKET_RESULTS
-      .filter((item) =>
-        item.symbol.toUpperCase().includes(normalized)
-        || item.name.toUpperCase().includes(normalized)
-      )
-      .map(mapMarketResult);
+    console.warn('searchMarketByCompanyName -> returning empty fallback');
+    return [];
   }
+};
+
+const fetchStockWiseEntry = async (customerId, ticker) => {
+  if (!customerId || !ticker) return null;
+
+  try {
+    const { data } = await axiosInstance.get('/api/portfolio-analytics/stock-wise', {
+      params: { customerId },
+    });
+
+    if (!Array.isArray(data)) return null;
+
+    const normalizedTicker = normalizeTicker(ticker);
+    const stock = data.find((item) => normalizeTicker(item?.ticker) === normalizedTicker);
+    if (!stock) return null;
+
+    return {
+      stockId: stock?.stockId ?? null,
+      ticker: normalizeTicker(stock?.ticker),
+      companyName: stock?.companyName ?? '',
+      invested: toNumber(stock?.invested),
+      currentValue: toNumber(stock?.currentValue),
+      pnl: toNumber(stock?.pnl),
+      pnlPercent: toNumber(stock?.pnlPercent),
+      lastPrice: toNumber(stock?.lastPrice),
+      prevPrice: toNumber(stock?.prevPrice),
+      volume: toNumber(stock?.volume, null),
+      marketCap: stock?.marketCap ?? null,
+    };
+  } catch {
+    return null;
+  }
+};
+
+const fetchQuote = async (ticker) => {
+  const normalizedTicker = normalizeTicker(ticker);
+  if (!normalizedTicker) return null;
+
+  try {
+    const { data } = await axiosInstance.get(`/api/market/${encodeURIComponent(normalizedTicker)}/quote`);
+
+    return {
+      ticker: normalizedTicker,
+      lastPrice: toNumber(data?.price),
+      prevPrice: toNumber(data?.previousClose ?? data?.previous_close),
+      change: toNumber(data?.change),
+      changePercent: toNumber(data?.percentChange ?? data?.percent_change),
+      open: toNumber(data?.open),
+      high: toNumber(data?.high),
+      low: toNumber(data?.low),
+      volume: toNumber(data?.volume, null),
+      currency: data?.currency ?? 'INR',
+      timestamp: data?.timestamp ?? null,
+    };
+  } catch {
+    return null;
+  }
+};
+
+export const fetchStockAnalyticsDetails = async ({ ticker, customerId, source = 'owned' } = {}) => {
+  const normalizedTicker = normalizeTicker(ticker);
+  if (!normalizedTicker) return {};
+
+  const [stockWise, quote] = await Promise.all([
+    source === 'owned' ? fetchStockWiseEntry(customerId, normalizedTicker) : Promise.resolve(null),
+    fetchQuote(normalizedTicker),
+  ]);
+
+  return {
+    stockId: stockWise?.stockId ?? null,
+    ticker: normalizedTicker,
+    companyName: stockWise?.companyName ?? normalizedTicker,
+    invested: toNumber(stockWise?.invested),
+    currentValue: toNumber(stockWise?.currentValue),
+    pnl: toNumber(stockWise?.pnl),
+    pnlPercent: toNumber(stockWise?.pnlPercent),
+    lastPrice: toNumber(quote?.lastPrice ?? stockWise?.lastPrice),
+    prevPrice: toNumber(quote?.prevPrice ?? stockWise?.prevPrice),
+    change: toNumber(quote?.change),
+    changePercent: toNumber(quote?.changePercent),
+    open: toNumber(quote?.open),
+    high: toNumber(quote?.high),
+    low: toNumber(quote?.low),
+    volume: quote?.volume ?? stockWise?.volume ?? null,
+    marketCap: stockWise?.marketCap ?? null,
+    currency: quote?.currency ?? 'INR',
+    timestamp: quote?.timestamp ?? null,
+  };
 };

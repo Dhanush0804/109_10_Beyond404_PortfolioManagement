@@ -83,15 +83,16 @@ export default function PortfolioChart() {
 
   return (
     <div
-      className="rounded-xl p-5"
+      className="rounded-2xl"
       style={{
+        padding: '20px 24px',
         background: 'var(--bg-card)',
         border: '1px solid var(--border-subtle)',
         boxShadow: 'var(--shadow-card)',
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+      <div className="flex items-center justify-between flex-wrap gap-3" style={{ marginBottom: 20 }}>
         <div className="flex flex-col gap-1">
           {chartMode === 'stock' && selectedStock && (
             <button
