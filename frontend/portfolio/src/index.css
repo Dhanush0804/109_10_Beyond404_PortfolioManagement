@@ -1,0 +1,186 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────
+   DARK THEME (default)
+───────────────────────────────────────────── */
+:root {
+  --bg-canvas:      #06080c;
+  --bg-surface:     #0a0d14;
+  --bg-card:        #0f131a;
+  --bg-card-hover:  #141923;
+  --bg-elevated:    #181e2a;
+  --bg-input:       #0a0d14;
+  --bg-overlay:     rgba(6, 8, 12, 0.85);
+
+  --border-subtle:  rgba(255, 255, 255, 0.04);
+  --border-soft:    rgba(255, 255, 255, 0.08);
+  --border-active:  rgba(26, 110, 247, 0.40);
+
+  --accent:         #1a6ef7;
+  --accent-light:   #4a90ff;
+  --accent-glow:    rgba(26, 110, 247, 0.15);
+
+  --gain:           #00d48a;
+  --gain-bg:        rgba(0, 212, 138, 0.12);
+  --gain-border:    rgba(0, 212, 138, 0.22);
+
+  --loss:           #ff475e;
+  --loss-bg:        rgba(255, 71, 94, 0.12);
+  --loss-border:    rgba(255, 71, 94, 0.22);
+
+  --warn:           #eab308;
+  --warn-bg:        rgba(234, 179, 8, 0.12);
+
+  --txt-primary:    #f3f4f6;
+  --txt-secondary:  #9ca3af;
+  --txt-muted:      #6b7280;
+  --txt-placeholder:#6b7280;
+
+  --sidebar-width:  220px;
+  --topbar-height:  56px;
+
+  --shadow-card:    0 2px 4px rgba(0,0,0,0.4), 0 8px 16px rgba(0,0,0,0.3);
+  --shadow-elevated:0 8px 24px rgba(0,0,0,0.5);
+  --shadow-accent:  0 4px 16px rgba(26,110,247,0.3);
+  --shadow-gain:    0 4px 16px rgba(0,212,138,0.2);
+  --shadow-loss:    0 4px 16px rgba(255,71,94,0.2);
+}
+
+/* ─────────────────────────────────────────────
+   LIGHT THEME
+───────────────────────────────────────────── */
+html.light {
+  --bg-canvas:      #f4f5f7;
+  --bg-surface:     #ffffff;
+  --bg-card:        #ffffff;
+  --bg-card-hover:  #f8fafc;
+  --bg-elevated:    #f1f5f9;
+  --bg-input:       #f8fafc;
+  --bg-overlay:     rgba(244, 245, 247, 0.9);
+
+  --border-subtle:  rgba(0, 0, 0, 0.05);
+  --border-soft:    rgba(0, 0, 0, 0.08);
+  --border-active:  rgba(26, 110, 247, 0.40);
+
+  --accent:         #1a6ef7;
+  --accent-light:   #3b82f6;
+  --accent-glow:    rgba(26, 110, 247, 0.10);
+
+  --gain:           #059669;
+  --gain-bg:        rgba(5, 150, 105, 0.10);
+  --gain-border:    rgba(5, 150, 105, 0.20);
+
+  --loss:           #dc2626;
+  --loss-bg:        rgba(220, 38, 38, 0.10);
+  --loss-border:    rgba(220, 38, 38, 0.20);
+
+  --warn:           #d97706;
+  --warn-bg:        rgba(217, 119, 6, 0.10);
+
+  --txt-primary:    #111827;
+  --txt-secondary:  #4b5563;
+  --txt-muted:      #9ca3af;
+  --txt-placeholder:#9ca3af;
+
+  --shadow-card:    0 1px 2px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05);
+  --shadow-elevated:0 4px 12px rgba(0,0,0,0.08);
+  --shadow-accent:  0 4px 12px rgba(26,110,247,0.2);
+  --shadow-gain:    0 4px 12px rgba(5,150,105,0.15);
+  --shadow-loss:    0 4px 12px rgba(220,38,38,0.15);
+}
+
+/* ─────────────────────────────────────────────
+   BASE RESET
+───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 14px; } /* Smaller base font size */
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg-canvas);
+  color: var(--txt-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.2s ease, color 0.2s ease;
+  line-height: 1.4;
+}
+
+#root { display: flex; min-height: 100vh; }
+
+/* ─────────────────────────────────────────────
+   SCROLLBAR
+───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-soft); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ─────────────────────────────────────────────
+   ANIMATIONS
+───────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  0%   { background-position: -800px 0; }
+  100% { background-position:  800px 0; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.anim-slide-up  { animation: fadeSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.anim-fade-in   { animation: fadeIn 0.2s ease both; }
+.anim-count     { animation: count-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* ─────────────────────────────────────────────
+   UTILITIES
+───────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-card-hover) 50%, var(--bg-elevated) 75%);
+  background-size: 1600px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+.spinner {
+  width: 24px; height: 24px;
+  border: 2px solid var(--accent-glow);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+.input {
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: var(--txt-primary);
+  border-radius: 6px;
+  transition: all 0.2s;
+  outline: none;
+}
+.input:focus {
+  border-color: var(--border-active);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+.input::placeholder { color: var(--txt-placeholder); }
+
+select option {
+  background: var(--bg-elevated);
+  color: var(--txt-primary);
+}
+
+.recharts-tooltip-wrapper { outline: none !important; }
+.recharts-surface { overflow: visible; }
