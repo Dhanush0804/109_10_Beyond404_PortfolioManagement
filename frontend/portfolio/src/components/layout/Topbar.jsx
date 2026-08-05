@@ -46,7 +46,7 @@ export default function Topbar() {
         className="flex items-center gap-0.5 px-1.5 py-1 rounded-xl"
         style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
       >
-        {['Market', 'Wallets', 'Tools'].map((tab) => (
+        {['Wallets', 'Tools'].map((tab) => (
           <button
             key={tab}
             className="px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 hover:opacity-100"

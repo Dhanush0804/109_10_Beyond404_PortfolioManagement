@@ -10,6 +10,7 @@ import {
   RiShieldCheckLine,
   RiUserLine,
 } from 'react-icons/ri';
+import SectionLoader from '../components/common/SectionLoader';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { fetchPaginatedInvestmentHistory } from '../api/investmentApi';
 import { addUser, clearUserCreateState, deleteUser, loadAllUsers, setSelectedUser } from '../store/slices/userSlice';

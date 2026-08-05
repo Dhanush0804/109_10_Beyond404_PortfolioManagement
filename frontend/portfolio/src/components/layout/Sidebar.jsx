@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import {
-  RiDashboardLine, RiLineChartLine, RiBarChartBoxLine, RiStockLine,
+  RiDashboardLine, RiLineChartLine, RiBarChartBoxLine,
   RiTeamLine, RiCustomerService2Line, RiShieldLine, RiUserLine,
 } from 'react-icons/ri';
 import { TbChartDonut4 } from 'react-icons/tb';
@@ -9,7 +9,6 @@ const MAIN_NAV = [
   { to: '/',          icon: RiDashboardLine,      label: 'Dashboard'  },
   { to: '/portfolio', icon: RiLineChartLine,       label: 'Portfolio'  },
   { to: '/analysis',  icon: RiBarChartBoxLine,     label: 'Analysis'   },
-  { to: '/market',    icon: RiStockLine,            label: 'Market'     },
   { to: '/users',     icon: RiUserLine,             label: 'User Management' },
 ];
 

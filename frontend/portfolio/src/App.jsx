@@ -31,7 +31,6 @@ export default function App() {
           <Route path="/users"    element={<UserManagementPage />} />
           <Route path="/portfolio" element={<PortfolioPage />} />
           <Route path="/analysis"  element={<ComingSoon label="Analysis" />} />
-          <Route path="/market"    element={<ComingSoon label="Market" />} />
           <Route path="/community" element={<ComingSoon label="Community" />} />
           <Route path="/help"      element={<ComingSoon label="Help & Support" />} />
         </Routes>
