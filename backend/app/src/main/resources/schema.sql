@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS investments
         ON DELETE CASCADE
 );
 
-CREATE TABLE assets_holdings (
+CREATE TABLE IF NOT EXISTS assets_holdings (
 
     holding_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
