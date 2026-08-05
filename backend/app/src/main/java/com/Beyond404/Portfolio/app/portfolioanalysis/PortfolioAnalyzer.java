@@ -1,4 +1,4 @@
-package com.Beyond404.Portfolio.app.recommendation;
+package com.Beyond404.Portfolio.app.portfolioanalysis;
 
 import com.Beyond404.Portfolio.app.model.MarketQuote;
 import com.Beyond404.Portfolio.app.model.PortfolioAnalysisResponse;
@@ -200,19 +200,19 @@ public class PortfolioAnalyzer {
             if (quote != null &&
                     quote.getPrice() != null) {
 
-                double stockValue =
-                        quantity *
-                                quote.getPrice();
-
-                double valueInINR =
-                        marketDataService.convertToINR(
-                                stockValue,
+                double priceInUSD =
+                        marketDataService.convertToUSD(
+                                quote.getPrice(),
                                 getCurrencyFromMarket(
                                         stock.getStockMarket()
                                 )
                         );
 
-                currentValue += valueInINR;
+
+                double stockValue =
+                        quantity * priceInUSD;
+
+                currentValue += priceInUSD;
 
             }
         }
@@ -247,9 +247,18 @@ public class PortfolioAnalyzer {
                 if (quote != null &&
                         quote.getPrice() != null) {
 
+                    double priceInUSD =
+                            marketDataService.convertToUSD(
+                                    quote.getPrice(),
+                                    getCurrencyFromMarket(
+                                            stock.getStockMarket()
+                                    )
+                            );
+
+
                     prices.put(
                             ticker,
-                            quote.getPrice()
+                            priceInUSD
                     );
                 }
 
@@ -507,6 +516,8 @@ public Map<String, Double> getNetInvestedByStock(List<PortfolioData> portfolio) 
                 customer.getCustomerName(),
 
                 customer.getRiskLevel(),
+
+                "USD",
 
                 invested,
 
