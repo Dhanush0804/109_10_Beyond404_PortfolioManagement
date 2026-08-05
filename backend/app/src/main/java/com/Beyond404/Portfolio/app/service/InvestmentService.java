@@ -3,6 +3,7 @@ package com.Beyond404.Portfolio.app.service;
 import com.Beyond404.Portfolio.app.model.AssetHolding;
 import com.Beyond404.Portfolio.app.model.Investment;
 import com.Beyond404.Portfolio.app.model.InvestmentPageResponse;
+import com.Beyond404.Portfolio.app.model.MarketQuote;
 import com.Beyond404.Portfolio.app.model.StockTransactionRequest;
 import com.Beyond404.Portfolio.app.model.StockTransactionResponse;
 import com.Beyond404.Portfolio.app.model.Stocks;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Set;
@@ -37,16 +39,19 @@ public class InvestmentService {
     private final StocksRepository stocksRepository;
     private final AssetHoldingRepository assetHoldingRepository;
     private final CustomerRepository customerRepository;
+    private final MarketDataService marketDataService;
 
     public InvestmentService(
             InvestmentRepository investmentRepository,
             StocksRepository stocksRepository,
             AssetHoldingRepository assetHoldingRepository,
-            CustomerRepository customerRepository) {
+            CustomerRepository customerRepository,
+            MarketDataService marketDataService) {
         this.investmentRepository = investmentRepository;
         this.stocksRepository = stocksRepository;
         this.assetHoldingRepository = assetHoldingRepository;
         this.customerRepository = customerRepository;
+        this.marketDataService = marketDataService;
     }
 
     public ArrayList<Investment> getAllInvestments() {
@@ -105,7 +110,6 @@ public class InvestmentService {
         String normalizedMarket = normalizeUpper(request.getStockMarket());
         String normalizedStockName = normalizeText(request.getStockName());
         BigDecimal quantity = request.getQuantity().stripTrailingZeros();
-        BigDecimal transactionAmount = request.getTransactionAmount().stripTrailingZeros();
 
         Stocks stock = stocksRepository.findByTickerAndMarket(normalizedTicker, normalizedMarket);
 
@@ -120,6 +124,8 @@ public class InvestmentService {
                     "Stock not found for ticker " + normalizedTicker + " in market " + normalizedMarket
             );
         }
+
+        BigDecimal transactionAmount = calculateTransactionAmountFromMarketPrice(normalizedTicker, normalizedMarket, quantity);
 
         Investment investment = new Investment();
         investment.setCustomerId(request.getCustomerId());
@@ -264,10 +270,6 @@ public class InvestmentService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be greater than zero");
         }
 
-        if (request.getTransactionAmount() == null || request.getTransactionAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transaction amount must be greater than zero");
-        }
-
         if (isBlank(request.getTransactionType())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transaction type is required");
         }
@@ -283,6 +285,32 @@ public class InvestmentService {
 
     private String normalizeUpper(String value) {
         return value.trim().toUpperCase(Locale.ROOT);
+    }
+
+    private BigDecimal calculateTransactionAmountFromMarketPrice(String ticker, String market, BigDecimal quantity) {
+        MarketQuote quote;
+
+        try {
+            quote = marketDataService.getQuote(ticker, market);
+        } catch (Exception ex) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_GATEWAY,
+                    "Failed to fetch market quote for " + ticker + " from market API",
+                    ex
+            );
+        }
+
+        if (quote == null || quote.getPrice() == null || quote.getPrice() <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_GATEWAY,
+                    "Market quote price is unavailable for " + ticker
+            );
+        }
+
+        return BigDecimal.valueOf(quote.getPrice())
+                .multiply(quantity)
+                .setScale(2, RoundingMode.HALF_UP)
+                .stripTrailingZeros();
     }
 
     private String normalizeText(String value) {

@@ -10,7 +10,6 @@ public class StockTransactionRequest {
     private Long customerId;
     private String transactionType;
     private BigDecimal quantity;
-    private BigDecimal transactionAmount;
 
     public StockTransactionRequest() {
     }
@@ -61,14 +60,6 @@ public class StockTransactionRequest {
 
     public void setQuantity(BigDecimal quantity) {
         this.quantity = quantity;
-    }
-
-    public BigDecimal getTransactionAmount() {
-        return transactionAmount;
-    }
-
-    public void setTransactionAmount(BigDecimal transactionAmount) {
-        this.transactionAmount = transactionAmount;
     }
 }
 
