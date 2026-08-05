@@ -23,7 +23,7 @@ INTERVAL_MAX_DAYS: Dict[str, Optional[int]] = {
     "3mo": None,
 }
 
-SYMBOL_REGEX = r"^[A-Z0-9.^-]{1,10}$"
+SYMBOL_REGEX = r"^[A-Z0-9.^-]{1,20}$"
 
 def is_valid_symbol_format(symbol: str) -> bool:
     """Validate stock symbol format using regular expression."""

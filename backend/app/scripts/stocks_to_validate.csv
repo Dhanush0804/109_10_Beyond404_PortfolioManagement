@@ -1,0 +1,67 @@
+stock_name,expected_market
+Apple Inc.,NASDAQ
+Microsoft Corporation,NASDAQ
+Amazon.com, Inc.,NASDAQ
+Tesla, Inc.,NASDAQ
+NVIDIA Corporation,NASDAQ
+Meta Platforms, Inc.,NASDAQ
+Alphabet Inc.,NASDAQ
+Broadcom Inc.,NASDAQ
+Costco Wholesale Corporation,NASDAQ
+Adobe Inc.,NASDAQ
+Netflix, Inc.,NASDAQ
+JPMorgan Chase & Co.,NYSE
+Bank of America Corporation,NYSE
+Goldman Sachs Group, Inc.,NYSE
+Morgan Stanley,NYSE
+Berkshire Hathaway Inc.,NYSE
+Johnson & Johnson,NYSE
+Procter & Gamble Company,NYSE
+Coca-Cola Company,NYSE
+Walmart Inc.,NYSE
+Home Depot, Inc.,NYSE
+ICICI Bank Limited,NSE
+HDFC Bank Limited,NSE
+Infosys Limited,NSE
+Tata Consultancy Services Limited,NSE
+Reliance Industries Limited,NSE
+Axis Bank Limited,NSE
+Wipro Limited,NSE
+Kotak Mahindra Bank Limited,NSE
+Larsen & Toubro Limited,NSE
+Bajaj Auto Limited,NSE
+Maruti Suzuki India Limited,NSE
+HCL Technologies Limited,NSE
+Tech Mahindra Limited,NSE
+LTIMindtree Limited,NSE
+ITC Limited,NSE
+Bharti Airtel Limited,NSE
+Nestle India Limited,NSE
+NTPC Limited,NSE
+Reliance Industries Limited,BSE
+ICICI Bank Limited,BSE
+Infosys Limited,BSE
+Tata Consultancy Services Limited,BSE
+Bajaj Auto Limited,BSE
+Maruti Suzuki India Limited,BSE
+ITC Limited,BSE
+Bharti Airtel Limited,BSE
+Titan Company Limited,BSE
+UltraTech Cement Limited,BSE
+Bajaj Finance Limited,BSE
+Sun Pharmaceutical Industries Limited,BSE
+Power Grid Corporation of India Limited,BSE
+State Bank of India,BSE
+ASML Holding N.V.,EURONEXT
+SAP SE,EURONEXT
+Siemens AG,EURONEXT
+Unilever PLC,EURONEXT
+TotalEnergies SE,EURONEXT
+Hermes International SCA,EURONEXT
+LVMH Moet Hennessy Louis Vuitton SE,EURONEXT
+Schneider Electric SE,EURONEXT
+Sanofi SA,EURONEXT
+BNP Paribas SA,EURONEXT
+Kering SA,EURONEXT
+AXA SA,EURONEXT
+L'Oreal SA,EURONEXT
