@@ -19,6 +19,7 @@ function getSparkData(stock, count = 7) {
 
 export default function PortfolioOverviewTable() {
   const dispatch = useDispatch();
+  const STOCKWISE_CURRENCY = 'INR';
   const { stockWise, loadingStockWise, chartRange } = useSelector((s) => s.analytics);
   const { selectedStock } = useSelector((s) => s.stocks);
   const [filter, setFilter] = useState('All');
@@ -169,7 +170,7 @@ export default function PortfolioOverviewTable() {
                         className="py-2.5 pr-5 text-[11px] font-semibold"
                         style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}
                       >
-                        {formatCurrency(stock.lastPrice ?? stock.currentValue ?? 0)}
+                        {formatCurrency(stock.lastPrice ?? stock.currentValue ?? 0, 2, STOCKWISE_CURRENCY)}
                       </td>
 
                       {/* Change % */}
@@ -192,7 +193,7 @@ export default function PortfolioOverviewTable() {
                         className="py-2.5 pr-5 text-[11px] font-semibold"
                         style={{ color: gain ? 'var(--gain)' : 'var(--loss)', borderBottom: '1px solid var(--border-subtle)' }}
                       >
-                        {gain ? '+' : ''}{formatCurrency(stock.pnl)}
+                        {gain ? '+' : ''}{formatCurrency(stock.pnl, 2, STOCKWISE_CURRENCY)}
                       </td>
 
                       {/* Volume */}

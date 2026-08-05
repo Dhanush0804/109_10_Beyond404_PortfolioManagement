@@ -30,3 +30,23 @@ export const fetchAllInvestments = async () => {
     return buildDummyInvestments(1);
   }
 };
+
+export const placeDummyBuyOrder = async (payload) => {
+  try {
+    const { data } = await axiosInstance.post('/api/orders/dummy/buy', payload);
+    return data;
+  } catch {
+    console.warn('placeDummyBuyOrder → using simulated success');
+    return { ok: true, mode: 'simulated', action: 'BUY', ...payload };
+  }
+};
+
+export const placeDummySellOrder = async (payload) => {
+  try {
+    const { data } = await axiosInstance.post('/api/orders/dummy/sell', payload);
+    return data;
+  } catch {
+    console.warn('placeDummySellOrder → using simulated success');
+    return { ok: true, mode: 'simulated', action: 'SELL', ...payload };
+  }
+};

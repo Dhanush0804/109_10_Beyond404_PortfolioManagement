@@ -132,8 +132,18 @@ export const fetchPortfolioSummary = async (customerId) => {
 
 export const fetchStockWisePnL = async (customerId) => {
   try {
-    const { data } = await axiosInstance.get('/api/analytics/stock-wise', { params: { customerId } });
-    return data;
+    const { data } = await axiosInstance.get('/api/portfolio-analytics/stock-wise', { params: { customerId } });
+    if (!Array.isArray(data)) return [];
+
+    return data.map((stock) => ({
+      ...stock,
+      invested: toNumber(stock?.invested),
+      currentValue: toNumber(stock?.currentValue),
+      pnl: toNumber(stock?.pnl),
+      pnlPercent: toNumber(stock?.pnlPercent),
+      lastPrice: toNumber(stock?.lastPrice),
+      prevPrice: toNumber(stock?.prevPrice),
+    }));
   } catch {
     console.warn('fetchStockWisePnL → using dummy data');
     return buildDummyStockWise();

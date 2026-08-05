@@ -7,6 +7,7 @@ import { loadChartData, setChartMode } from '../../store/slices/analyticsSlice';
 import SectionLoader from '../common/SectionLoader';
 
 function StockChip({ stock, isActive, onClick }) {
+  const STOCKWISE_CURRENCY = 'INR';
   const current  = stock.currentPrice ?? stock.lastPrice ?? 0;
   const previous = stock.previousPrice ?? stock.prevPrice ?? 0;
   const gain     = current >= previous;
@@ -46,7 +47,7 @@ function StockChip({ stock, isActive, onClick }) {
 
       {/* Price */}
       <p className="text-sm font-bold" style={{ color: 'var(--txt-primary)' }}>
-        {formatCurrency(current)}
+        {formatCurrency(current, 2, STOCKWISE_CURRENCY)}
       </p>
 
       {/* Company name */}

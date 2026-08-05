@@ -6,6 +6,8 @@ import SectionLoader from '../common/SectionLoader';
 export default function TotalHoldingCard() {
   const { summary, loadingSummary } = useSelector((s) => s.analytics);
   const isGain = (summary?.netPnL ?? 0) >= 0;
+  const totalHoldingQty = Math.round(Number(summary?.totalPositions ?? 0));
+  const SUMMARY_CURRENCY = 'INR';
 
   return (
     <SectionLoader loading={loadingSummary} minHeight={180}>
@@ -50,7 +52,7 @@ export default function TotalHoldingCard() {
               className="text-3xl font-extrabold tracking-tight anim-count"
               style={{ color: 'var(--txt-primary)' }}
             >
-              {formatCurrency(summary.totalPositions)}
+              {totalHoldingQty.toLocaleString('en-US')}
             </p>
             <div className="flex items-center gap-2 mt-1.5">
               <span
@@ -65,7 +67,7 @@ export default function TotalHoldingCard() {
                 {formatPercent(summary.returnPercent)}
               </span>
               <span className="text-[10px]" style={{ color: 'var(--txt-secondary)' }}>
-                {isGain ? '+' : ''}{formatCurrency(summary.netPnL)} all time
+                {isGain ? '+' : ''}{formatCurrency(summary.netPnL, 2, SUMMARY_CURRENCY)} all time
               </span>
             </div>
           </div>
@@ -76,9 +78,9 @@ export default function TotalHoldingCard() {
             style={{ borderTop: '1px solid var(--border-subtle)' }}
           >
             {[
-              { label: 'Invested',  val: formatCurrency(summary.totalInvested), color: 'var(--txt-primary)' },
+              { label: 'Invested',  val: formatCurrency(summary.totalInvested, 2, SUMMARY_CURRENCY), color: 'var(--txt-primary)' },
               { label: 'Positions', val: summary.totalPositions ?? '—',         color: 'var(--txt-primary)' },
-              { label: 'Today P&L', val: (isGain ? '+' : '') + formatCurrency(summary.netPnL), color: isGain ? 'var(--gain)' : 'var(--loss)' },
+              { label: 'Today P&L', val: (isGain ? '+' : '') + formatCurrency(summary.netPnL, 2, SUMMARY_CURRENCY), color: isGain ? 'var(--gain)' : 'var(--loss)' },
             ].map(({ label, val, color }) => (
               <div key={label}>
                 <p className="text-[9px] font-semibold uppercase tracking-wider" style={{ color: 'var(--txt-muted)' }}>

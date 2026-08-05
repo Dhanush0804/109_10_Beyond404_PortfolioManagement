@@ -39,6 +39,7 @@ const STAT_CONFIGS = [
 
 export default function StatsSummaryBar() {
   const { summary, loadingSummary } = useSelector((s) => s.analytics);
+  const SUMMARY_CURRENCY = 'INR';
 
   return (
     <SectionLoader loading={loadingSummary} minHeight={88}>
@@ -57,7 +58,7 @@ export default function StatsSummaryBar() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {STAT_CONFIGS.map((cfg, i) => {
             const raw  = summary[cfg.key] ?? 0;
-            const val  = cfg.format === 'percent' ? formatPercent(raw) : formatCurrency(raw);
+            const val  = cfg.format === 'percent' ? formatPercent(raw) : formatCurrency(raw, 2, SUMMARY_CURRENCY);
             const Icon = cfg.icon;
 
             let color, bg, border;
