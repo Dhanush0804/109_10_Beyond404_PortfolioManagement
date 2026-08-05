@@ -1,85 +1,171 @@
 package com.Beyond404.Portfolio.app.model;
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+
 public class MarketQuote {
 
-    private String ticker;
 
-    private String companyName;
+    private String symbol;
 
-    private String market;
 
-    private Double currentPrice;
+    private Double price;
 
+
+    private String currency;
+
+
+    private String timestamp;
+
+
+    private Double open;
+
+
+    private Double high;
+
+
+    private Double low;
+
+
+    @JsonProperty("previous_close")
     private Double previousClose;
+
 
     private Double change;
 
-    private Double changePercent;
+
+    @JsonProperty("percent_change")
+    private Double percentChange;
+
+
+    private Long volume;
+
 
 
     public MarketQuote() {
+
     }
 
 
-    public String getTicker() {
-        return ticker;
-    }
 
-    public void setTicker(String ticker) {
-        this.ticker = ticker;
+    public String getSymbol() {
+        return symbol;
     }
 
 
-    public String getCompanyName() {
-        return companyName;
-    }
-
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 
 
-    public String getMarket() {
-        return market;
-    }
 
-    public void setMarket(String market) {
-        this.market = market;
+    public Double getPrice() {
+        return price;
     }
 
 
-    public Double getCurrentPrice() {
-        return currentPrice;
+    public void setPrice(Double price) {
+        this.price = price;
     }
 
-    public void setCurrentPrice(Double currentPrice) {
-        this.currentPrice = currentPrice;
+
+
+    public String getCurrency() {
+        return currency;
     }
+
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+
+
+    public Double getOpen() {
+        return open;
+    }
+
+
+    public void setOpen(Double open) {
+        this.open = open;
+    }
+
+
+
+    public Double getHigh() {
+        return high;
+    }
+
+
+    public void setHigh(Double high) {
+        this.high = high;
+    }
+
+
+
+    public Double getLow() {
+        return low;
+    }
+
+
+    public void setLow(Double low) {
+        this.low = low;
+    }
+
 
 
     public Double getPreviousClose() {
         return previousClose;
     }
 
+
     public void setPreviousClose(Double previousClose) {
         this.previousClose = previousClose;
     }
+
 
 
     public Double getChange() {
         return change;
     }
 
+
     public void setChange(Double change) {
         this.change = change;
     }
 
 
-    public Double getChangePercent() {
-        return changePercent;
+
+    public Double getPercentChange() {
+        return percentChange;
     }
 
-    public void setChangePercent(Double changePercent) {
-        this.changePercent = changePercent;
+
+    public void setPercentChange(Double percentChange) {
+        this.percentChange = percentChange;
     }
+
+
+
+    public Long getVolume() {
+        return volume;
+    }
+
+
+    public void setVolume(Long volume) {
+        this.volume = volume;
+    }
+
 }
