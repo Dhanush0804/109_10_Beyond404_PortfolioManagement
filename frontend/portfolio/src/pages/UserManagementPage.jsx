@@ -142,7 +142,7 @@ export default function UserManagementPage() {
     : false;
 
   return (
-    <div className="page-container anim-fade-in" style={{ maxWidth: 1500, margin: '0 auto' }}>
+    <div className="page-container anim-fade-in" style={{ maxWidth: 1440, margin: '0 auto' }}>
       <section className="hero-section">
         <div className="relative flex items-start justify-between gap-5 flex-wrap">
           <div>
@@ -158,8 +158,8 @@ export default function UserManagementPage() {
           </div>
 
           <div
-            className="min-w-[220px] rounded-2xl px-4 py-3"
-            style={{ background: 'rgba(10,13,20,0.72)', border: '1px solid var(--border-soft)' }}
+            className="min-w-[240px] rounded-2xl"
+            style={{ background: 'rgba(10,13,20,0.72)', border: '1px solid var(--border-soft)', padding: '14px 16px' }}
           >
             <p className="text-[10px] uppercase tracking-[0.18em] font-bold" style={{ color: 'var(--txt-muted)' }}>
               Current users
@@ -174,9 +174,9 @@ export default function UserManagementPage() {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_minmax(320px,420px)] gap-6 items-start">
-        <section className="card p-5">
-          <div className="flex items-center justify-between gap-4 mb-5">
+      <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_minmax(340px,420px)] gap-5 items-start">
+        <section className="card" style={{ padding: '16px 18px' }}>
+          <div className="flex items-center justify-between gap-4" style={{ marginBottom: 12, paddingInline: 2 }}>
             <div>
               <h2 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>Current users</h2>
               <p className="text-xs mt-1" style={{ color: 'var(--txt-secondary)' }}>
@@ -194,8 +194,8 @@ export default function UserManagementPage() {
               <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>No users found.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="data-table">
+            <div className="overflow-x-auto" style={{ marginTop: 2 }}>
+              <table className="data-table user-mgmt-table">
                 <thead>
                   <tr>
                     {['User', 'Customer ID', 'Risk Level', 'Status', 'Actions'].map((heading) => (
@@ -241,11 +241,14 @@ export default function UserManagementPage() {
                         </td>
                         <td>
                           <span
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold"
+                            className="inline-flex items-center justify-center gap-1.5 rounded-xl text-xs font-semibold"
                             style={{
                               background: riskStyle.bg,
                               border: `1px solid ${riskStyle.border}`,
                               color: riskStyle.color,
+                              minWidth: 84,
+                              height: 28,
+                              padding: '0 10px',
                             }}
                           >
                             <RiShieldCheckLine />
@@ -254,10 +257,10 @@ export default function UserManagementPage() {
                         </td>
                         <td>
                           <span
-                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold"
+                            className="inline-flex items-center justify-center gap-1 rounded-full text-[11px] font-semibold"
                             style={isActive
-                              ? { background: 'var(--accent-glow)', color: 'var(--accent)', border: '1px solid var(--border-active)' }
-                              : { background: 'transparent', color: 'var(--txt-muted)', border: '1px solid var(--border-subtle)' }}
+                              ? { background: 'var(--accent-glow)', color: 'var(--accent)', border: '1px solid var(--border-active)', minWidth: 86, height: 24, padding: '0 10px' }
+                              : { background: 'transparent', color: 'var(--txt-muted)', border: '1px solid var(--border-subtle)', minWidth: 86, height: 24, padding: '0 10px' }}
                           >
                             {isActive ? 'Active user' : 'Available'}
                           </span>
@@ -269,11 +272,14 @@ export default function UserManagementPage() {
                               event.stopPropagation();
                               openDeleteDialog(user);
                             }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-opacity hover:opacity-85"
+                            className="inline-flex items-center justify-center gap-1.5 rounded-xl text-xs font-semibold transition-opacity hover:opacity-85"
                             style={{
                               color: 'var(--loss)',
                               background: 'var(--loss-bg)',
                               border: '1px solid var(--loss-border)',
+                              minWidth: 82,
+                              height: 28,
+                              padding: '0 10px',
                             }}
                           >
                             <RiDeleteBinLine />
@@ -289,42 +295,43 @@ export default function UserManagementPage() {
           )}
         </section>
 
-        <section className="card p-5 sticky top-[calc(var(--topbar-height)+24px)]">
-          <div className="flex items-center gap-3 mb-5">
+        <section className="card sticky top-[calc(var(--topbar-height)+20px)]" style={{ padding: '18px 20px' }}>
+          <div className="flex items-start gap-3" style={{ marginBottom: 14 }}>
             <div
-              className="w-11 h-11 rounded-2xl flex items-center justify-center"
+              className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
               style={{ background: 'var(--accent-glow)', color: 'var(--accent)' }}
             >
-              <RiAddLine className="text-lg" />
+              <RiAddLine className="text-base" />
             </div>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <h2 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>Add user</h2>
-              <p className="text-xs mt-1" style={{ color: 'var(--txt-secondary)' }}>
-                Sends a POST to /api/customers/add (proxied to backend :8080 in dev).
-              </p>
             </div>
           </div>
 
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-            <label className="flex flex-col gap-2">
+          <div style={{ borderTop: '1px solid var(--border-subtle)', marginBottom: 12 }} />
+
+          <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+            <label className="flex flex-col gap-1.5">
               <span className="text-xs font-semibold" style={{ color: 'var(--txt-secondary)' }}>Customer name</span>
               <input
                 name="customerName"
                 value={form.customerName}
                 onChange={handleChange}
                 placeholder="Enter full name"
-                className="input px-3 py-3 text-sm rounded-xl"
+                className="input text-sm rounded-xl"
+                style={{ height: 38, paddingLeft: 12, paddingRight: 12 }}
                 maxLength={100}
               />
             </label>
 
-            <label className="flex flex-col gap-2">
+            <label className="flex flex-col gap-1.5">
               <span className="text-xs font-semibold" style={{ color: 'var(--txt-secondary)' }}>Risk level</span>
               <select
                 name="riskLevel"
                 value={form.riskLevel}
                 onChange={handleChange}
-                className="input px-3 py-3 text-sm rounded-xl"
+                className="input text-sm rounded-xl"
+                style={{ height: 38, paddingLeft: 12, paddingRight: 34 }}
               >
                 {RISK_OPTIONS.map((option) => (
                   <option key={option} value={option}>{option}</option>
@@ -364,8 +371,8 @@ export default function UserManagementPage() {
             <button
               type="submit"
               disabled={creatingUser || !form.customerName.trim()}
-              className="mt-2 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-semibold text-white transition-opacity disabled:opacity-55 disabled:cursor-not-allowed"
-              style={{ background: 'var(--accent)', boxShadow: 'var(--shadow-accent)' }}
+              className="mt-1 inline-flex items-center justify-center gap-2 px-4 rounded-2xl text-sm font-semibold text-white transition-opacity disabled:opacity-55 disabled:cursor-not-allowed"
+              style={{ background: 'var(--accent)', boxShadow: 'var(--shadow-accent)', minHeight: 38 }}
             >
               {creatingUser ? <RiLoaderLine className="animate-spin" /> : <RiAddLine />}
               {creatingUser ? 'Adding user...' : 'Add user'}
@@ -374,8 +381,8 @@ export default function UserManagementPage() {
         </section>
       </div>
 
-      <section className="card p-5">
-        <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
+      <section className="card" style={{ padding: '16px 18px' }}>
+        <div className="flex items-center justify-between gap-4 flex-wrap" style={{ marginBottom: 12, paddingInline: 2 }}>
           <div>
             <h2 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>User transactions</h2>
             <p className="text-xs mt-1" style={{ color: 'var(--txt-secondary)' }}>
@@ -399,9 +406,9 @@ export default function UserManagementPage() {
               <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>No transactions found for this user.</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-4">
-              <div className="overflow-x-auto">
-                <table className="data-table">
+            <div className="flex flex-col gap-3.5">
+              <div className="overflow-x-auto" style={{ marginTop: 2 }}>
+                <table className="data-table user-mgmt-table">
                   <thead>
                     <tr>
                       {['Asset ID', 'Stock ID', 'Type', 'Quantity', 'Amount', 'Date'].map((heading) => (
@@ -419,7 +426,7 @@ export default function UserManagementPage() {
                           <td style={{ color: 'var(--txt-primary)' }}>#{item.assetId}</td>
                           <td style={{ color: 'var(--txt-secondary)' }}>#{item.stockId}</td>
                           <td>
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold" style={isBuy ? { background: 'var(--gain-bg)', color: 'var(--gain)', border: '1px solid var(--gain-border)' } : { background: 'var(--loss-bg)', color: 'var(--loss)', border: '1px solid var(--loss-border)' }}>
+                            <span className="inline-flex items-center justify-center gap-1 rounded-full text-[11px] font-semibold" style={isBuy ? { background: 'var(--gain-bg)', color: 'var(--gain)', border: '1px solid var(--gain-border)', minWidth: 50, height: 24, padding: '0 9px' } : { background: 'var(--loss-bg)', color: 'var(--loss)', border: '1px solid var(--loss-border)', minWidth: 50, height: 24, padding: '0 9px' }}>
                               {item.transactionType}
                             </span>
                           </td>

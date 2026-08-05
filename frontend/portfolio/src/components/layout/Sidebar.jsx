@@ -33,27 +33,27 @@ function NavItem({ to, icon: Icon, label }) {
         background: 'var(--accent)',
         boxShadow: 'var(--shadow-accent)',
         color: '#fff',
-        paddingTop: '0.95rem',
-        paddingBottom: '0.95rem',
-        paddingLeft: '1.25rem',
-        paddingRight: '1.25rem',
-        gap: '0.9rem',
+        paddingTop: '0.85rem',
+        paddingBottom: '0.85rem',
+        paddingLeft: '1rem',
+        paddingRight: '1rem',
+        gap: '0.75rem',
       } : {
         color: 'var(--txt-secondary)',
-        paddingTop: '0.95rem',
-        paddingBottom: '0.95rem',
-        paddingLeft: '1.25rem',
-        paddingRight: '1.25rem',
-        gap: '0.9rem',
+        paddingTop: '0.85rem',
+        paddingBottom: '0.85rem',
+        paddingLeft: '1rem',
+        paddingRight: '1rem',
+        gap: '0.75rem',
       }}
     >
       <span
-        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+        className="w-[30px] h-[30px] rounded-lg flex items-center justify-center shrink-0"
         style={{ background: 'var(--bg-elevated)' }}
       >
-        <Icon className="text-base shrink-0" />
+        <Icon className="text-[15px] shrink-0" />
       </span>
-      <span className="tracking-tight text-sm font-semibold leading-none">{label}</span>
+      <span className="tracking-tight text-[15px] font-semibold leading-none">{label}</span>
     </NavLink>
   );
 }
@@ -99,10 +99,10 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav
-        className="flex-1 px-4"
+        className="flex-1 px-3.5"
         style={{
-          paddingTop: '1.6rem',
-          paddingBottom: '2rem',
+          paddingTop: '1.4rem',
+          paddingBottom: '1.7rem',
         }}
       >
         <p
@@ -111,6 +111,7 @@ export default function Sidebar() {
             color: 'var(--txt-muted)',
             marginTop: '0.45rem',
             marginBottom: '0.95rem',
+            paddingLeft: '0.35rem',
           }}
         >
           Main Menu
@@ -125,6 +126,7 @@ export default function Sidebar() {
             style={{
               color: 'var(--txt-muted)',
               marginBottom: '0.95rem',
+              paddingLeft: '0.35rem',
             }}
           >
             Support

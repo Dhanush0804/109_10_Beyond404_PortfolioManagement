@@ -85,14 +85,14 @@ export default function PortfolioChart() {
     <div
       className="rounded-2xl"
       style={{
-        padding: '20px 24px',
+        padding: '16px 18px',
         background: 'var(--bg-card)',
         border: '1px solid var(--border-subtle)',
         boxShadow: 'var(--shadow-card)',
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3" style={{ marginBottom: 20 }}>
+      <div className="flex items-center justify-between flex-wrap gap-3" style={{ marginBottom: 14 }}>
         <div className="flex flex-col gap-1">
           {chartMode === 'stock' && selectedStock && (
             <button
@@ -125,23 +125,35 @@ export default function PortfolioChart() {
 
         {/* Range pills */}
         <div
-          className="flex items-center gap-0.5 p-1 rounded-lg"
+          className="flex items-center rounded-xl"
           style={{
             background: 'var(--bg-elevated)',
             border: '1px solid var(--border-subtle)',
+            padding: '0.25rem',
+            gap: '0.25rem',
           }}
         >
           {RANGES.map((r) => (
             <button
               key={r}
               onClick={() => handleRange(r)}
-              className="px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all duration-200"
+              className="rounded-md font-semibold transition-all duration-200"
               style={chartRange === r ? {
                 background: 'var(--accent)',
                 color: '#fff',
                 boxShadow: 'var(--shadow-accent)',
+                minWidth: '32px',
+                height: '28px',
+                padding: '0 0.5rem',
+                fontSize: '11px',
+                lineHeight: 1,
               } : {
                 color: 'var(--txt-secondary)',
+                minWidth: '32px',
+                height: '28px',
+                padding: '0 0.5rem',
+                fontSize: '11px',
+                lineHeight: 1,
               }}
             >
               {r}

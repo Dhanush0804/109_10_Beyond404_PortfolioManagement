@@ -29,7 +29,7 @@ export default function UserSelector({ onSelected = null }) {
     <div className="relative">
       {/* Icon left */}
       <span
-        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-base pointer-events-none z-10"
+        className="absolute left-4 top-1/2 -translate-y-1/2 text-base pointer-events-none z-10"
         style={{ color: 'var(--accent)' }}
       >
         {loadingUsers
@@ -42,12 +42,18 @@ export default function UserSelector({ onSelected = null }) {
         id="user-selector"
         onChange={handleSelect}
         value={selectedUser?.customerId ?? ''}
-        className="w-full h-11 appearance-none text-sm font-medium pl-11 pr-10 rounded-lg outline-none cursor-pointer transition-all duration-200"
+        className="w-full h-11 text-sm font-medium rounded-lg outline-none cursor-pointer transition-all duration-200"
         style={{
+          WebkitAppearance: 'none',
+          MozAppearance: 'none',
+          appearance: 'none',
           background: 'var(--bg-elevated)',
           border: '1px solid var(--border-soft)',
           color: 'var(--txt-primary)',
           lineHeight: '1.25',
+          paddingLeft: '2.95rem',
+          paddingRight: '2.5rem',
+          textIndent: '0.01px',
           paddingTop: '0.65rem',
           paddingBottom: '0.65rem',
         }}

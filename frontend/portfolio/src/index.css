@@ -37,7 +37,7 @@
   --txt-muted:      #6b7280;
   --txt-placeholder:#6b7280;
 
-  --sidebar-width:  272px;
+  --sidebar-width:  252px;
   --topbar-height:  64px;
 
   --shadow-card:    0 2px 4px rgba(0,0,0,0.4), 0 8px 16px rgba(0,0,0,0.3);
@@ -265,6 +265,23 @@ select option {
 
 .data-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+/* User Management tables: slightly wider insets for pill-heavy columns */
+.user-mgmt-table th,
+.user-mgmt-table td {
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+.user-mgmt-table th:first-child,
+.user-mgmt-table td:first-child {
+  padding-left: 20px;
+}
+
+.user-mgmt-table th:last-child,
+.user-mgmt-table td:last-child {
+  padding-right: 20px;
 }
 
 /* ─────────────────────────────────────────────

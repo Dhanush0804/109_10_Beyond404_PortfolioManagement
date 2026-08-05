@@ -272,9 +272,9 @@ export default function PortfolioPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-4 flex-wrap" style={{ paddingRight: '0.15rem' }}>
             <div
-              className="rounded-2xl px-5 py-3.5 flex flex-col justify-between"
+              className="rounded-2xl px-5 py-3.5 flex flex-col justify-between min-w-[118px]"
               style={{ background: 'rgba(10,13,20,0.72)', border: '1px solid var(--border-soft)' }}
             >
               <p className="text-[10px] uppercase tracking-[0.18em] font-bold" style={{ color: 'var(--txt-muted)' }}>
@@ -286,7 +286,7 @@ export default function PortfolioPage() {
             </div>
 
             <div
-              className="rounded-2xl px-5 py-3.5 flex flex-col justify-between"
+              className="rounded-2xl px-5 py-3.5 flex flex-col justify-between min-w-[118px]"
               style={{ background: 'rgba(10,13,20,0.72)', border: '1px solid var(--border-soft)' }}
             >
               <p className="text-[10px] uppercase tracking-[0.18em] font-bold" style={{ color: 'var(--txt-muted)' }}>
@@ -414,7 +414,7 @@ export default function PortfolioPage() {
                     <p className="text-sm mt-1" style={{ color: 'var(--txt-secondary)' }}>{selectedStock.companyName}</p>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3" style={{ paddingRight: '0.2rem' }}>
                     <button
                       type="button"
                       onClick={() => openOrderConfirmDialog('BUY')}
@@ -423,7 +423,7 @@ export default function PortfolioPage() {
                       style={{
                         background: 'var(--gain)',
                         boxShadow: 'var(--shadow-gain)',
-                        minWidth: '112px',
+                        minWidth: '108px',
                         minHeight: '40px',
                         padding: '0.55rem 1rem',
                       }}
@@ -439,7 +439,7 @@ export default function PortfolioPage() {
                       style={{
                         background: 'var(--loss)',
                         boxShadow: 'var(--shadow-loss)',
-                        minWidth: '112px',
+                        minWidth: '108px',
                         minHeight: '40px',
                         padding: '0.55rem 1rem',
                       }}
@@ -517,14 +517,28 @@ export default function PortfolioPage() {
                   })}
                 </div>
 
-                  <div
-                    className="rounded-2xl"
+                <div
+                  className="rounded-2xl"
                   style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
                 >
-                    <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--txt-muted)', padding: '1rem 1rem 0.5rem' }}>
+                  <p
+                    className="text-xs font-bold uppercase tracking-wider"
+                    style={{
+                      color: 'var(--txt-muted)',
+                      padding: '1.1rem 1.15rem 0.65rem',
+                      borderBottom: '1px solid var(--border-subtle)',
+                    }}
+                  >
                     User transactions for this stock
                   </p>
-                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3" style={{ padding: '0.25rem 1rem 1rem' }}>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(138px, 1fr))',
+                      gap: '0.75rem',
+                      padding: '0.9rem 1.15rem 1.1rem',
+                    }}
+                  >
                     <Stat label="Total Txn" value={positionSummary.transactionCount} />
                     <Stat label="Buy Txn" value={positionSummary.buyCount} />
                     <Stat label="Sell Txn" value={positionSummary.sellCount} />
@@ -536,10 +550,17 @@ export default function PortfolioPage() {
 
                 {selectedSource === 'owned' ? (
                   <div
-                    className="rounded-2xl p-5 min-h-[300px]"
+                    className="rounded-2xl min-h-[300px]"
                     style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
                   >
-                    <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+                    <div
+                      className="flex items-start justify-between gap-3 mb-5 flex-wrap"
+                      style={{
+                        padding: '1rem 1.5rem 0.75rem 1.25rem',
+                        borderBottom: '1px solid var(--border-subtle)',
+                        marginBottom: '0.6rem',
+                      }}
+                    >
                       <div>
                         <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--txt-muted)' }}>
                           Investment History
@@ -548,7 +569,20 @@ export default function PortfolioPage() {
                           Paginated transactions for {selectedStock.ticker}
                         </p>
                       </div>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold" style={{ color: 'var(--txt-muted)', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}>
+                      <span
+                        className="inline-flex items-center justify-center shrink-0 rounded-full text-[11px] font-semibold"
+                        style={{
+                          color: 'var(--txt-muted)',
+                          background: 'var(--bg-card)',
+                          border: '1px solid var(--border-subtle)',
+                          minWidth: '76px',
+                          height: '30px',
+                          padding: '0.35rem 0.8rem',
+                          lineHeight: 1,
+                          marginTop: '0.2rem',
+                          marginRight: '0.4rem',
+                        }}
+                      >
                         Total: {stockHistory.totalItems}
                       </span>
                     </div>
@@ -563,13 +597,13 @@ export default function PortfolioPage() {
                           <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>No transactions found for this stock.</p>
                         </div>
                       ) : (
-                        <div className="flex flex-col gap-4">
-                          <div className="overflow-x-auto">
+                        <div className="flex flex-col gap-4" style={{ padding: '0 1.25rem 1.25rem' }}>
+                          <div className="overflow-x-auto rounded-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}>
                             <table className="data-table">
                               <thead>
                                 <tr>
                                   {['Asset ID', 'Type', 'Quantity', 'Amount', 'Date'].map((heading) => (
-                                    <th key={heading}>
+                                    <th key={heading} className={heading === 'Type' ? 'text-center' : ''}>
                                       {heading}
                                     </th>
                                   ))}
@@ -581,8 +615,8 @@ export default function PortfolioPage() {
                                   return (
                                     <tr key={item.assetId}>
                                       <td className="text-sm" style={{ color: 'var(--txt-primary)' }}>#{item.assetId}</td>
-                                      <td>
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold" style={isBuy ? { background: 'var(--gain-bg)', color: 'var(--gain)', border: '1px solid var(--gain-border)' } : { background: 'var(--loss-bg)', color: 'var(--loss)', border: '1px solid var(--loss-border)' }}>
+                                      <td className="text-center">
+                                        <span className="inline-flex items-center justify-center min-w-[52px] px-3 py-1 rounded-full text-[11px] font-semibold" style={isBuy ? { background: 'var(--gain-bg)', color: 'var(--gain)', border: '1px solid var(--gain-border)' } : { background: 'var(--loss-bg)', color: 'var(--loss)', border: '1px solid var(--loss-border)' }}>
                                           {item.transactionType}
                                         </span>
                                       </td>
@@ -676,8 +710,13 @@ export default function PortfolioPage() {
 function Stat({ label, value }) {
   return (
     <div
-      className="rounded-xl px-4 py-3.5 flex flex-col justify-between"
-      style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}
+      className="rounded-xl flex flex-col justify-between"
+      style={{
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border-subtle)',
+        padding: '0.7rem 0.85rem',
+        minHeight: '74px',
+      }}
     >
       <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--txt-muted)' }}>
         {label}

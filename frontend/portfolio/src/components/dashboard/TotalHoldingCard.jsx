@@ -15,7 +15,7 @@ export default function TotalHoldingCard() {
         <div
           className="rounded-2xl anim-slide-up relative overflow-hidden"
           style={{
-            padding: '20px 24px',
+            padding: '16px 18px',
             background: 'linear-gradient(145deg, var(--bg-card) 0%, var(--bg-card-hover) 100%)',
             border: '1px solid var(--border-subtle)',
             boxShadow: 'var(--shadow-card)',
@@ -36,19 +36,28 @@ export default function TotalHoldingCard() {
               Total Holding
             </p>
             <span
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold"
+              className="inline-flex items-center rounded text-[9px] font-bold"
               style={{
                 background: 'var(--accent-glow)',
                 border: '1px solid var(--border-active)',
                 color: 'var(--accent)',
+                padding: '0.2rem 0.5rem',
+                minHeight: '22px',
+                gap: '0.3rem',
+                lineHeight: 1,
               }}
             >
-              <RiPulseLine className="text-xs" /> LIVE
+              <span
+                className="w-1.5 h-1.5 rounded-full animate-pulse"
+                style={{ background: 'var(--loss)' }}
+              />
+              <RiPulseLine className="text-xs" />
+              LIVE
             </span>
           </div>
 
           {/* Big value */}
-          <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 14 }}>
             <p
               className="text-3xl font-extrabold tracking-tight anim-count"
               style={{ color: 'var(--txt-primary)' }}
@@ -78,8 +87,8 @@ export default function TotalHoldingCard() {
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: 16,
-              paddingTop: 16,
+              gap: 12,
+              paddingTop: 14,
               borderTop: '1px solid var(--border-subtle)',
             }}
           >

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { RiArrowUpLine, RiArrowDownLine, RiArrowRightSLine } from 'react-icons/ri';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
 import { setSelectedStock } from '../../store/slices/stocksSlice';
@@ -18,11 +19,13 @@ function StockChip({ stock, isActive, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="flex-shrink-0 flex flex-col gap-2 p-4 rounded-xl text-left transition-all duration-200 min-w-[155px]"
+      className="flex-shrink-0 flex flex-col gap-2.5 rounded-xl text-left transition-all duration-200"
       style={{
         background: isActive ? 'var(--accent-glow)' : 'var(--bg-elevated)',
         border: `1px solid ${isActive ? 'var(--border-active)' : 'var(--border-subtle)'}`,
         boxShadow: isActive ? 'var(--shadow-accent)' : 'none',
+        minWidth: '156px',
+        padding: '0.75rem 0.8rem',
       }}
     >
       {/* Ticker */}
@@ -47,12 +50,12 @@ function StockChip({ stock, isActive, onClick }) {
       </div>
 
       {/* Price */}
-      <p className="text-sm font-extrabold tracking-tight mt-0.5" style={{ color: 'var(--txt-primary)' }}>
+      <p className="text-base font-extrabold tracking-tight mt-0.5" style={{ color: 'var(--txt-primary)' }}>
         {formatCurrency(current, 2, STOCKWISE_CURRENCY)}
       </p>
 
       {/* Company name */}
-      <p className="text-[10px] font-medium truncate max-w-[125px]" style={{ color: 'var(--txt-secondary)' }}>
+      <p className="text-[10px] font-medium truncate max-w-[132px]" style={{ color: 'var(--txt-secondary)' }}>
         {stock.companyName ?? '—'}
       </p>
     </button>
@@ -61,11 +64,20 @@ function StockChip({ stock, isActive, onClick }) {
 
 export default function MyPortfolioCards() {
   const dispatch                            = useDispatch();
+  const navigate = useNavigate();
   const { stockWise, loadingStockWise, chartRange } = useSelector((s) => s.analytics);
   const { selectedStock }                   = useSelector((s) => s.stocks);
-  const [showAll, setShowAll]               = useState(false);
 
-  const visible = showAll ? stockWise : stockWise.slice(0, 6);
+  // Dashboard should surface the most urgent movers by absolute return impact.
+  const visible = useMemo(() => {
+    const ranked = [...stockWise].sort((a, b) => {
+      const aImpact = Math.abs(Number(a?.pnlPercent ?? 0)) || Math.abs(Number(a?.pnl ?? 0));
+      const bImpact = Math.abs(Number(b?.pnlPercent ?? 0)) || Math.abs(Number(b?.pnl ?? 0));
+      return bImpact - aImpact;
+    });
+
+    return ranked.slice(0, 4);
+  }, [stockWise]);
 
   const handleStockClick = (stock) => {
     dispatch(setSelectedStock(stock));
@@ -77,27 +89,27 @@ export default function MyPortfolioCards() {
     <div
       className="rounded-2xl"
       style={{
-        padding: '20px 24px',
+        padding: '16px 18px',
         background: 'var(--bg-card)',
         border: '1px solid var(--border-subtle)',
         boxShadow: 'var(--shadow-card)',
       }}
     >
-      <div className="flex items-center justify-between" style={{ marginBottom: 16 }}>
+      <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
         <div>
           <p className="text-sm font-bold" style={{ color: 'var(--txt-primary)' }}>My Portfolio</p>
           <p className="text-[10px] mt-0.5" style={{ color: 'var(--txt-secondary)' }}>
             Click a stock to view its chart
           </p>
         </div>
-        {stockWise.length > 6 && (
+        {stockWise.length > 4 && (
           <button
-            onClick={() => setShowAll((p) => !p)}
+            onClick={() => navigate('/portfolio')}
             className="flex items-center gap-0.5 text-[10px] font-semibold transition-colors"
             style={{ color: 'var(--accent)' }}
           >
-            {showAll ? 'Show less' : `See all (${stockWise.length})`}
-            <RiArrowRightSLine className={`transition-transform ${showAll ? 'rotate-180' : ''}`} />
+            {`View all (${stockWise.length})`}
+            <RiArrowRightSLine className="transition-transform" />
           </button>
         )}
       </div>
@@ -108,7 +120,13 @@ export default function MyPortfolioCards() {
             <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>Select a user to view portfolio</p>
           </div>
         ) : (
-          <div className="flex gap-3 overflow-x-auto" style={{ paddingBottom: 4, scrollbarWidth: 'thin' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
+              gap: '0.85rem',
+            }}
+          >
             {visible.map((stock) => (
               <StockChip
                 key={stock.stockId}

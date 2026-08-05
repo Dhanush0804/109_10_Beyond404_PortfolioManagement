@@ -40,37 +40,48 @@ export default function PortfolioOverviewTable() {
     <div
       className="rounded-2xl"
       style={{
-        padding: '20px 24px',
+        padding: '16px 18px',
         background: 'var(--bg-card)',
         border: '1px solid var(--border-subtle)',
         boxShadow: 'var(--shadow-card)',
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3" style={{ marginBottom: 20 }}>
+      <div className="flex items-center justify-between flex-wrap gap-3" style={{ marginBottom: 14 }}>
         <div>
-          <p className="text-sm font-bold" style={{ color: 'var(--txt-primary)' }}>Portfolio Overview</p>
-          <p className="text-[11px] mt-0.5" style={{ color: 'var(--txt-secondary)' }}>
+          <p className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>Portfolio Overview</p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--txt-secondary)' }}>
             Click any row to view stock chart
           </p>
         </div>
         <div
-          className="flex items-center gap-0.5 p-1 rounded-xl"
+          className="flex items-center rounded-xl"
           style={{
             background: 'var(--bg-elevated)',
             border: '1px solid var(--border-subtle)',
+            padding: '0.25rem',
+            gap: '0.25rem',
           }}
         >
           {FILTERS.map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200"
+              className="rounded-lg text-xs font-semibold transition-all duration-200"
               style={filter === f ? {
                 background: f === 'Gainers' ? 'var(--gain)' : f === 'Losers' ? 'var(--loss)' : 'var(--accent)',
                 color: '#fff',
+                minWidth: '62px',
+                height: '28px',
+                padding: '0 0.55rem',
+                lineHeight: 1,
               } : {
                 color: 'var(--txt-secondary)',
+                background: 'transparent',
+                minWidth: '62px',
+                height: '28px',
+                padding: '0 0.55rem',
+                lineHeight: 1,
               }}
             >
               {f}

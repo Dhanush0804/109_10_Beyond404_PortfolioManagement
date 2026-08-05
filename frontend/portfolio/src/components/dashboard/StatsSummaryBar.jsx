@@ -55,7 +55,7 @@ export default function StatsSummaryBar() {
           <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>Select a user to view statistics</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 10 }}>
           {STAT_CONFIGS.map((cfg, i) => {
             const raw  = summary[cfg.key] ?? 0;
             const val  = cfg.format === 'percent' ? formatPercent(raw) : formatCurrency(raw, 2, SUMMARY_CURRENCY);
@@ -80,14 +80,14 @@ export default function StatsSummaryBar() {
                 key={cfg.key}
                 className="rounded-2xl anim-slide-up transition-all duration-200 hover:scale-[1.02]"
                 style={{
-                  padding: '16px 20px',
+                  padding: '14px 16px',
                   background: 'var(--bg-card)',
                   border: '1px solid var(--border-subtle)',
                   boxShadow: 'var(--shadow-card)',
                   animationDelay: `${i * 60}ms`,
                 }}
               >
-                <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
+                <div className="flex items-center justify-between" style={{ marginBottom: 8 }}>
                   <p
                     className="text-[9px] font-bold uppercase tracking-widest"
                     style={{ color: 'var(--txt-muted)' }}
@@ -101,7 +101,7 @@ export default function StatsSummaryBar() {
                     <Icon className="text-[10px]" style={{ color }} />
                   </div>
                 </div>
-                <p className="text-base font-extrabold anim-count" style={{ color }}>
+                <p className="text-lg leading-none font-extrabold anim-count" style={{ color }}>
                   {val}
                 </p>
               </div>
