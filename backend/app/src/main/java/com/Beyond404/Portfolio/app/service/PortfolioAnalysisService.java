@@ -2,7 +2,7 @@ package com.Beyond404.Portfolio.app.service;
 
 import com.Beyond404.Portfolio.app.model.PortfolioData;
 import com.Beyond404.Portfolio.app.model.PortfolioAnalysisResponse;
-import com.Beyond404.Portfolio.app.recommendation.PortfolioAnalyzer;
+import com.Beyond404.Portfolio.app.portfolioanalysis.PortfolioAnalyzer;
 import com.Beyond404.Portfolio.app.repository.PortfolioAnalysisRepository;
 import org.springframework.stereotype.Service;
 

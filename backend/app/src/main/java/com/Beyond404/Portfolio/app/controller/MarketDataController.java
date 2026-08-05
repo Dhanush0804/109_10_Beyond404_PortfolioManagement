@@ -1,5 +1,6 @@
 package com.Beyond404.Portfolio.app.controller;
 
+import com.Beyond404.Portfolio.app.model.MarketQuote;
 import com.Beyond404.Portfolio.app.model.MarketSearchResponse;
 import com.Beyond404.Portfolio.app.service.MarketDataService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,5 +16,10 @@ public class MarketDataController {
     @GetMapping("/search")
     public MarketSearchResponse searchSymbols(@RequestParam String companyName) {
         return marketDataService.searchSymbols(companyName);
+    }
+
+    @GetMapping("/{ticker}/quote")
+    public MarketQuote getQuote(@PathVariable String ticker) {
+        return marketDataService.getQuote(ticker, null);
     }
 }
