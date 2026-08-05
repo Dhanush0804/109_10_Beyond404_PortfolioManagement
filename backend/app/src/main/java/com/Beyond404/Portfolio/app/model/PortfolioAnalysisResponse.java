@@ -4,22 +4,18 @@ import java.util.Map;
 
 public class PortfolioAnalysisResponse {
 
-
     private Long customerId;
 
     private String customerName;
 
     private String riskLevel;
 
-
     private Double totalInvested;
 
     private Double totalSoldValue;
 
-
     // Current value of all holdings using live market prices
     private Double currentPortfolioValue;
-
 
     // Individual stock current prices
     // Example:
@@ -29,8 +25,6 @@ public class PortfolioAnalysisResponse {
     // }
     private Map<String, Double> currentStockPrices;
 
-
-
     private Double gainAmount;
 
     private Double lossAmount;
@@ -39,9 +33,7 @@ public class PortfolioAnalysisResponse {
 
     private Double returnPercentage;
 
-
     private Double currentHoldings;
-
 
     private Integer totalTransactions;
 
@@ -49,23 +41,15 @@ public class PortfolioAnalysisResponse {
 
     private Integer sellTransactions;
 
-
     private Integer uniqueStocks;
-
 
     private Double averageInvestment;
 
-
     private Map<String, Double> marketDistribution;
-
-
 
     public PortfolioAnalysisResponse() {
 
     }
-
-
-
 
     public PortfolioAnalysisResponse(
             Long customerId,
@@ -103,24 +87,19 @@ public class PortfolioAnalysisResponse {
             Map<String, Double> marketDistribution
     ) {
 
-
         this.customerId = customerId;
 
         this.customerName = customerName;
 
         this.riskLevel = riskLevel;
 
-
         this.totalInvested = totalInvested;
 
         this.totalSoldValue = totalSoldValue;
 
-
         this.currentPortfolioValue = currentPortfolioValue;
 
         this.currentStockPrices = currentStockPrices;
-
-
 
         this.gainAmount = gainAmount;
 
@@ -130,10 +109,7 @@ public class PortfolioAnalysisResponse {
 
         this.returnPercentage = returnPercentage;
 
-
-
         this.currentHoldings = currentHoldings;
-
 
         this.totalTransactions = totalTransactions;
 
@@ -141,20 +117,13 @@ public class PortfolioAnalysisResponse {
 
         this.sellTransactions = sellTransactions;
 
-
         this.uniqueStocks = uniqueStocks;
 
-
         this.averageInvestment = averageInvestment;
-
 
         this.marketDistribution = marketDistribution;
 
     }
-
-
-
-
 
     public Long getCustomerId() {
 
@@ -162,15 +131,11 @@ public class PortfolioAnalysisResponse {
 
     }
 
-
-
     public String getCustomerName() {
 
         return customerName;
 
     }
-
-
 
     public String getRiskLevel() {
 
@@ -178,15 +143,11 @@ public class PortfolioAnalysisResponse {
 
     }
 
-
-
     public Double getTotalInvested() {
 
         return totalInvested;
 
     }
-
-
 
     public Double getTotalSoldValue() {
 
@@ -194,15 +155,11 @@ public class PortfolioAnalysisResponse {
 
     }
 
-
-
     public Double getCurrentPortfolioValue() {
 
         return currentPortfolioValue;
 
     }
-
-
 
     public Map<String, Double> getCurrentStockPrices() {
 
@@ -210,15 +167,11 @@ public class PortfolioAnalysisResponse {
 
     }
 
-
-
     public Double getGainAmount() {
 
         return gainAmount;
 
     }
-
-
 
     public Double getLossAmount() {
 
@@ -226,15 +179,11 @@ public class PortfolioAnalysisResponse {
 
     }
 
-
-
     public Double getProfitLoss() {
 
         return profitLoss;
 
     }
-
-
 
     public Double getReturnPercentage() {
 
@@ -242,15 +191,11 @@ public class PortfolioAnalysisResponse {
 
     }
 
-
-
     public Double getCurrentHoldings() {
 
         return currentHoldings;
 
     }
-
-
 
     public Integer getTotalTransactions() {
 
@@ -258,15 +203,11 @@ public class PortfolioAnalysisResponse {
 
     }
 
-
-
     public Integer getBuyTransactions() {
 
         return buyTransactions;
 
     }
-
-
 
     public Integer getSellTransactions() {
 
@@ -274,23 +215,17 @@ public class PortfolioAnalysisResponse {
 
     }
 
-
-
     public Integer getUniqueStocks() {
 
         return uniqueStocks;
 
     }
 
-
-
     public Double getAverageInvestment() {
 
         return averageInvestment;
 
     }
-
-
 
     public Map<String, Double> getMarketDistribution() {
 

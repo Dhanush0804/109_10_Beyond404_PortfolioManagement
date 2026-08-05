@@ -164,11 +164,9 @@ public class PortfolioAnalysisRestController {
     public ResponseEntity<PortfolioAnalysisResponse> getPortfolioSummary(
             @PathVariable Long customerId) {
 
-
         PortfolioAnalysisResponse summary =
                 portfolioAnalysisService
                         .getPortfolioAnalysis(customerId);
-
 
         if(summary == null) {
 
@@ -177,7 +175,6 @@ public class PortfolioAnalysisRestController {
                     .build();
 
         }
-
 
         return ResponseEntity.ok(summary);
     }
