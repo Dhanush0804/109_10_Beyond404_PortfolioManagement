@@ -332,6 +332,7 @@ public class MarketDataService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid input for ticker/range");
             }
             throw e;
+
         }  catch (RestClientException e) {
         throw new ResponseStatusException(
                 HttpStatus.SERVICE_UNAVAILABLE,
@@ -339,6 +340,7 @@ public class MarketDataService {
         );
     }
     }
+
 
     private FastApiQuoteResponse fetchQuote(String ticker) {
         String url = UriComponentsBuilder
