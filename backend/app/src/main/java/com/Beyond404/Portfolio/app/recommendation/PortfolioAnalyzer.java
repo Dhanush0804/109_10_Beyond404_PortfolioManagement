@@ -1,7 +1,9 @@
 package com.Beyond404.Portfolio.app.recommendation;
 
-import com.Beyond404.Portfolio.app.model.PortfolioData;
+import com.Beyond404.Portfolio.app.model.MarketQuote;
 import com.Beyond404.Portfolio.app.model.PortfolioAnalysisResponse;
+import com.Beyond404.Portfolio.app.model.PortfolioData;
+import com.Beyond404.Portfolio.app.service.MarketDataService;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -11,225 +13,672 @@ import java.util.Map;
 @Component
 public class PortfolioAnalyzer {
 
-    /**
-     * Calculates the net portfolio value.
-     *
-     * Portfolio Value =
-     * Total BUY Amount - Total SELL Amount
-     */
-    public double calculatePortfolioValue(List<PortfolioData> portfolio) {
 
-        double portfolioValue = 0.0;
+    private final MarketDataService marketDataService;
+
+
+    public PortfolioAnalyzer(MarketDataService marketDataService) {
+
+        this.marketDataService = marketDataService;
+
+    }
+
+
+
+    /*
+     * Total amount invested
+     * Only BUY transactions
+     */
+    public double calculateTotalInvestment(
+            List<PortfolioData> portfolio) {
+
+
+        double total = 0;
+
 
         for (PortfolioData investment : portfolio) {
 
-            if (investment.getTransactionType().equalsIgnoreCase("BUY")) {
 
-                portfolioValue += investment.getTransactionAmount();
+            if (investment.getTransactionType()
+                    .equalsIgnoreCase("BUY")) {
 
-            } else {
-
-                portfolioValue -= investment.getTransactionAmount();
-
-            }
-        }
-
-        return portfolioValue;
-    }
-
-    /**
-     * Returns total number of transactions.
-     */
-    public int calculateTotalTransactions(List<PortfolioData> portfolio) {
-
-        return portfolio.size();
-    }
-
-    /**
-     * Calculates total BUY transactions.
-     */
-    public int calculateBuyTransactions(List<PortfolioData> portfolio) {
-
-        int buyCount = 0;
-
-        for (PortfolioData investment : portfolio) {
-
-            if (investment.getTransactionType().equalsIgnoreCase("BUY")) {
-
-                buyCount++;
-
-            }
-        }
-
-        return buyCount;
-    }
-
-    /**
-     * Calculates total SELL transactions.
-     */
-    public int calculateSellTransactions(List<PortfolioData> portfolio) {
-
-        int sellCount = 0;
-
-        for (PortfolioData investment : portfolio) {
-
-            if (investment.getTransactionType().equalsIgnoreCase("SELL")) {
-
-                sellCount++;
-
-            }
-        }
-
-        return sellCount;
-    }
-
-    /**
-     * Calculates total quantity currently owned.
-     *
-     * BUY adds quantity.
-     * SELL subtracts quantity.
-     */
-    public double calculateCurrentHoldings(List<PortfolioData> portfolio) {
-
-        double quantity = 0.0;
-
-        for (PortfolioData investment : portfolio) {
-
-            if (investment.getTransactionType().equalsIgnoreCase("BUY")) {
-
-                quantity += investment.getQuantity();
-
-            } else {
-
-                quantity -= investment.getQuantity();
-
-            }
-        }
-
-        return quantity;
-    }
-
-    /**
-     * Calculates market allocation.
-     *
-     * Example:
-     * NASDAQ -> 40%
-     * NYSE -> 25%
-     * NSE -> 20%
-     * BSE -> 10%
-     * EURONEXT -> 5%
-     */
-    public Map<String, Double> calculateMarketDistribution(List<PortfolioData> portfolio) {
-
-        Map<String, Double> marketAmount = new HashMap<>();
-
-        double totalInvestment = 0.0;
-
-        for (PortfolioData investment : portfolio) {
-
-            if (investment.getTransactionType().equalsIgnoreCase("BUY")) {
-
-                String market = investment.getStockMarket();
-
-                marketAmount.put(
-                        market,
-                        marketAmount.getOrDefault(market, 0.0)
-                                + investment.getTransactionAmount()
-                );
-
-                totalInvestment += investment.getTransactionAmount();
-            }
-        }
-
-        Map<String, Double> distribution = new HashMap<>();
-
-        for (String market : marketAmount.keySet()) {
-
-            distribution.put(
-                    market,
-                    (marketAmount.get(market) / totalInvestment) * 100
-            );
-
-        }
-
-        return distribution;
-    }
-
-    /**
-     * Calculates portfolio diversification.
-     *
-     * Returns number of unique companies.
-     */
-    public int calculateUniqueStocks(List<PortfolioData> portfolio) {
-
-        Map<Long, Boolean> stocks = new HashMap<>();
-
-        for (PortfolioData investment : portfolio) {
-
-            stocks.put(
-                    investment.getStockId(),
-                    true
-            );
-        }
-
-        return stocks.size();
-    }
-
-    /**
-     * Average investment amount.
-     */
-    public double calculateAverageInvestment(List<PortfolioData> portfolio) {
-
-        double total = 0.0;
-
-        int count = 0;
-
-        for (PortfolioData investment : portfolio) {
-
-            if (investment.getTransactionType().equalsIgnoreCase("BUY")) {
 
                 total += investment.getTransactionAmount();
 
-                count++;
             }
-        }
-
-        if (count == 0) {
-
-            return 0;
 
         }
 
-        double avg = total / count;
 
-        return avg;
+        return total;
+
     }
+
+
+
+
+
+    /*
+     * Total amount received from selling stocks
+     */
+    public double calculateTotalSellValue(
+            List<PortfolioData> portfolio) {
+
+
+        double total = 0;
+
+
+        for (PortfolioData investment : portfolio) {
+
+
+            if (investment.getTransactionType()
+                    .equalsIgnoreCase("SELL")) {
+
+
+                total += investment.getTransactionAmount();
+
+            }
+
+        }
+
+
+        return total;
+
+    }
+
+
+
+
+
+
+    /*
+     * Calculates stock wise current holdings
+     *
+     * Example:
+     *
+     * AAPL
+     * BUY 50
+     * SELL 10
+     *
+     * Holding = 40
+     */
+    private Map<String, Double> calculateStockHoldings(
+            List<PortfolioData> portfolio) {
+
+
+        Map<String, Double> holdings =
+                new HashMap<>();
+
+
+
+        for (PortfolioData investment : portfolio) {
+
+
+            String ticker =
+                    investment.getTicker();
+
+
+
+            double quantity =
+                    investment.getQuantity();
+
+
+
+            if (investment.getTransactionType()
+                    .equalsIgnoreCase("BUY")) {
+
+
+                holdings.put(
+                        ticker,
+                        holdings.getOrDefault(
+                                ticker,
+                                0.0
+                        )
+                                +
+                                quantity
+                );
+
+
+            }
+            else {
+
+
+                holdings.put(
+                        ticker,
+                        holdings.getOrDefault(
+                                ticker,
+                                0.0
+                        )
+                                -
+                                quantity
+                );
+
+            }
+
+        }
+
+
+        return holdings;
+
+    }
+
+
+
+
+
+
+
+
+    /*
+     * Current portfolio market value
+     *
+     * Formula:
+     *
+     * Current Holding Quantity
+     *          *
+     * Current Market Price
+     */
+    public double calculateCurrentValue(
+            List<PortfolioData> portfolio) {
+
+
+        double currentValue = 0;
+
+
+        Map<String, Double> holdings =
+                calculateStockHoldings(portfolio);
+
+
+
+        for(String ticker : holdings.keySet()) {
+
+
+            double quantity =
+                    holdings.get(ticker);
+
+
+
+            if(quantity <= 0)
+                continue;
+
+
+
+            PortfolioData stock =
+                    getStockData(
+                            portfolio,
+                            ticker
+                    );
+
+
+            if(stock == null)
+                continue;
+
+
+
+            try {
+
+
+                MarketQuote quote =
+                        marketDataService.getQuote(
+                                ticker,
+                                stock.getStockMarket()
+                        );
+
+
+
+                if(quote != null &&
+                        quote.getCurrentPrice()!=null) {
+
+
+
+                    currentValue +=
+                            quantity *
+                                    quote.getCurrentPrice();
+
+                }
+
+
+            }
+            catch(Exception e) {
+
+
+                System.out.println(
+                        "Market data unavailable for "
+                                + ticker
+                );
+
+            }
+
+
+        }
+
+
+        return currentValue;
+
+    }
+
+
+
+
+
+
+
+
+
+    /*
+     * Returns current market price of each stock
+     */
+    public Map<String, Double> getCurrentStockPrices(
+            List<PortfolioData> portfolio) {
+
+
+        Map<String, Double> prices =
+                new HashMap<>();
+
+
+        Map<String, Double> holdings =
+                calculateStockHoldings(portfolio);
+
+
+
+        for(String ticker : holdings.keySet()) {
+
+
+            PortfolioData stock =
+                    getStockData(
+                            portfolio,
+                            ticker
+                    );
+
+
+
+            if(stock == null)
+                continue;
+
+
+
+            try {
+
+
+                MarketQuote quote =
+                        marketDataService.getQuote(
+                                ticker,
+                                stock.getStockMarket()
+                        );
+
+
+
+                if(quote != null &&
+                        quote.getCurrentPrice()!=null) {
+
+
+                    prices.put(
+                            ticker,
+                            quote.getCurrentPrice()
+                    );
+
+                }
+
+
+            }
+            catch(Exception e) {
+
+
+                System.out.println(
+                        "Price unavailable for "
+                                + ticker
+                );
+
+            }
+
+
+        }
+
+
+        return prices;
+
+    }
+
+
+
+
+
+
+
+    private PortfolioData getStockData(
+            List<PortfolioData> portfolio,
+            String ticker) {
+
+
+        for(PortfolioData data : portfolio) {
+
+
+            if(data.getTicker()
+                    .equalsIgnoreCase(ticker)) {
+
+
+                return data;
+
+            }
+
+        }
+
+
+        return null;
+
+    }
+
+
+
+
+
+
+
+
+    public int calculateTotalTransactions(
+            List<PortfolioData> portfolio) {
+
+        return portfolio.size();
+
+    }
+
+
+
+
+
+
+
+    public int calculateBuyTransactions(
+            List<PortfolioData> portfolio) {
+
+
+        int count = 0;
+
+
+        for(PortfolioData data : portfolio) {
+
+
+            if(data.getTransactionType()
+                    .equalsIgnoreCase("BUY")) {
+
+                count++;
+
+            }
+
+        }
+
+
+        return count;
+
+    }
+
+
+
+
+
+
+
+    public int calculateSellTransactions(
+            List<PortfolioData> portfolio) {
+
+
+        int count = 0;
+
+
+        for(PortfolioData data : portfolio) {
+
+
+            if(data.getTransactionType()
+                    .equalsIgnoreCase("SELL")) {
+
+                count++;
+
+            }
+
+        }
+
+
+        return count;
+
+    }
+
+
+
+
+
+
+
+
+    public double calculateCurrentHoldings(
+            List<PortfolioData> portfolio) {
+
+
+        double quantity = 0;
+
+
+        for(PortfolioData data : portfolio) {
+
+
+            if(data.getTransactionType()
+                    .equalsIgnoreCase("BUY")) {
+
+
+                quantity += data.getQuantity();
+
+
+            }
+            else {
+
+
+                quantity -= data.getQuantity();
+
+            }
+
+        }
+
+
+        return quantity;
+
+    }
+
+
+
+
+
+
+
+
+    public Map<String, Double> calculateMarketDistribution(
+            List<PortfolioData> portfolio) {
+
+
+        Map<String, Double> distribution =
+                new HashMap<>();
+
+
+        double totalInvestment =
+                calculateTotalInvestment(portfolio);
+
+
+
+        for(PortfolioData data : portfolio) {
+
+
+            if(data.getTransactionType()
+                    .equalsIgnoreCase("BUY")) {
+
+
+                String market =
+                        data.getStockMarket();
+
+
+
+                distribution.put(
+                        market,
+                        distribution.getOrDefault(
+                                market,
+                                0.0
+                        )
+                                +
+                                data.getTransactionAmount()
+                                        /
+                                        totalInvestment
+                                        *
+                                        100
+                );
+
+            }
+
+        }
+
+
+        return distribution;
+
+    }
+
+
+
+
+
+
+
+
+    public int calculateUniqueStocks(
+            List<PortfolioData> portfolio) {
+
+
+        Map<Long, Boolean> stocks =
+                new HashMap<>();
+
+
+        for(PortfolioData data : portfolio) {
+
+
+            stocks.put(
+                    data.getStockId(),
+                    true
+            );
+
+        }
+
+
+        return stocks.size();
+
+    }
+
+
+
+
+
+
+
+    public double calculateAverageInvestment(
+            List<PortfolioData> portfolio) {
+
+
+        double total = 0;
+
+        int count = 0;
+
+
+        for(PortfolioData data : portfolio) {
+
+
+            if(data.getTransactionType()
+                    .equalsIgnoreCase("BUY")) {
+
+
+                total += data.getTransactionAmount();
+
+                count++;
+
+            }
+
+        }
+
+
+        return count == 0
+                ? 0
+                : total / count;
+
+    }
+
+
+
+
+
+
+
 
     public PortfolioAnalysisResponse analyzePortfolio(
             List<PortfolioData> portfolio) {
 
 
-        if (portfolio.isEmpty()) {
+        if(portfolio.isEmpty()) {
+
             return null;
+
         }
 
 
-        PortfolioData customerData = portfolio.get(0);
+
+        PortfolioData customer =
+                portfolio.get(0);
+
+
+
+        double invested =
+                calculateTotalInvestment(portfolio);
+
+
+
+        double sold =
+                calculateTotalSellValue(portfolio);
+
+
+
+        double currentValue =
+                calculateCurrentValue(portfolio);
+
+
+
+        double profitLoss =
+                currentValue - invested;
+
+
+
+        double returnPercentage =
+                invested == 0
+                        ?
+                        0
+                        :
+                        (profitLoss / invested) * 100;
+
 
 
         return new PortfolioAnalysisResponse(
 
-                customerData.getCustomerId(),
+                customer.getCustomerId(),
 
-                customerData.getCustomerName(),
+                customer.getCustomerName(),
 
-                customerData.getRiskLevel(),
+                customer.getRiskLevel(),
 
-                calculateTotalInvestment(portfolio),
+                invested,
 
-                calculateTotalSellValue(portfolio),
+                sold,
 
-                calculatePortfolioValue(portfolio),
+                currentValue,
+
+                getCurrentStockPrices(portfolio),
+
+                Math.max(profitLoss,0),
+
+                Math.max(-profitLoss,0),
+
+                profitLoss,
+
+                returnPercentage,
 
                 calculateCurrentHoldings(portfolio),
 
@@ -244,39 +693,9 @@ public class PortfolioAnalyzer {
                 calculateAverageInvestment(portfolio),
 
                 calculateMarketDistribution(portfolio)
+
         );
-    }
 
-    private Double calculateTotalInvestment(List<PortfolioData> portfolio) {
-
-        double totalInvestment = 0.0;
-
-        for (PortfolioData investment : portfolio) {
-
-            if (investment.getTransactionType().equalsIgnoreCase("BUY")) {
-
-                totalInvestment += investment.getTransactionAmount();
-
-            }
-        }
-
-        return totalInvestment;
-    }
-
-    private Double calculateTotalSellValue(List<PortfolioData> portfolio) {
-
-        double totalSellValue = 0.0;
-
-        for (PortfolioData investment : portfolio) {
-
-            if (investment.getTransactionType().equalsIgnoreCase("SELL")) {
-
-                totalSellValue += investment.getTransactionAmount();
-
-            }
-        }
-
-        return totalSellValue;
     }
 
 }

@@ -160,24 +160,25 @@ public class PortfolioAnalysisRestController {
         );
     }
 
-    @GetMapping("/{customerId}/analysis")
-    public ResponseEntity<PortfolioAnalysisResponse> getPortfolioAnalysis(
+    @GetMapping("/{customerId}/summary")
+    public ResponseEntity<PortfolioAnalysisResponse> getPortfolioSummary(
             @PathVariable Long customerId) {
 
 
-        PortfolioAnalysisResponse analysis =
+        PortfolioAnalysisResponse summary =
                 portfolioAnalysisService
                         .getPortfolioAnalysis(customerId);
 
 
-        if(analysis == null) {
+        if(summary == null) {
 
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .build();
+
         }
 
 
-        return ResponseEntity.ok(analysis);
+        return ResponseEntity.ok(summary);
     }
 }
