@@ -256,19 +256,112 @@ public class MarketDataService {
      */
     public Double getHistoricalPrice(
             String ticker,
-            String transactionTime) {
+            LocalDateTime transactionTime) {
+
+
+        int[] ranges = {
+                2,
+                5,
+                10,
+                30
+        };
+
+
+        // First try original ticker
+        for (int days : ranges) {
+
+
+            Double price =
+                    fetchHistoricalPrice(
+                            ticker,
+                            transactionTime,
+                            days
+                    );
+
+
+            if(price != null) {
+
+                return price;
+
+            }
+        }
+
+
+
+        /*
+         * Fallback only for BSE stocks
+         *
+         * Example:
+         * RELIANCE.BO -> RELIANCE.NS
+         */
+        if(ticker.endsWith(".BO")) {
+
+
+            String nseTicker =
+                    ticker.replace(
+                            ".BO",
+                            ".NS"
+                    );
+
+
+
+            System.out.println(
+                    "Trying NSE fallback for "
+                            + ticker
+                            + " -> "
+                            + nseTicker
+            );
+
+
+
+            for (int days : ranges) {
+
+
+                Double price =
+                        fetchHistoricalPrice(
+                                nseTicker,
+                                transactionTime,
+                                days
+                        );
+
+
+                if(price != null) {
+
+
+                    return price;
+
+                }
+
+            }
+
+        }
+
+
+        System.out.println(
+                "Historical price unavailable for "
+                        + ticker
+        );
+
+
+        return null;
+
+    }
+
+    private Double fetchHistoricalPrice(
+            String ticker,
+            LocalDateTime transactionTime,
+            int rangeDays) {
 
 
         try {
 
 
-            String formattedTime =
-                    LocalDateTime
-                            .parse(transactionTime)
-                            .atOffset(
-                                    ZoneOffset.UTC
-                            )
-                            .toString();
+            LocalDateTime start =
+                    transactionTime.minusDays(rangeDays);
+
+
+            LocalDateTime end =
+                    transactionTime.plusDays(rangeDays);
 
 
 
@@ -288,11 +381,19 @@ public class MarketDataService {
                             )
                             .queryParam(
                                     "start",
-                                    formattedTime
+                                    start
+                                            .atOffset(
+                                                    ZoneOffset.UTC
+                                            )
+                                            .toString()
                             )
                             .queryParam(
                                     "end",
-                                    formattedTime
+                                    end
+                                            .atOffset(
+                                                    ZoneOffset.UTC
+                                            )
+                                            .toString()
                             )
                             .queryParam(
                                     "adjusted",
@@ -309,24 +410,44 @@ public class MarketDataService {
                     );
 
 
-            return extractHistoricalClosePrice(response);
+            if(response == null) {
+
+                return null;
+
+            }
+
+
+            List<Map<String,Object>> candles =
+                    (List<Map<String,Object>>)
+                            response.get("data");
+
+
+
+            if(candles == null ||
+                    candles.isEmpty()) {
+
+                return null;
+
+            }
+
+
+            Map<String,Object> candle =
+                    candles.get(0);
+
+
+
+            return Double.parseDouble(
+                    candle.get("close")
+                            .toString()
+            );
 
 
         }
         catch(Exception e) {
 
-
-            System.out.println(
-                    "Failed to fetch historical price for "
-                            + ticker
-                            + " at "
-                            + transactionTime
-            );
-
-
             return null;
-        }
 
+        }
     }
 
     private Double extractHistoricalClosePrice(
