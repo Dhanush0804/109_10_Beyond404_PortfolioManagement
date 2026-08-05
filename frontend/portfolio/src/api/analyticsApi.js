@@ -80,6 +80,46 @@ const mapPortfolioSummary = (summary) => ({
   marketDistribution: summary?.marketDistribution ?? {},
 });
 
+const normalizeRangeParam = (range) => {
+  const normalized = String(range ?? '1Y').trim().toUpperCase();
+  if (normalized === '1D' || normalized === '1W' || normalized === '1M' || normalized === '1Y') {
+    return normalized;
+  }
+  // Fallback for unsupported UI ranges like 6M.
+  return '1Y';
+};
+
+const mapStockChartResponse = (responseData, requestedRange) => {
+  const rangeKey = normalizeRangeParam(requestedRange);
+  const ranges = responseData?.ranges ?? {};
+  const selectedRangeData = Array.isArray(ranges[rangeKey]) ? ranges[rangeKey] : [];
+
+  if (selectedRangeData.length > 0) {
+    return selectedRangeData.map((point) => ({
+      timestamp: point.timestamp,
+      date: point.date,
+      price: toNumber(point.price),
+      volume: toNumber(point.volume),
+    }));
+  }
+
+  // Defensive fallback if backend returns data under a different non-empty range key.
+  const firstNonEmptyRange = Object.values(ranges).find(
+    (value) => Array.isArray(value) && value.length > 0
+  );
+
+  if (Array.isArray(firstNonEmptyRange)) {
+    return firstNonEmptyRange.map((point) => ({
+      timestamp: point.timestamp,
+      date: point.date,
+      price: toNumber(point.price),
+      volume: toNumber(point.volume),
+    }));
+  }
+
+  return [];
+};
+
 export const fetchPortfolioSummary = async (customerId) => {
   try {
     const { data } = await axiosInstance.get(`/beyond404/Portfolio/analysis/${customerId}/summary`);
@@ -111,10 +151,13 @@ export const fetchStockWisePnL = async (customerId) => {
 export const fetchChartData = async ({ mode = 'portfolio', stockId = null, ticker = null, range = '1Y', customerId = null } = {}) => {
   try {
     if (mode === 'stock' && (stockId || ticker)) {
-      // Backend Endpoint: GET /api/chart-data/{tickerOrStockId}?range={range}
+      // Backend endpoint: GET /api/chart-data/{ticker}?range=1d|1w|1m|1y
       const identifier = ticker || stockId;
-      const { data } = await axiosInstance.get(`/api/chart-data/${identifier}`, { params: { range } });
-      return data;
+      const normalizedRange = normalizeRangeParam(range);
+      const { data } = await axiosInstance.get(`/api/chart-data/${identifier}`, {
+        params: { range: normalizedRange.toLowerCase() },
+      });
+      return mapStockChartResponse(data, normalizedRange);
     }
     const { data } = await axiosInstance.get('/api/analytics/portfolio-chart', { params: { customerId, range } });
     return data;
