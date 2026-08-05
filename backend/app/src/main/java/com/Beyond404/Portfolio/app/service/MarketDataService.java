@@ -6,20 +6,18 @@ import com.Beyond404.Portfolio.app.model.FastApiCandleData;
 import com.Beyond404.Portfolio.app.model.FastApiMarketHistoryResponse;
 import com.Beyond404.Portfolio.app.model.FastApiQuoteResponse;
 import com.Beyond404.Portfolio.app.model.MarketSearchResponse;
-<<<<<<< HEAD
+
 import com.Beyond404.Portfolio.app.model.MarketQuote;
-=======
+
 import com.Beyond404.Portfolio.app.model.MarketSearchResult;
->>>>>>> 4e446b6398952d842838fcebb16f9d3f933b809f
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-<<<<<<< HEAD
-=======
-import com.Beyond404.Portfolio.app.model.MarketQuote;
+
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
->>>>>>> 4e446b6398952d842838fcebb16f9d3f933b809f
+
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -42,22 +40,16 @@ public class MarketDataService {
     @Value("${market.data.base-url:http://localhost:8000}")
     private String marketDataBaseUrl;
 
-
     @Value("${currency.api.base-url:https://api.frankfurter.app}")
     private String currencyApiBaseUrl;
 
-
     private final RestTemplate restTemplate;
 
-
-    public MarketDataService(RestTemplate restTemplate){
+    public MarketDataService(RestTemplate restTemplate) {
 
         this.restTemplate = restTemplate;
 
     }
-
-
-
 
     /**
      * Search stock ticker/company symbols
@@ -68,29 +60,19 @@ public class MarketDataService {
     public MarketSearchResponse searchSymbols(
             String companyName) {
 
-
         String url = UriComponentsBuilder
                 .fromUriString(
                         marketDataBaseUrl
-                                + "/api/v1/market/search"
-                )
+                                + "/api/v1/market/search")
                 .queryParam(
                         "query",
-                        companyName
-                )
+                        companyName)
                 .toUriString();
-
 
         return restTemplate.getForObject(
                 url,
-                MarketSearchResponse.class
-        );
+                MarketSearchResponse.class);
     }
-
-
-
-
-
 
     /**
      * Get latest stock price and quote details
@@ -102,30 +84,19 @@ public class MarketDataService {
             String ticker,
             String market) {
 
-
         String url = UriComponentsBuilder
                 .fromUriString(
                         marketDataBaseUrl
-                                + "/api/v1/market/quote"
-                )
+                                + "/api/v1/market/quote")
                 .queryParam(
                         "symbol",
-                        ticker
-                )
+                        ticker)
                 .toUriString();
-
 
         return restTemplate.getForObject(
                 url,
-                MarketQuote.class
-        );
+                MarketQuote.class);
     }
-
-
-
-
-
-
 
     /**
      * Convert foreign currency amount to INR
@@ -138,71 +109,49 @@ public class MarketDataService {
             double amount,
             String currency) {
 
-
-        if(currency == null ||
+        if (currency == null ||
                 currency.equalsIgnoreCase("INR")) {
 
             return amount;
         }
 
-
         try {
-
 
             String url = UriComponentsBuilder
                     .fromUriString(
                             currencyApiBaseUrl
-                                    + "/latest"
-                    )
+                                    + "/latest")
                     .queryParam(
                             "from",
-                            currency
-                    )
+                            currency)
                     .queryParam(
                             "to",
-                            "INR"
-                    )
+                            "INR")
                     .toUriString();
 
+            Map response = restTemplate.getForObject(
+                    url,
+                    Map.class);
 
+            Map rates = (Map) response.get(
+                    "rates");
 
-            Map response =
-                    restTemplate.getForObject(
-                            url,
-                            Map.class
-                    );
-
-
-            Map rates =
-                    (Map) response.get(
-                            "rates"
-                    );
-
-
-            Double exchangeRate =
-                    Double.valueOf(
-                            rates.get("INR")
-                                    .toString()
-                    );
-
+            Double exchangeRate = Double.valueOf(
+                    rates.get("INR")
+                            .toString());
 
             System.out.println(
                     currency
                             + " conversion rate: "
-                            + exchangeRate
-            );
+                            + exchangeRate);
 
-
-            if(exchangeRate == null ||
+            if (exchangeRate == null ||
                     exchangeRate <= 0) {
 
                 return amount;
             }
 
-
-            double convertedAmount =
-                    amount * exchangeRate;
-
+            double convertedAmount = amount * exchangeRate;
 
             System.out.println(
                     amount
@@ -210,22 +159,15 @@ public class MarketDataService {
                             + currency
                             + " -> "
                             + convertedAmount
-                            + " INR"
-            );
-
+                            + " INR");
 
             return convertedAmount;
 
-
-        }
-        catch(Exception e) {
-
+        } catch (Exception e) {
 
             System.out.println(
                     "Currency conversion failed for "
-                            + currency
-            );
-
+                            + currency);
 
             return amount;
         }
@@ -238,40 +180,33 @@ public class MarketDataService {
      * API:
      * GET /api/v1/market/history
      */
-    public Map<String,Object> getHistoricalData(
+    public Map<String, Object> getHistoricalData(
             String ticker,
             String market,
             String startDate,
             String endDate) {
 
-
         String url = UriComponentsBuilder
                 .fromUriString(
                         marketDataBaseUrl
-                                + "/api/v1/market/history"
-                )
+                                + "/api/v1/market/history")
                 .queryParam(
                         "ticker",
-                        ticker
-                )
+                        ticker)
                 .queryParam(
                         "market",
-                        market
-                )
+                        market)
                 .queryParam(
                         "startDate",
-                        startDate
-                )
+                        startDate)
                 .queryParam(
                         "endDate",
-                        endDate
-                )
+                        endDate)
                 .toUriString();
 
         return restTemplate.getForObject(
                 url,
-                Map.class
-        );
+                Map.class);
 
     }
 
@@ -281,7 +216,7 @@ public class MarketDataService {
      * API:
      * GET /api/v1/market/recent
      */
-    public Map<String,Object> getRecentData(
+    public Map<String, Object> getRecentData(
             String ticker,
             String market) {
 
@@ -289,20 +224,17 @@ public class MarketDataService {
                 .fromUriString(
                         marketDataBaseUrl
                                 + "/api/v1/market/recent")
-                                .queryParam(
-                                        "ticker",
-                                        ticker
-                                )
-                                .queryParam(
-                                        "market",
-                                        market
-                                )
-                                .toUriString();
+                .queryParam(
+                        "ticker",
+                        ticker)
+                .queryParam(
+                        "market",
+                        market)
+                .toUriString();
 
         return restTemplate.getForObject(
                 url,
-                Map.class
-        );
+                Map.class);
 
     }
 
@@ -422,8 +354,7 @@ public class MarketDataService {
                     candle.getTimestamp(),
                     formatDateLabel(candle.getTimestamp(), range),
                     candle.getClose(),
-                    candle.getVolume()
-            ));
+                    candle.getVolume()));
         }
 
         return points;
