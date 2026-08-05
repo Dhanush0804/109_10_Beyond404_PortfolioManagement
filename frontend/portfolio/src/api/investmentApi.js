@@ -79,21 +79,29 @@ export const fetchPaginatedInvestmentHistory = async ({ customerId, stockId = nu
 };
 
 export const placeDummyBuyOrder = async (payload) => {
-  try {
-    const { data } = await axiosInstance.post('/api/orders/dummy/buy', payload);
-    return data;
-  } catch {
-    console.warn('placeDummyBuyOrder → using simulated success');
-    return { ok: true, mode: 'simulated', action: 'BUY', ...payload };
-  }
+  const body = {
+    stockName: payload.stockName,
+    ticker: payload.ticker,
+    stockMarket: payload.stockMarket,
+    customerId: payload.customerId,
+    transactionType: 'BUY',
+    quantity: payload.quantity,
+  };
+
+  const { data } = await axiosInstance.post('/api/investments/buy-stock', body);
+  return data;
 };
 
 export const placeDummySellOrder = async (payload) => {
-  try {
-    const { data } = await axiosInstance.post('/api/orders/dummy/sell', payload);
-    return data;
-  } catch {
-    console.warn('placeDummySellOrder → using simulated success');
-    return { ok: true, mode: 'simulated', action: 'SELL', ...payload };
-  }
+  const body = {
+    stockName: payload.stockName,
+    ticker: payload.ticker,
+    stockMarket: payload.stockMarket,
+    customerId: payload.customerId,
+    transactionType: 'SELL',
+    quantity: payload.quantity,
+  };
+
+  const { data } = await axiosInstance.post('/api/investments/sell-stock', body);
+  return data;
 };

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
+  RiAddLine,
   RiAlertLine,
   RiCloseLine,
   RiArrowDownLine,
@@ -12,6 +13,7 @@ import {
   RiLoaderLine,
   RiMoneyDollarCircleLine,
   RiShieldCheckLine,
+  RiSubtractLine,
 } from 'react-icons/ri';
 import SectionLoader from '../components/common/SectionLoader';
 import { formatCurrency, formatDate, formatPercent } from '../utils/formatters';
@@ -34,6 +36,23 @@ const toNumber = (value) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
+const resolveStockMarket = (stock) => {
+  const ticker = String(stock?.ticker ?? '').toUpperCase();
+
+  if (ticker.endsWith('.NS')) return 'NSE';
+  if (ticker.endsWith('.BO')) return 'BSE';
+
+  const raw = String(stock?.stockMarket ?? stock?.exchangeDisplay ?? stock?.exchange ?? '').trim().toUpperCase();
+
+  if (raw.includes('NASDAQ')) return 'NASDAQ';
+  if (raw.includes('NYSE')) return 'NYSE';
+  if (raw.includes('EURONEXT')) return 'EURONEXT';
+  if (raw.includes('NSE')) return 'NSE';
+  if (raw.includes('BSE')) return 'BSE';
+
+  return raw || ticker;
+};
+
 export default function PortfolioPage() {
   const PAGE_SIZE = 25;
   const dispatch = useDispatch();
@@ -52,6 +71,7 @@ export default function PortfolioPage() {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [historyError, setHistoryError] = useState(null);
   const [actionMessage, setActionMessage] = useState(null);
+  const [orderQuantityInput, setOrderQuantityInput] = useState('1');
 
   useEffect(() => {
     if (!selectedUser?.customerId) return;
@@ -100,6 +120,10 @@ export default function PortfolioPage() {
     if (!stockWise.length || selectedStock) return;
     loadStockDetails(stockWise[0], 'owned');
   }, [stockWise, selectedStock]);
+
+  useEffect(() => {
+    setOrderQuantityInput('1');
+  }, [selectedStock?.ticker]);
 
   useEffect(() => {
     if (!selectedUser?.customerId || !selectedStock?.stockId || selectedSource !== 'owned') {
@@ -157,6 +181,14 @@ export default function PortfolioPage() {
       netInvested: buyAmount - sellAmount,
     };
   }, [selectedStockTransactions]);
+
+  const orderQuantity = useMemo(() => {
+    const parsed = Number.parseInt(orderQuantityInput, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+  }, [orderQuantityInput]);
+
+  const selectedPrice = toNumber(selectedStock?.lastPrice);
+  const estimatedOrderAmount = orderQuantity * selectedPrice;
 
   if (!selectedUser?.customerId) {
     return (
@@ -218,39 +250,72 @@ export default function PortfolioPage() {
     setOrderConfirmDialog({ open: false, type: null });
   };
 
+  const handleQuantityInputChange = (value) => {
+    if (/^\d*$/.test(value)) {
+      setOrderQuantityInput(value);
+    }
+  };
+
+  const decreaseQuantity = () => {
+    setOrderQuantityInput(String(Math.max(orderQuantity - 1, 1)));
+  };
+
+  const increaseQuantity = () => {
+    setOrderQuantityInput(String(orderQuantity + 1));
+  };
+
   const handleOrder = async () => {
     const type = orderConfirmDialog.type;
-    if (!selectedUser?.customerId || !selectedStock?.stockId || placingOrderType) return;
+    if (!selectedUser?.customerId || !selectedStock?.ticker || placingOrderType) return;
 
     setPlacingOrderType(type);
     setActionMessage(null);
 
+    const stockMarket = resolveStockMarket(selectedStock);
+
     const payload = {
+      stockName: selectedStock.companyName || selectedStock.ticker,
       customerId: selectedUser.customerId,
-      stockId: selectedStock.stockId,
       ticker: selectedStock.ticker,
+      stockMarket,
       transactionType: type,
-      quantity: 1,
+      quantity: orderQuantity,
     };
 
     try {
       if (type === 'BUY') {
-        await placeDummyBuyOrder(payload);
+        await dispatch(placeDummyBuyOrder(payload)).unwrap();
       } else {
-        await placeDummySellOrder(payload);
+        await dispatch(placeDummySellOrder(payload)).unwrap();
       }
+
+      await Promise.all([
+        dispatch(loadStockWisePnL(selectedUser.customerId)),
+        dispatch(loadInvestments(selectedUser.customerId)),
+      ]);
+
+      setHistoryPage(0);
+      await loadStockDetails(
+        {
+          ticker: selectedStock.ticker,
+          companyName: selectedStock.companyName,
+        },
+        'owned'
+      );
 
       setActionMessage({
         type: 'success',
-        text: `${type} order queued for ${selectedStock.ticker}.`,
+        text: `${type} order placed for ${selectedStock.ticker} (Qty: ${orderQuantity}).`,
       });
+      setOrderQuantityInput('1');
       closeOrderConfirmDialog();
     } catch (error) {
       setActionMessage({
         type: 'error',
-        text: error?.message ?? `Unable to place ${type} order.`,
+        text: error?.response?.data?.message ?? error?.message ?? `Unable to place ${type} order.`,
       });
     } finally {
+      setOrderConfirmDialog({ open: false, type: null });
       setPlacingOrderType(null);
     }
   };
@@ -414,7 +479,46 @@ export default function PortfolioPage() {
                     <p className="text-sm mt-1" style={{ color: 'var(--txt-secondary)' }}>{selectedStock.companyName}</p>
                   </div>
 
-                  <div className="flex items-center gap-3" style={{ paddingRight: '0.2rem' }}>
+                  <div className="flex items-center gap-3 flex-wrap justify-end" style={{ paddingRight: '0.2rem' }}>
+                    <div
+                      className="inline-flex items-center rounded-xl"
+                      style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', height: 40 }}
+                    >
+                      <button
+                        type="button"
+                        onClick={decreaseQuantity}
+                        disabled={placingOrderType !== null || loadingSelectedDetails}
+                        className="h-full px-3 inline-flex items-center justify-center disabled:opacity-55"
+                        style={{ color: 'var(--txt-primary)' }}
+                        aria-label="Decrease quantity"
+                      >
+                        <RiSubtractLine />
+                      </button>
+                      <input
+                        value={orderQuantityInput}
+                        onChange={(event) => { handleQuantityInputChange(event.target.value); }}
+                        onBlur={() => {
+                          if (!orderQuantityInput || Number.parseInt(orderQuantityInput, 10) <= 0) {
+                            setOrderQuantityInput('1');
+                          }
+                        }}
+                        inputMode="numeric"
+                        className="input border-0 text-center text-sm font-semibold"
+                        style={{ width: 60, minHeight: 36, borderRadius: 0, boxShadow: 'none', background: 'transparent' }}
+                        disabled={placingOrderType !== null || loadingSelectedDetails}
+                        aria-label="Order quantity"
+                      />
+                      <button
+                        type="button"
+                        onClick={increaseQuantity}
+                        disabled={placingOrderType !== null || loadingSelectedDetails}
+                        className="h-full px-3 inline-flex items-center justify-center disabled:opacity-55"
+                        style={{ color: 'var(--txt-primary)' }}
+                        aria-label="Increase quantity"
+                      >
+                        <RiAddLine />
+                      </button>
+                    </div>
                     <button
                       type="button"
                       onClick={() => openOrderConfirmDialog('BUY')}
@@ -447,6 +551,9 @@ export default function PortfolioPage() {
                       {placingOrderType === 'SELL' ? <RiLoaderLine className="animate-spin" /> : <RiArrowDownLine />}
                       Sell
                     </button>
+                    <p className="text-xs font-semibold text-right w-full" style={{ color: 'var(--txt-secondary)', marginTop: 2 }}>
+                      Est. order value: {selectedPrice > 0 ? formatCurrency(estimatedOrderAmount, 2, INR) : 'Price unavailable'}
+                    </p>
                   </div>
                 </div>
 
@@ -649,18 +756,38 @@ export default function PortfolioPage() {
 
       {orderConfirmDialog.open && selectedStock ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'var(--bg-overlay)' }}>
-          <div className="w-full max-w-md rounded-3xl p-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)', boxShadow: 'var(--shadow-elevated)' }}>
+          <div className="w-full max-w-lg rounded-3xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)', boxShadow: 'var(--shadow-elevated)', padding: '18px 18px 16px' }}>
+            {placingOrderType === orderConfirmDialog.type ? (
+              <div
+                style={{
+                  height: 3,
+                  borderRadius: 999,
+                  marginBottom: 12,
+                  background: 'linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 45%, transparent 100%)',
+                  backgroundSize: '200% 100%',
+                  animation: 'shimmer 1.2s linear infinite',
+                }}
+              />
+            ) : null}
             <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-3" style={{ minWidth: 0, paddingRight: 4 }}>
                 <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ color: 'var(--warn)', background: 'var(--warn-bg)', border: '1px solid rgba(245,158,11,0.25)' }}>
                   <RiAlertLine />
                 </div>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <h3 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>
                     Confirm {orderConfirmDialog.type}
                   </h3>
-                  <p className="text-sm mt-1" style={{ color: 'var(--txt-secondary)' }}>
+                  <p className="text-sm" style={{ color: 'var(--txt-secondary)', marginTop: 4, lineHeight: 1.4 }}>
                     You are about to place a {orderConfirmDialog.type} order for {selectedStock.ticker}.
+                  </p>
+                  <p className="text-sm" style={{ color: 'var(--txt-secondary)', marginTop: 6, lineHeight: 1.4 }}>
+                    Qty: <span style={{ color: 'var(--txt-primary)', fontWeight: 700 }}>{orderQuantity}</span>
+                    {' · '}
+                    {orderConfirmDialog.type === 'BUY' ? 'Estimated spend' : 'Estimated receive'}:{' '}
+                    <span style={{ color: 'var(--txt-primary)', fontWeight: 700 }}>
+                      {selectedPrice > 0 ? formatCurrency(estimatedOrderAmount, 2, INR) : 'Price unavailable'}
+                    </span>
                   </p>
                 </div>
               </div>
@@ -675,12 +802,20 @@ export default function PortfolioPage() {
               </button>
             </div>
 
-            <div className="flex items-center justify-end gap-3 mt-6">
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--border-subtle)' }}>
+              <div className="flex items-center justify-end gap-3 flex-wrap">
               <button
                 type="button"
                 onClick={closeOrderConfirmDialog}
-                className="px-4 py-2.5 rounded-xl text-sm font-semibold"
-                style={{ color: 'var(--txt-secondary)', border: '1px solid var(--border-soft)', background: 'var(--bg-elevated)' }}
+                className="rounded-xl text-sm font-semibold"
+                style={{
+                  color: 'var(--txt-secondary)',
+                  border: '1px solid var(--border-soft)',
+                  background: 'var(--bg-elevated)',
+                  minWidth: 104,
+                  minHeight: 38,
+                  padding: '0 16px',
+                }}
                 disabled={placingOrderType !== null}
               >
                 Cancel
@@ -688,16 +823,21 @@ export default function PortfolioPage() {
               <button
                 type="button"
                 onClick={handleOrder}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-55"
+                className="inline-flex items-center gap-2 rounded-xl text-sm font-semibold text-white disabled:opacity-55"
                 style={{
                   background: orderConfirmDialog.type === 'BUY' ? 'var(--gain)' : 'var(--loss)',
                   boxShadow: orderConfirmDialog.type === 'BUY' ? 'var(--shadow-gain)' : 'var(--shadow-loss)',
+                  minWidth: 124,
+                  minHeight: 38,
+                  padding: '0 16px',
+                  justifyContent: 'center',
                 }}
                 disabled={placingOrderType !== null}
               >
                 {placingOrderType === orderConfirmDialog.type ? <RiLoaderLine className="animate-spin" /> : null}
                 Confirm {orderConfirmDialog.type}
               </button>
+              </div>
             </div>
           </div>
         </div>

@@ -20,21 +20,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Set;
 
 @Service
 public class InvestmentService {
 
     private static final String BUY = "BUY";
     private static final String SELL = "SELL";
-    private static final Set<String> SUPPORTED_MARKETS = Set.of(
-            "NYSE",
-            "NASDAQ",
-            "EURONEXT",
-            "NSE",
-            "BSE"
-    );
-
     private final InvestmentRepository investmentRepository;
     private final StocksRepository stocksRepository;
     private final AssetHoldingRepository assetHoldingRepository;
@@ -107,14 +98,20 @@ public class InvestmentService {
         }
 
         String normalizedTicker = normalizeUpper(request.getTicker());
-        String normalizedMarket = normalizeUpper(request.getStockMarket());
+        String normalizedMarket = resolveStockMarket(request.getStockMarket(), normalizedTicker);
         String normalizedStockName = normalizeText(request.getStockName());
         BigDecimal quantity = request.getQuantity().stripTrailingZeros();
 
         Stocks stock = stocksRepository.findByTickerAndMarket(normalizedTicker, normalizedMarket);
 
+        // Fallback for existing records where market labels differ between request and DB.
+        if (stock == null) {
+            stock = stocksRepository.findByTicker(normalizedTicker);
+        }
+
         if (BUY.equals(endpointTransactionType) && stock == null) {
-            Stocks newStock = new Stocks(null, normalizedStockName, normalizedTicker, normalizedMarket);
+            String stockNameForCreate = isBlank(normalizedStockName) ? normalizedTicker : normalizedStockName;
+            Stocks newStock = new Stocks(null, stockNameForCreate, normalizedTicker, normalizedMarket);
             stock = stocksRepository.createStock(newStock);
         }
 
@@ -254,18 +251,6 @@ public class InvestmentService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock market is required");
         }
 
-        String normalizedMarket = normalizeUpper(request.getStockMarket());
-        if (!SUPPORTED_MARKETS.contains(normalizedMarket)) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Unsupported stock market: " + request.getStockMarket()
-            );
-        }
-
-        if (BUY.equals(endpointTransactionType) && isBlank(request.getStockName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock name is required for buy transactions");
-        }
-
         if (request.getQuantity() == null || request.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be greater than zero");
         }
@@ -315,6 +300,48 @@ public class InvestmentService {
 
     private String normalizeText(String value) {
         return value == null ? null : value.trim();
+    }
+
+    private String resolveStockMarket(String requestedMarket, String ticker) {
+        String normalizedRequestedMarket = normalizeMarketCandidate(requestedMarket);
+        if (isSupportedMarket(normalizedRequestedMarket)) {
+            return normalizedRequestedMarket;
+        }
+
+        if (ticker.endsWith(".NS")) {
+            return "NSE";
+        }
+
+        if (ticker.endsWith(".BO")) {
+            return "BSE";
+        }
+
+        return "NASDAQ";
+    }
+
+    private String normalizeMarketCandidate(String value) {
+        if (value == null) {
+            return null;
+        }
+
+        String normalized = value.trim().toUpperCase(Locale.ROOT);
+        if (normalized.equals("NYSE")
+                || normalized.equals("NASDAQ")
+                || normalized.equals("EURONEXT")
+                || normalized.equals("NSE")
+                || normalized.equals("BSE")) {
+            return normalized;
+        }
+
+        return normalized;
+    }
+
+    private boolean isSupportedMarket(String market) {
+        return "NYSE".equals(market)
+                || "NASDAQ".equals(market)
+                || "EURONEXT".equals(market)
+                || "NSE".equals(market)
+                || "BSE".equals(market);
     }
 
     private boolean isBlank(String value) {
