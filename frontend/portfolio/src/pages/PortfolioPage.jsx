@@ -342,28 +342,31 @@ export default function PortfolioPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-4 flex-wrap" style={{ paddingRight: '0.15rem' }}>
+          <div
+            className="grid grid-cols-2 gap-3 justify-end"
+            style={{ paddingRight: '0.15rem', minWidth: 0 }}
+          >
             <div
-              className="rounded-2xl px-5 py-3.5 flex flex-col justify-between min-w-[118px]"
-              style={{ background: 'rgba(10,13,20,0.72)', border: '1px solid var(--border-soft)' }}
+              className="rounded-2xl flex flex-col justify-between"
+              style={{ background: 'rgba(10,13,20,0.72)', border: '1px solid var(--border-soft)', minWidth: 132, padding: '14px 16px' }}
             >
-              <p className="text-[10px] uppercase tracking-[0.18em] font-bold" style={{ color: 'var(--txt-muted)' }}>
+              <p className="text-[9px] uppercase tracking-[0.18em] font-bold" style={{ color: 'var(--txt-muted)' }}>
                 Stocks owned
               </p>
-              <p className="text-3xl font-extrabold mt-1" style={{ color: 'var(--txt-primary)' }}>
+              <p className="text-2xl font-extrabold mt-1 leading-none" style={{ color: 'var(--txt-primary)' }}>
                 {stockWise.length}
               </p>
             </div>
 
             <div
-              className="rounded-2xl px-5 py-3.5 flex flex-col justify-between min-w-[118px]"
-              style={{ background: 'rgba(10,13,20,0.72)', border: '1px solid var(--border-soft)' }}
+              className="rounded-2xl flex flex-col justify-between"
+              style={{ background: 'rgba(10,13,20,0.72)', border: '1px solid var(--border-soft)', minWidth: 132, padding: '14px 16px' }}
             >
-              <p className="text-[10px] uppercase tracking-[0.18em] font-bold" style={{ color: 'var(--txt-muted)' }}>
+              <p className="text-[9px] uppercase tracking-[0.18em] font-bold" style={{ color: 'var(--txt-muted)' }}>
                 User risk
               </p>
               <span
-                className="inline-flex items-center gap-1.5 mt-2 px-3.5 py-1.5 rounded-xl text-xs font-bold"
+                className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-xl text-[11px] font-bold w-fit"
                 style={{ background: riskStyle.bg, border: `1px solid ${riskStyle.border}`, color: riskStyle.color }}
               >
                 <RiShieldCheckLine />
