@@ -171,6 +171,10 @@ export default function PortfolioPage() {
 
     const buyAmount = buys.reduce((sum, item) => sum + toNumber(item.transactionAmount), 0);
     const sellAmount = sells.reduce((sum, item) => sum + toNumber(item.transactionAmount), 0);
+    const sharesOwned = selectedStockTransactions.reduce((sum, item) => {
+      const quantity = toNumber(item.quantity);
+      return sum + (item.transactionType === 'BUY' ? quantity : -quantity);
+    }, 0);
 
     return {
       transactionCount: selectedStockTransactions.length,
@@ -179,6 +183,7 @@ export default function PortfolioPage() {
       buyAmount,
       sellAmount,
       netInvested: buyAmount - sellAmount,
+      sharesOwned: Math.max(sharesOwned, 0),
     };
   }, [selectedStockTransactions]);
 
@@ -649,6 +654,7 @@ export default function PortfolioPage() {
                     <Stat label="Total Txn" value={positionSummary.transactionCount} />
                     <Stat label="Buy Txn" value={positionSummary.buyCount} />
                     <Stat label="Sell Txn" value={positionSummary.sellCount} />
+                    <Stat label="Shares Own" value={positionSummary.sharesOwned.toLocaleString('en-US', { maximumFractionDigits: 4 })} />
                     <Stat label="Buy Amount" value={formatCurrency(positionSummary.buyAmount, 2, INR)} />
                     <Stat label="Sell Amount" value={formatCurrency(positionSummary.sellAmount, 2, INR)} />
                     <Stat label="Net Invested" value={formatCurrency(positionSummary.netInvested, 2, INR)} />
