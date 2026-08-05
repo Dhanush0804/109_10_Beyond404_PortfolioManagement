@@ -4,6 +4,7 @@ import Sidebar        from './components/layout/Sidebar';
 import Topbar         from './components/layout/Topbar';
 import DashboardPage  from './pages/DashboardPage';
 import UserProfilePage from './pages/UserProfilePage';
+import UserManagementPage from './pages/UserManagementPage';
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
         <Routes>
           <Route path="/"         element={<DashboardPage />} />
           <Route path="/profile"  element={<UserProfilePage />} />
+          <Route path="/users"    element={<UserManagementPage />} />
           <Route path="/portfolio" element={<ComingSoon label="Portfolio" />} />
           <Route path="/analysis"  element={<ComingSoon label="Analysis" />} />
           <Route path="/market"    element={<ComingSoon label="Market" />} />
