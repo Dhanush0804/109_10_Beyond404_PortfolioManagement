@@ -174,14 +174,7 @@ export default function UserManagementPage() {
         </div>
       </section>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1.25fr minmax(320px, 420px)',
-          gap: 24,
-          alignItems: 'start',
-        }}
-      >
+      <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_minmax(320px,420px)] gap-6 items-start">
         <section className="card p-5">
           <div className="flex items-center justify-between gap-4 mb-5">
             <div>
@@ -229,7 +222,7 @@ export default function UserManagementPage() {
                         onMouseLeave={(event) => { event.currentTarget.style.background = isActive ? 'rgba(26,110,247,0.08)' : 'transparent'; }}
                         style={isActive ? { background: 'rgba(26,110,247,0.08)' } : undefined}
                       >
-                        <td className="px-3 py-3.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                        <td>
                           <div className="flex items-center gap-3">
                             <div
                               className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
@@ -243,10 +236,10 @@ export default function UserManagementPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-3 py-3.5 text-xs font-medium" style={{ color: 'var(--txt-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
+                        <td className="text-xs font-medium" style={{ color: 'var(--txt-secondary)' }}>
                           #{user.customerId}
                         </td>
-                        <td className="px-3 py-3.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                        <td>
                           <span
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold"
                             style={{
@@ -259,7 +252,7 @@ export default function UserManagementPage() {
                             {user.riskLevel}
                           </span>
                         </td>
-                        <td className="px-3 py-3.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                        <td>
                           <span
                             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold"
                             style={isActive
@@ -269,7 +262,7 @@ export default function UserManagementPage() {
                             {isActive ? 'Active user' : 'Available'}
                           </span>
                         </td>
-                        <td className="px-3 py-3.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                        <td>
                           <button
                             type="button"
                             onClick={(event) => {
@@ -423,16 +416,16 @@ export default function UserManagementPage() {
                       const isBuy = item.transactionType === 'BUY';
                       return (
                         <tr key={item.assetId}>
-                          <td className="px-3 py-3" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>#{item.assetId}</td>
-                          <td className="px-3 py-3" style={{ color: 'var(--txt-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>#{item.stockId}</td>
-                          <td className="px-3 py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                          <td style={{ color: 'var(--txt-primary)' }}>#{item.assetId}</td>
+                          <td style={{ color: 'var(--txt-secondary)' }}>#{item.stockId}</td>
+                          <td>
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold" style={isBuy ? { background: 'var(--gain-bg)', color: 'var(--gain)', border: '1px solid var(--gain-border)' } : { background: 'var(--loss-bg)', color: 'var(--loss)', border: '1px solid var(--loss-border)' }}>
                               {item.transactionType}
                             </span>
                           </td>
-                          <td className="px-3 py-3" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>{Number(item.quantity ?? 0).toLocaleString('en-US')}</td>
-                          <td className="px-3 py-3" style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}>{formatCurrency(item.transactionAmount, 2, 'INR')}</td>
-                          <td className="px-3 py-3" style={{ color: 'var(--txt-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>{formatDate(item.transactionTimestamp)}</td>
+                          <td style={{ color: 'var(--txt-primary)' }}>{Number(item.quantity ?? 0).toLocaleString('en-US')}</td>
+                          <td style={{ color: 'var(--txt-primary)' }}>{formatCurrency(item.transactionAmount, 2, 'INR')}</td>
+                          <td style={{ color: 'var(--txt-secondary)' }}>{formatDate(item.transactionTimestamp)}</td>
                         </tr>
                       );
                     })}

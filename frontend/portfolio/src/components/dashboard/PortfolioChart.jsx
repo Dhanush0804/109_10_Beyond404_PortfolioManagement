@@ -105,12 +105,12 @@ export default function PortfolioChart() {
           )}
           <p className="text-sm font-semibold" style={{ color: 'var(--txt-primary)' }}>{title}</p>
           {!isEmpty && (
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>
+            <div className="flex items-center gap-2.5 mt-1 flex-wrap">
+              <span className="text-xl font-extrabold tracking-tight" style={{ color: 'var(--txt-primary)' }}>
                 {formatCurrency(last)}
               </span>
               <span
-                className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg"
                 style={{
                   background: isGain ? 'var(--gain-bg)' : 'var(--loss-bg)',
                   border: `1px solid ${isGain ? 'var(--gain-border)' : 'var(--loss-border)'}`,

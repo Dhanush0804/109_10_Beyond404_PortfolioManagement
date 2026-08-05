@@ -118,7 +118,7 @@ export default function PortfolioOverviewTable() {
                       }}
                     >
                       {/* Stock */}
-                      <td className="py-3 pr-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <td>
                         <div className="flex items-center gap-3">
                           <div
                             className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
@@ -149,15 +149,12 @@ export default function PortfolioOverviewTable() {
                       </td>
 
                       {/* Last price */}
-                      <td
-                        className="py-3 pr-4 text-[12px] font-semibold"
-                        style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}
-                      >
+                      <td className="text-[12px] font-semibold" style={{ color: 'var(--txt-primary)' }}>
                         {formatCurrency(stock.lastPrice ?? stock.currentValue ?? 0, 2, STOCKWISE_CURRENCY)}
                       </td>
 
                       {/* Change % */}
-                      <td className="py-3 pr-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <td>
                         <span
                           className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded"
                           style={{
@@ -172,23 +169,17 @@ export default function PortfolioOverviewTable() {
                       </td>
 
                       {/* P&L */}
-                      <td
-                        className="py-3 pr-4 text-[12px] font-semibold"
-                        style={{ color: gain ? 'var(--gain)' : 'var(--loss)', borderBottom: '1px solid var(--border-subtle)' }}
-                      >
+                      <td className="text-[12px] font-semibold" style={{ color: gain ? 'var(--gain)' : 'var(--loss)' }}>
                         {gain ? '+' : ''}{formatCurrency(stock.pnl, 2, STOCKWISE_CURRENCY)}
                       </td>
 
                       {/* Volume */}
-                      <td
-                        className="py-3 pr-4 text-[12px]"
-                        style={{ color: 'var(--txt-secondary)', borderBottom: '1px solid var(--border-subtle)' }}
-                      >
+                      <td className="text-[12px]" style={{ color: 'var(--txt-secondary)' }}>
                         {stock.volume ?? '—'}
                       </td>
 
                       {/* Sparkline */}
-                      <td className="py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <td>
                         <div className="w-20 h-7">
                           <Sparklines data={sparkData} min={0}>
                             <SparklinesLine

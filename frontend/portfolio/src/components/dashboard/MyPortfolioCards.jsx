@@ -18,7 +18,7 @@ function StockChip({ stock, isActive, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="flex-shrink-0 flex flex-col gap-1.5 p-3.5 rounded-xl text-left transition-all duration-200 min-w-[120px]"
+      className="flex-shrink-0 flex flex-col gap-2 p-4 rounded-xl text-left transition-all duration-200 min-w-[155px]"
       style={{
         background: isActive ? 'var(--accent-glow)' : 'var(--bg-elevated)',
         border: `1px solid ${isActive ? 'var(--border-active)' : 'var(--border-subtle)'}`,
@@ -28,16 +28,17 @@ function StockChip({ stock, isActive, onClick }) {
       {/* Ticker */}
       <div className="flex items-center justify-between gap-2">
         <span
-          className="text-[10px] font-black uppercase tracking-wide px-1.5 py-0.5 rounded"
+          className="text-[10px] font-extrabold uppercase tracking-wide px-2 py-0.5 rounded-md"
           style={{
             background: isActive ? 'var(--accent)' : 'var(--bg-card)',
             color: isActive ? '#fff' : 'var(--accent)',
+            border: isActive ? 'none' : '1px solid var(--border-subtle)',
           }}
         >
           {ticker}
         </span>
         <span
-          className="text-[9px] font-bold flex items-center gap-0.5"
+          className="text-[10px] font-bold flex items-center gap-0.5"
           style={{ color: gain ? 'var(--gain)' : 'var(--loss)' }}
         >
           {gain ? <RiArrowUpLine /> : <RiArrowDownLine />}
@@ -46,12 +47,12 @@ function StockChip({ stock, isActive, onClick }) {
       </div>
 
       {/* Price */}
-      <p className="text-sm font-bold" style={{ color: 'var(--txt-primary)' }}>
+      <p className="text-sm font-extrabold tracking-tight mt-0.5" style={{ color: 'var(--txt-primary)' }}>
         {formatCurrency(current, 2, STOCKWISE_CURRENCY)}
       </p>
 
       {/* Company name */}
-      <p className="text-[9px] truncate max-w-[100px]" style={{ color: 'var(--txt-secondary)' }}>
+      <p className="text-[10px] font-medium truncate max-w-[125px]" style={{ color: 'var(--txt-secondary)' }}>
         {stock.companyName ?? '—'}
       </p>
     </button>

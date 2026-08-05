@@ -9,7 +9,7 @@ export default function DashboardPage() {
   const { selectedUser } = useSelector((s) => s.user);
 
   return (
-    <div className="page-container anim-fade-in" style={{ maxWidth: 1600, margin: '0 auto' }}>
+    <div className="page-container anim-fade-in" style={{ maxWidth: 1500, margin: '0 auto' }}>
 
       {/* ── Page header ── */}
       <div style={{ marginBottom: 4 }}>
@@ -31,14 +31,7 @@ export default function DashboardPage() {
       <StatsSummaryBar />
 
       {/* ── Holdings + Portfolio cards ── */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(280px, 320px) 1fr',
-          gap: 20,
-          alignItems: 'stretch',
-        }}
-      >
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(280px,320px)_1fr] gap-5 items-stretch">
         <TotalHoldingCard />
         <MyPortfolioCards />
       </div>

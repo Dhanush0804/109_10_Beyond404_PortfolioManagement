@@ -256,7 +256,7 @@ export default function PortfolioPage() {
   };
 
   return (
-    <div className="page-container anim-fade-in" style={{ maxWidth: 1500, margin: '0 auto' }}>
+    <div className="page-container anim-fade-in" style={{ maxWidth: 1540, margin: '0 auto' }}>
       <section className="hero-section">
 
         <div className="relative flex items-start justify-between gap-5 flex-wrap">
@@ -274,26 +274,26 @@ export default function PortfolioPage() {
 
           <div className="flex items-center gap-3 flex-wrap">
             <div
-              className="rounded-2xl px-4 py-3"
+              className="rounded-2xl px-5 py-3.5 flex flex-col justify-between"
               style={{ background: 'rgba(10,13,20,0.72)', border: '1px solid var(--border-soft)' }}
             >
               <p className="text-[10px] uppercase tracking-[0.18em] font-bold" style={{ color: 'var(--txt-muted)' }}>
                 Stocks owned
               </p>
-              <p className="text-3xl font-extrabold mt-2" style={{ color: 'var(--txt-primary)' }}>
+              <p className="text-3xl font-extrabold mt-1" style={{ color: 'var(--txt-primary)' }}>
                 {stockWise.length}
               </p>
             </div>
 
             <div
-              className="rounded-2xl px-4 py-3"
+              className="rounded-2xl px-5 py-3.5 flex flex-col justify-between"
               style={{ background: 'rgba(10,13,20,0.72)', border: '1px solid var(--border-soft)' }}
             >
               <p className="text-[10px] uppercase tracking-[0.18em] font-bold" style={{ color: 'var(--txt-muted)' }}>
                 User risk
               </p>
               <span
-                className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-xl text-xs font-semibold"
+                className="inline-flex items-center gap-1.5 mt-2 px-3.5 py-1.5 rounded-xl text-xs font-bold"
                 style={{ background: riskStyle.bg, border: `1px solid ${riskStyle.border}`, color: riskStyle.color }}
               >
                 <RiShieldCheckLine />
@@ -304,21 +304,14 @@ export default function PortfolioPage() {
         </div>
       </section>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(320px, 420px) 1fr',
-          gap: 24,
-          alignItems: 'start',
-        }}
-      >
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(340px,440px)_1fr] gap-7 items-start">
         <div className="flex flex-col gap-6">
           <MarketStockSearchPanel
             onSelectStock={handleSelectMarketStock}
             disabled={!selectedUser || loadingSelectedDetails || placingOrderType !== null}
           />
 
-          <section className="card p-5">
+          <section className="card" style={{ padding: '1.5rem' }}>
             <div className="flex items-center justify-between gap-3 mb-5">
               <div>
                 <h2 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>Owned stocks</h2>
@@ -347,7 +340,7 @@ export default function PortfolioPage() {
                   <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>No owned stocks found (count: 0).</p>
                 </div>
               ) : (
-                <div className="flex flex-col gap-2 max-h-[560px] overflow-y-auto pr-1">
+                <div className="flex flex-col gap-3 max-h-[560px] overflow-y-auto pr-1">
                   {stockWise.map((stock) => {
                     const isSelected = selectedSource === 'owned' && selectedStock?.ticker === stock.ticker;
                     const pnl = toNumber(stock.pnl);
@@ -358,19 +351,20 @@ export default function PortfolioPage() {
                         key={stock.stockId}
                         type="button"
                         onClick={() => handleSelectOwnedStock(stock)}
-                        className="w-full text-left rounded-2xl px-4 py-3 transition-all duration-200"
+                        className="w-full text-left rounded-xl transition-all duration-200 hover:scale-[1.01]"
                         style={{
                           background: isSelected ? 'var(--accent-glow)' : 'var(--bg-elevated)',
                           border: `1px solid ${isSelected ? 'var(--border-active)' : 'var(--border-subtle)'}`,
+                          padding: '0.95rem 1rem',
                         }}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <p className="text-sm font-bold" style={{ color: 'var(--txt-primary)' }}>{stock.ticker}</p>
-                            <p className="text-[11px] mt-0.5" style={{ color: 'var(--txt-secondary)' }}>{stock.companyName}</p>
+                            <p className="text-[11px] mt-0.5 font-medium" style={{ color: 'var(--txt-secondary)' }}>{stock.companyName}</p>
                           </div>
                           <span
-                            className="text-[11px] font-semibold px-2 py-0.5 rounded-lg"
+                            className="text-[11px] font-bold px-2.5 py-1 rounded-lg"
                             style={{
                               color: pnlPositive ? 'var(--gain)' : 'var(--loss)',
                               background: pnlPositive ? 'var(--gain-bg)' : 'var(--loss-bg)',
@@ -380,11 +374,11 @@ export default function PortfolioPage() {
                             {pnlPositive ? '+' : ''}{formatCurrency(pnl, 2, INR)}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between mt-2">
-                          <p className="text-xs" style={{ color: 'var(--txt-muted)' }}>
+                        <div className="flex items-center justify-between mt-2.5 pt-2" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+                          <p className="text-xs font-medium" style={{ color: 'var(--txt-muted)' }}>
                             Current: {formatCurrency(toNumber(stock.currentValue), 2, INR)}
                           </p>
-                          <p className="text-xs" style={{ color: 'var(--txt-muted)' }}>
+                          <p className="text-xs font-bold" style={{ color: pnlPositive ? 'var(--gain)' : 'var(--loss)' }}>
                             {formatPercent(toNumber(stock.pnlPercent))}
                           </p>
                         </div>
@@ -397,7 +391,7 @@ export default function PortfolioPage() {
           </section>
         </div>
 
-        <section className="card p-5">
+        <section className="card" style={{ padding: '1.6rem' }}>
           <SectionLoader loading={loadingInvestments} minHeight={420}>
             {!selectedStock ? (
               <div
@@ -408,7 +402,10 @@ export default function PortfolioPage() {
               </div>
             ) : (
               <div className="flex flex-col gap-6">
-                <div className="flex items-start justify-between gap-4 flex-wrap">
+                <div
+                  className="flex items-start justify-between gap-4 flex-wrap"
+                  style={{ paddingBottom: '0.85rem', borderBottom: '1px solid var(--border-subtle)' }}
+                >
                   <div>
                     <p className="text-[11px] uppercase tracking-widest" style={{ color: 'var(--txt-muted)' }}>Selected stock</p>
                     <h2 className="text-2xl font-bold mt-1" style={{ color: 'var(--txt-primary)' }}>
@@ -422,8 +419,14 @@ export default function PortfolioPage() {
                       type="button"
                       onClick={() => openOrderConfirmDialog('BUY')}
                       disabled={placingOrderType !== null || loadingSelectedDetails}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-55"
-                      style={{ background: 'var(--gain)', boxShadow: 'var(--shadow-gain)' }}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl text-sm font-bold tracking-wide text-white disabled:opacity-55 transition-all duration-150 hover:scale-105 active:scale-95"
+                      style={{
+                        background: 'var(--gain)',
+                        boxShadow: 'var(--shadow-gain)',
+                        minWidth: '112px',
+                        minHeight: '40px',
+                        padding: '0.55rem 1rem',
+                      }}
                     >
                       {placingOrderType === 'BUY' ? <RiLoaderLine className="animate-spin" /> : <RiArrowUpLine />}
                       Buy
@@ -432,8 +435,14 @@ export default function PortfolioPage() {
                       type="button"
                       onClick={() => openOrderConfirmDialog('SELL')}
                       disabled={placingOrderType !== null || loadingSelectedDetails}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-55"
-                      style={{ background: 'var(--loss)', boxShadow: 'var(--shadow-loss)' }}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl text-sm font-bold tracking-wide text-white disabled:opacity-55 transition-all duration-150 hover:scale-105 active:scale-95"
+                      style={{
+                        background: 'var(--loss)',
+                        boxShadow: 'var(--shadow-loss)',
+                        minWidth: '112px',
+                        minHeight: '40px',
+                        padding: '0.55rem 1rem',
+                      }}
                     >
                       {placingOrderType === 'SELL' ? <RiLoaderLine className="animate-spin" /> : <RiArrowDownLine />}
                       Sell
@@ -452,7 +461,7 @@ export default function PortfolioPage() {
                   </div>
                 ) : null}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {[
                     {
                       icon: RiMoneyDollarCircleLine,
@@ -495,27 +504,27 @@ export default function PortfolioPage() {
                     return (
                       <div
                         key={item.label}
-                        className="rounded-2xl p-4"
+                        className="rounded-xl flex flex-col justify-between"
                         style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
                       >
-                        <div className="flex items-center gap-2 mb-2">
-                          <Icon className="text-sm" style={{ color: item.color }} />
-                          <p className="text-[10px] uppercase tracking-widest" style={{ color: 'var(--txt-muted)' }}>{item.label}</p>
+                        <div className="flex items-center gap-2" style={{ padding: '0.95rem 1rem 0.45rem' }}>
+                          <Icon className="text-base" style={{ color: item.color }} />
+                          <p className="text-[10px] uppercase font-bold tracking-wider" style={{ color: 'var(--txt-muted)' }}>{item.label}</p>
                         </div>
-                        <p className="text-sm font-bold" style={{ color: item.color }}>{item.value}</p>
+                        <p className="text-base font-extrabold" style={{ color: item.color, padding: '0 1rem 0.95rem' }}>{item.value}</p>
                       </div>
                     );
                   })}
                 </div>
 
-                <div
-                  className="rounded-2xl p-4"
+                  <div
+                    className="rounded-2xl"
                   style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
                 >
-                  <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--txt-muted)' }}>
+                    <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--txt-muted)', padding: '1rem 1rem 0.5rem' }}>
                     User transactions for this stock
                   </p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3" style={{ padding: '0.25rem 1rem 1rem' }}>
                     <Stat label="Total Txn" value={positionSummary.transactionCount} />
                     <Stat label="Buy Txn" value={positionSummary.buyCount} />
                     <Stat label="Sell Txn" value={positionSummary.sellCount} />
@@ -527,10 +536,10 @@ export default function PortfolioPage() {
 
                 {selectedSource === 'owned' ? (
                   <div
-                    className="rounded-2xl p-4 min-h-[280px]"
+                    className="rounded-2xl p-5 min-h-[300px]"
                     style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
                   >
-                    <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+                    <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
                       <div>
                         <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--txt-muted)' }}>
                           Investment History
@@ -539,9 +548,9 @@ export default function PortfolioPage() {
                           Paginated transactions for {selectedStock.ticker}
                         </p>
                       </div>
-                      <p className="text-xs font-semibold" style={{ color: 'var(--txt-muted)' }}>
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold" style={{ color: 'var(--txt-muted)', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}>
                         Total: {stockHistory.totalItems}
-                      </p>
+                      </span>
                     </div>
 
                     <SectionLoader loading={loadingHistory} minHeight={220}>
@@ -571,15 +580,15 @@ export default function PortfolioPage() {
                                   const isBuy = item.transactionType === 'BUY';
                                   return (
                                     <tr key={item.assetId}>
-                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)' }}>#{item.assetId}</td>
-                                      <td className="py-3 pr-5">
+                                      <td className="text-sm" style={{ color: 'var(--txt-primary)' }}>#{item.assetId}</td>
+                                      <td>
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold" style={isBuy ? { background: 'var(--gain-bg)', color: 'var(--gain)', border: '1px solid var(--gain-border)' } : { background: 'var(--loss-bg)', color: 'var(--loss)', border: '1px solid var(--loss-border)' }}>
                                           {item.transactionType}
                                         </span>
                                       </td>
-                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)' }}>{Number(item.quantity ?? 0).toLocaleString('en-US')}</td>
-                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-primary)' }}>{formatCurrency(item.transactionAmount, 2, INR)}</td>
-                                      <td className="py-3 pr-5 text-sm" style={{ color: 'var(--txt-secondary)' }}>{formatDate(item.transactionTimestamp)}</td>
+                                      <td className="text-sm" style={{ color: 'var(--txt-primary)' }}>{Number(item.quantity ?? 0).toLocaleString('en-US')}</td>
+                                      <td className="text-sm" style={{ color: 'var(--txt-primary)' }}>{formatCurrency(item.transactionAmount, 2, INR)}</td>
+                                      <td className="text-sm" style={{ color: 'var(--txt-secondary)' }}>{formatDate(item.transactionTimestamp)}</td>
                                     </tr>
                                   );
                                 })}
@@ -667,13 +676,13 @@ export default function PortfolioPage() {
 function Stat({ label, value }) {
   return (
     <div
-      className="rounded-xl px-3 py-3"
+      className="rounded-xl px-4 py-3.5 flex flex-col justify-between"
       style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}
     >
-      <p className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--txt-muted)' }}>
+      <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--txt-muted)' }}>
         {label}
       </p>
-      <p className="text-sm font-bold mt-1" style={{ color: 'var(--txt-primary)' }}>
+      <p className="text-sm font-extrabold mt-1.5" style={{ color: 'var(--txt-primary)' }}>
         {value}
       </p>
     </div>
