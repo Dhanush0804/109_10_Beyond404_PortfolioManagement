@@ -18,9 +18,10 @@ public class InvestmentRowMapper implements RowMapper<Investment> {
         Long stockId = resultSet.getLong("stock_id");
         String transactionType = resultSet.getString("transaction_type");
         java.math.BigDecimal transactionAmount = resultSet.getBigDecimal("transaction_amount");
+        java.math.BigDecimal quantity = resultSet.getBigDecimal("quantity");
         java.sql.Timestamp transactionTimestamp = resultSet.getTimestamp("transaction_timestamp");
 
-        return new Investment(assetId, customerId, stockId, transactionType, transactionAmount, transactionTimestamp);
+        return new Investment(assetId, customerId, stockId, transactionType, transactionAmount, quantity, transactionTimestamp);
     }
 }
 

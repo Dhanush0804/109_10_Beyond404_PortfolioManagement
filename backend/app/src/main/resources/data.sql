@@ -27,75 +27,74 @@ VALUES
 (1, 'Apple Inc.', 'AAPL', 'NASDAQ'),
 (2, 'Microsoft Corporation', 'MSFT', 'NASDAQ'),
 (3, 'NVIDIA Corporation', 'NVDA', 'NASDAQ'),
-(4, 'Amazon.com Inc.', 'AMZN', 'NASDAQ'),
-(5, 'Alphabet Inc. Class A', 'GOOGL', 'NASDAQ'),
-(6, 'Meta Platforms Inc.', 'META', 'NASDAQ'),
-(7, 'Tesla Inc.', 'TSLA', 'NASDAQ'),
-(8, 'Netflix Inc.', 'NFLX', 'NASDAQ'),
-(9, 'Adobe Inc.', 'ADBE', 'NASDAQ'),
-(10, 'Intel Corporation', 'INTC', 'NASDAQ'),
-(11, 'Advanced Micro Devices', 'AMD', 'NASDAQ'),
-(12, 'Cisco Systems Inc.', 'CSCO', 'NASDAQ'),
+(4, 'Alphabet Inc.', 'GOOG', 'NASDAQ'),
+(5, 'Broadcom Inc.', 'AVGO', 'NASDAQ'),
+(6, 'Costco Wholesale Corporation', 'COST', 'NASDAQ'),
+(7, 'Adobe Inc.', 'ADBE', 'NASDAQ'),
 
 -- ==========================
 -- NYSE
 -- ==========================
 
-(13, 'JPMorgan Chase & Co.', 'JPM', 'NYSE'),
-(14, 'Visa Inc.', 'V', 'NYSE'),
-(15, 'The Coca-Cola Company', 'KO', 'NYSE'),
-(16, 'The Walt Disney Company', 'DIS', 'NYSE'),
-(17, 'Goldman Sachs Group', 'GS', 'NYSE'),
-(18, 'International Business Machines', 'IBM', 'NYSE'),
-(19, 'The Boeing Company', 'BA', 'NYSE'),
-(20, 'Exxon Mobil Corporation', 'XOM', 'NYSE'),
-(21, 'Pfizer Inc.', 'PFE', 'NYSE'),
-(22, 'Shell plc', 'SHEL', 'NYSE'),
-
--- ==========================
--- EURONEXT
--- ==========================
-
-(23, 'ASML Holding N.V.', 'ASML', 'EURONEXT'),
-(24, 'Airbus SE', 'AIR', 'EURONEXT'),
-(25, 'TotalEnergies SE', 'TTE', 'EURONEXT'),
-(26, 'Stellantis N.V.', 'STLAM', 'EURONEXT'),
-(27, 'L''Oréal S.A.', 'OR', 'EURONEXT'),
-(28, 'Sanofi S.A.', 'SAN', 'EURONEXT'),
-(29, 'Danone S.A.', 'BN', 'EURONEXT'),
-(30, 'BNP Paribas', 'BNP', 'EURONEXT'),
-(31, 'Société Générale', 'GLE', 'EURONEXT'),
-(32, 'ArcelorMittal', 'MT', 'EURONEXT'),
+(8, 'JPMorgan Chase & Co.', 'JPM', 'NYSE'),
+(9, 'Bank of America Corporation', 'BAC', 'NYSE'),
+(10, 'Morgan Stanley', 'MS', 'NYSE'),
+(11, 'Berkshire Hathaway Inc.', 'BRK-B', 'NYSE'),
+(12, 'Johnson & Johnson', 'JNJ', 'NYSE'),
+(13, 'Procter & Gamble Company', 'PG', 'NYSE'),
+(14, 'Coca-Cola Company', 'KO', 'NYSE'),
 
 -- ==========================
 -- NSE
 -- ==========================
 
-(33, 'Reliance Industries Ltd.', 'RELIANCE', 'NSE'),
-(34, 'Tata Consultancy Services', 'TCS', 'NSE'),
-(35, 'Infosys Limited', 'INFY', 'NSE'),
-(36, 'HDFC Bank Ltd.', 'HDFCBANK', 'NSE'),
-(37, 'ICICI Bank Ltd.', 'ICICIBANK', 'NSE'),
-(38, 'State Bank of India', 'SBIN', 'NSE'),
-(39, 'Wipro Limited', 'WIPRO', 'NSE'),
-(40, 'ITC Limited', 'ITC', 'NSE'),
-(41, 'Tata Motors Ltd.', 'TATAMOTORS', 'NSE'),
-(42, 'Larsen & Toubro Ltd.', 'LT', 'NSE'),
+(15, 'ICICI Bank Limited', 'ICICIBANK.NS', 'NSE'),
+(16, 'HDFC Bank Limited', 'HDFCBANK.NS', 'NSE'),
+(17, 'Infosys Limited', 'INFY.NS', 'NSE'),
+(18, 'Tata Consultancy Services Limited', 'TCS.NS', 'NSE'),
+(19, 'Reliance Industries Limited', 'RELIANCE.NS', 'NSE'),
+(20, 'Axis Bank Limited', 'AXISBANK.NS', 'NSE'),
+(21, 'Wipro Limited', 'WIPRO.NS', 'NSE'),
+(22, 'Kotak Mahindra Bank Limited', 'KOTAKBANK.NS', 'NSE'),
+(23, 'Larsen & Toubro Limited', 'LT.NS', 'NSE'),
+(24, 'Bajaj Auto Limited', 'BAJAJ-AUTO.NS', 'NSE'),
+(25, 'Maruti Suzuki India Limited', 'MARUTI.NS', 'NSE'),
+(26, 'HCL Technologies Limited', 'HCLTECH.NS', 'NSE'),
+(27, 'Tech Mahindra Limited', 'TECHM.NS', 'NSE'),
+(28, 'ITC Limited', 'ITC.NS', 'NSE'),
+(29, 'Bharti Airtel Limited', 'BHARTIARTL.NS', 'NSE'),
+(30, 'Nestle India Limited', 'NESTLEIND.NS', 'NSE'),
+(31, 'NTPC Limited', 'NTPC.NS', 'NSE'),
 
 -- ==========================
 -- BSE
 -- ==========================
 
-(43, 'Reliance Industries Ltd.', 'RELIANCE', 'BSE'),
-(44, 'Tata Consultancy Services', 'TCS', 'BSE'),
-(45, 'Infosys Limited', 'INFY', 'BSE'),
-(46, 'HDFC Bank Ltd.', 'HDFCBANK', 'BSE'),
-(47, 'ICICI Bank Ltd.', 'ICICIBANK', 'BSE'),
-(48, 'State Bank of India', 'SBIN', 'BSE'),
-(49, 'Wipro Limited', 'WIPRO', 'BSE'),
-(50, 'Sun Pharmaceutical Industries', 'SUNPHARMA', 'BSE'),
-(51, 'Bajaj Finance Ltd.', 'BAJFINANCE', 'BSE'),
-(52, 'Asian Paints Ltd.', 'ASIANPAINT', 'BSE');
+(32, 'Reliance Industries Limited', 'RELIANCE.BO', 'BSE'),
+(33, 'ICICI Bank Limited', 'ICICIBANK.BO', 'BSE'),
+(34, 'Tata Consultancy Services Limited', 'TCS.BO', 'BSE'),
+(35, 'Bajaj Auto Limited', 'BAJAJ-AUTO.BO', 'BSE'),
+(36, 'Maruti Suzuki India Limited', 'MARUTI.BO', 'BSE'),
+(37, 'ITC Limited', 'ITC.BO', 'BSE'),
+(38, 'Bharti Airtel Limited', 'BHARTIARTL.BO', 'BSE'),
+(39, 'Titan Company Limited', 'TITAN.BO', 'BSE'),
+(40, 'UltraTech Cement Limited', 'ULTRACEMCO.BO', 'BSE'),
+(41, 'Bajaj Finance Limited', 'BAJFINANCE.BO', 'BSE'),
+(42, 'Sun Pharmaceutical Industries Limited', 'SUNPHARMA.BO', 'BSE'),
+(43, 'Power Grid Corporation of India Limited', 'POWERGRID.BO', 'BSE'),
+(44, 'State Bank of India', 'SBIN.BO', 'BSE'),
+
+-- ==========================
+-- EURONEXT
+-- ==========================
+
+(45, 'ASML Holding N.V.', 'ASML.AS', 'EURONEXT'),
+(46, 'Unilever PLC', 'UNA.AS', 'EURONEXT'),
+(47, 'TotalEnergies SE', 'TTE.PA', 'EURONEXT'),
+(48, 'Schneider Electric SE', 'SU.PA', 'EURONEXT'),
+(49, 'BNP Paribas SA', 'BNP.PA', 'EURONEXT'),
+(50, 'Kering SA', 'KER.PA', 'EURONEXT'),
+(51, 'AXA SA', 'CS.PA', 'EURONEXT');
 
 
 
@@ -106,55 +105,55 @@ VALUES
 -- Rahul Sharma (MEDIUM)
 
 (1,1,1,'BUY',50,150000,'2025-08-10 10:30:00'),
-(2,1,34,'BUY',120,120000,'2025-09-14 11:15:00'),
-(3,1,13,'BUY',25,85000,'2025-10-09 09:40:00'),
-(4,1,23,'BUY',20,70000,'2025-11-12 13:10:00'),
-(5,1,36,'BUY',40,95000,'2025-12-18 14:00:00'),
-(6,1,25,'BUY',30,65000,'2026-01-20 10:20:00'),
-(7,1,40,'BUY',60,55000,'2026-02-25 15:00:00'),
+(2,1,18,'BUY',120,120000,'2025-09-14 11:15:00'),
+(3,1,8,'BUY',25,85000,'2025-10-09 09:40:00'),
+(4,1,45,'BUY',20,70000,'2025-11-12 13:10:00'),
+(5,1,16,'BUY',40,95000,'2025-12-18 14:00:00'),
+(6,1,47,'BUY',30,65000,'2026-01-20 10:20:00'),
+(7,1,28,'BUY',60,55000,'2026-02-25 15:00:00'),
 
-(8,1,7,'SELL',10,40000,'2026-04-15 11:40:00'),
+(8,1,1,'SELL',10,40000,'2026-04-15 11:40:00'),
 (9,1,18,'SELL',8,30000,'2026-06-08 10:10:00'),
-(10,1,46,'SELL',5,25000,'2026-07-18 12:20:00'),
+(10,1,47,'SELL',5,25000,'2026-07-18 12:20:00'),
 
 -- Priya Nair (LOW)
 
-(11,2,15,'BUY',35,80000,'2025-08-18 09:45:00'),
-(12,2,37,'BUY',75,90000,'2025-09-20 11:20:00'),
-(13,2,40,'BUY',80,70000,'2025-10-16 10:10:00'),
-(14,2,43,'BUY',40,85000,'2025-11-14 13:00:00'),
-(15,2,24,'BUY',15,65000,'2025-12-22 12:40:00'),
-(16,2,29,'BUY',20,50000,'2026-01-26 11:00:00'),
-(17,2,20,'BUY',30,60000,'2026-03-12 15:30:00'),
+(11,2,14,'BUY',35,80000,'2025-08-18 09:45:00'),
+(12,2,15,'BUY',75,90000,'2025-09-20 11:20:00'),
+(13,2,28,'BUY',80,70000,'2025-10-16 10:10:00'),
+(14,2,32,'BUY',40,85000,'2025-11-14 13:00:00'),
+(15,2,46,'BUY',15,65000,'2025-12-22 12:40:00'),
+(16,2,49,'BUY',20,50000,'2026-01-26 11:00:00'),
+(17,2,10,'BUY',30,60000,'2026-03-12 15:30:00'),
 (18,2,4,'BUY',18,95000,'2026-05-18 10:50:00'),
 
-(19,2,27,'SELL',5,20000,'2026-06-20 12:15:00'),
-(20,2,41,'SELL',6,18000,'2026-07-22 09:40:00'),
+(19,2,14,'SELL',5,20000,'2026-06-20 12:15:00'),
+(20,2,28,'SELL',6,18000,'2026-07-22 09:40:00'),
 
 -- Arjun Mehta (HIGH)
 
 (21,3,2,'BUY',60,180000,'2025-08-08 10:00:00'),
 (22,3,3,'BUY',70,200000,'2025-09-11 11:10:00'),
-(23,3,5,'BUY',55,160000,'2025-10-15 13:30:00'),
-(24,3,6,'BUY',50,150000,'2025-11-18 10:45:00'),
-(25,3,10,'BUY',40,90000,'2026-01-08 09:30:00'),
-(26,3,35,'BUY',65,80000,'2026-02-16 14:10:00'),
+(23,3,4,'BUY',55,160000,'2025-10-15 13:30:00'),
+(24,3,7,'BUY',50,150000,'2025-11-18 10:45:00'),
+(25,3,6,'BUY',40,90000,'2026-01-08 09:30:00'),
+(26,3,17,'BUY',65,80000,'2026-02-16 14:10:00'),
 
-(27,3,21,'SELL',20,70000,'2026-03-14 10:20:00'),
-(28,3,31,'SELL',18,65000,'2026-04-20 15:10:00'),
-(29,3,49,'SELL',30,45000,'2026-06-10 11:30:00'),
-(30,3,26,'SELL',12,60000,'2026-07-28 13:20:00'),
+(27,3,2,'SELL',20,70000,'2026-03-14 10:20:00'),
+(28,3,3,'SELL',18,65000,'2026-04-20 15:10:00'),
+(29,3,4,'SELL',30,45000,'2026-06-10 11:30:00'),
+(30,3,17,'SELL',12,60000,'2026-07-28 13:20:00'),
 
 -- Sneha Reddy (MEDIUM)
 
-(31,4,8,'BUY',22,90000,'2025-08-12 10:15:00'),
-(32,4,9,'BUY',25,85000,'2025-09-15 11:45:00'),
-(33,4,16,'BUY',18,80000,'2025-10-24 12:20:00'),
-(34,4,22,'BUY',28,75000,'2025-11-21 09:30:00'),
-(35,4,30,'BUY',20,65000,'2025-12-28 14:40:00'),
-(36,4,38,'BUY',75,70000,'2026-01-24 10:00:00'),
-(37,4,42,'BUY',35,60000,'2026-03-05 11:15:00'),
-(38,4,52,'BUY',40,50000,'2026-05-22 13:00:00'),
+(31,4,3,'BUY',22,90000,'2025-08-12 10:15:00'),
+(32,4,7,'BUY',25,85000,'2025-09-15 11:45:00'),
+(33,4,11,'BUY',18,80000,'2025-10-24 12:20:00'),
+(34,4,14,'BUY',28,75000,'2025-11-21 09:30:00'),
+(35,4,49,'BUY',20,65000,'2025-12-28 14:40:00'),
+(36,4,17,'BUY',75,70000,'2026-01-24 10:00:00'),
+(37,4,31,'BUY',35,60000,'2026-03-05 11:15:00'),
+(38,4,39,'BUY',40,50000,'2026-05-22 13:00:00'),
 
-(39,4,32,'SELL',10,25000,'2026-06-28 10:30:00'),
-(40,4,47,'SELL',15,30000,'2026-07-30 15:10:00');
+(39,4,14,'SELL',10,25000,'2026-06-28 10:30:00'),
+(40,4,17,'SELL',15,30000,'2026-07-30 15:10:00');
