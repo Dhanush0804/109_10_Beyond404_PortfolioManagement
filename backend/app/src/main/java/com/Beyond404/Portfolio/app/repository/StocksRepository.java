@@ -177,6 +177,33 @@ public class StocksRepository {
         }
     }
 
+    public Stocks findByTickerAndMarket(String ticker, String stockMarket) {
+
+        try {
+
+            String sql = """
+                SELECT
+                    stock_id,
+                    stock_name,
+                    ticker,
+                    stock_market
+                FROM stocks
+                WHERE ticker = ? AND stock_market = ?
+                LIMIT 1
+                """;
+
+            return jdbcTemplate.queryForObject(
+                    sql,
+                    stocksRowMapper,
+                    ticker,
+                    stockMarket
+            );
+
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
     public ArrayList<Stocks> findByStockName(String stockName) {
 
         String sql = """
