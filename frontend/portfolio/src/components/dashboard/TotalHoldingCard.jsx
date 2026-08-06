@@ -7,7 +7,7 @@ export default function TotalHoldingCard() {
   const { summary, loadingSummary } = useSelector((s) => s.analytics);
   const isGain = (summary?.netPnL ?? 0) >= 0;
   const totalHoldingQty = Math.round(Number(summary?.totalPositions ?? 0));
-  const SUMMARY_CURRENCY = 'INR';
+  const SUMMARY_CURRENCY = 'USD';
 
   return (
     <SectionLoader loading={loadingSummary} minHeight={180}>

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { RiToolsLine } from 'react-icons/ri';
 import Sidebar        from './components/layout/Sidebar';
 import Topbar         from './components/layout/Topbar';
@@ -6,6 +6,7 @@ import DashboardPage  from './pages/DashboardPage';
 import UserProfilePage from './pages/UserProfilePage';
 import UserManagementPage from './pages/UserManagementPage';
 import PortfolioPage from './pages/PortfolioPage';
+import AnalysisPage from './pages/AnalysisPage';
 
 export default function App() {
   return (
@@ -30,9 +31,10 @@ export default function App() {
           <Route path="/profile"  element={<UserProfilePage />} />
           <Route path="/users"    element={<UserManagementPage />} />
           <Route path="/portfolio" element={<PortfolioPage />} />
-          <Route path="/analysis"  element={<ComingSoon label="Analysis" />} />
+          <Route path="/analysis"  element={<AnalysisPage />} />
           <Route path="/community" element={<ComingSoon label="Community" />} />
           <Route path="/help"      element={<ComingSoon label="Help & Support" />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </BrowserRouter>

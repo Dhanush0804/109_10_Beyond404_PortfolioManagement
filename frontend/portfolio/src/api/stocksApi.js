@@ -99,7 +99,7 @@ const fetchQuote = async (ticker) => {
       high: toNumber(data?.high),
       low: toNumber(data?.low),
       volume: toNumber(data?.volume, null),
-      currency: data?.currency ?? 'INR',
+      currency: data?.currency ?? 'USD',
       timestamp: data?.timestamp ?? null,
     };
   } catch {
@@ -133,7 +133,7 @@ export const fetchStockAnalyticsDetails = async ({ ticker, customerId, source = 
     low: toNumber(quote?.low),
     volume: quote?.volume ?? stockWise?.volume ?? null,
     marketCap: stockWise?.marketCap ?? null,
-    currency: quote?.currency ?? 'INR',
+    currency: quote?.currency ?? 'USD',
     timestamp: quote?.timestamp ?? null,
   };
 };
