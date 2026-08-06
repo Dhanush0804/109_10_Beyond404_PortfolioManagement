@@ -4,7 +4,7 @@ import { ResponsiveContainer, Treemap, Tooltip } from 'recharts';
 import SectionLoader from '../common/SectionLoader';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
 
-const CURRENCY = 'INR';
+const CURRENCY = 'USD';
 
 const toNumber = (value) => {
   const numeric = Number(value);

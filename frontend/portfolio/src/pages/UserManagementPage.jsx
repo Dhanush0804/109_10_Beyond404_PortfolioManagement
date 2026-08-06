@@ -431,7 +431,7 @@ export default function UserManagementPage() {
                             </span>
                           </td>
                           <td style={{ color: 'var(--txt-primary)' }}>{Number(item.quantity ?? 0).toLocaleString('en-US')}</td>
-                          <td style={{ color: 'var(--txt-primary)' }}>{formatCurrency(item.transactionAmount, 2, 'INR')}</td>
+                          <td style={{ color: 'var(--txt-primary)' }}>{formatCurrency(item.transactionAmount, 2, 'USD')}</td>
                           <td style={{ color: 'var(--txt-secondary)' }}>{formatDate(item.transactionTimestamp)}</td>
                         </tr>
                       );

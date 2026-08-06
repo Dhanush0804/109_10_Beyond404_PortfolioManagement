@@ -39,7 +39,7 @@ const STAT_CONFIGS = [
 
 export default function StatsSummaryBar() {
   const { summary, loadingSummary } = useSelector((s) => s.analytics);
-  const SUMMARY_CURRENCY = 'INR';
+  const SUMMARY_CURRENCY = 'USD';
 
   return (
     <SectionLoader loading={loadingSummary} minHeight={88}>

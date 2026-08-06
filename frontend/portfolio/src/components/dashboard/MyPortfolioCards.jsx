@@ -8,7 +8,7 @@ import { loadChartData, setChartMode } from '../../store/slices/analyticsSlice';
 import SectionLoader from '../common/SectionLoader';
 
 function StockChip({ stock, isActive, onClick, sharesHeld = 0 }) {
-  const STOCKWISE_CURRENCY = 'INR';
+  const STOCKWISE_CURRENCY = 'USD';
   const current  = stock.currentPrice ?? stock.lastPrice ?? 0;
   const previous = stock.previousPrice ?? stock.prevPrice ?? 0;
   const gain     = current >= previous;

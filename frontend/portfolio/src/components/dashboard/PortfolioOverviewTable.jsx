@@ -19,7 +19,7 @@ function getSparkData(stock, count = 7) {
 
 export default function PortfolioOverviewTable() {
   const dispatch = useDispatch();
-  const STOCKWISE_CURRENCY = 'INR';
+  const STOCKWISE_CURRENCY = 'USD';
   const { stockWise, loadingStockWise, chartRange } = useSelector((s) => s.analytics);
   const { items: holdings } = useSelector((s) => s.assetHoldings);
   const { selectedStock } = useSelector((s) => s.stocks);
