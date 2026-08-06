@@ -39,6 +39,7 @@ const STAT_CONFIGS = [
 
 export default function StatsSummaryBar() {
   const { summary, loadingSummary } = useSelector((s) => s.analytics);
+  const SUMMARY_CURRENCY = 'INR';
 
   return (
     <SectionLoader loading={loadingSummary} minHeight={88}>
@@ -54,10 +55,10 @@ export default function StatsSummaryBar() {
           <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>Select a user to view statistics</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 10 }}>
           {STAT_CONFIGS.map((cfg, i) => {
             const raw  = summary[cfg.key] ?? 0;
-            const val  = cfg.format === 'percent' ? formatPercent(raw) : formatCurrency(raw);
+            const val  = cfg.format === 'percent' ? formatPercent(raw) : formatCurrency(raw, 2, SUMMARY_CURRENCY);
             const Icon = cfg.icon;
 
             let color, bg, border;
@@ -77,15 +78,16 @@ export default function StatsSummaryBar() {
             return (
               <div
                 key={cfg.key}
-                className="rounded-xl p-4 flex flex-col gap-2 anim-slide-up transition-all duration-200 hover:scale-[1.02]"
+                className="rounded-2xl anim-slide-up transition-all duration-200 hover:scale-[1.02]"
                 style={{
+                  padding: '14px 16px',
                   background: 'var(--bg-card)',
                   border: '1px solid var(--border-subtle)',
                   boxShadow: 'var(--shadow-card)',
                   animationDelay: `${i * 60}ms`,
                 }}
               >
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between" style={{ marginBottom: 8 }}>
                   <p
                     className="text-[9px] font-bold uppercase tracking-widest"
                     style={{ color: 'var(--txt-muted)' }}
@@ -99,7 +101,7 @@ export default function StatsSummaryBar() {
                     <Icon className="text-[10px]" style={{ color }} />
                   </div>
                 </div>
-                <p className="text-base font-extrabold anim-count" style={{ color }}>
+                <p className="text-lg leading-none font-extrabold anim-count" style={{ color }}>
                   {val}
                 </p>
               </div>

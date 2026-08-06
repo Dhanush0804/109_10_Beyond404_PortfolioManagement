@@ -1,10 +1,10 @@
 /** formatters.js – number / date helpers */
 
-export const formatCurrency = (val, decimals = 2) => {
+export const formatCurrency = (val, decimals = 2, currency = 'USD') => {
   if (val === null || val === undefined) return '—';
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency,
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   }).format(val);

@@ -175,4 +175,11 @@ public class PortfolioData {
 
     }
 
+
+
+    public void setTransactionAmount(double d) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setTransactionAmount'");
+    }
+
 }

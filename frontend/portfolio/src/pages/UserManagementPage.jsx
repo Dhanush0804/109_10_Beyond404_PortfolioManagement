@@ -10,6 +10,9 @@ import {
   RiShieldCheckLine,
   RiUserLine,
 } from 'react-icons/ri';
+import SectionLoader from '../components/common/SectionLoader';
+import { formatCurrency, formatDate } from '../utils/formatters';
+import { fetchPaginatedInvestmentHistory } from '../api/investmentApi';
 import { addUser, clearUserCreateState, deleteUser, loadAllUsers, setSelectedUser } from '../store/slices/userSlice';
 
 const RISK_OPTIONS = ['High', 'Medium', 'Low'];
@@ -21,6 +24,7 @@ const RISK_STYLES = {
 };
 
 export default function UserManagementPage() {
+  const PAGE_SIZE = 25;
   const dispatch = useDispatch();
   const {
     allUsers,
@@ -34,6 +38,9 @@ export default function UserManagementPage() {
     selectedUser,
   } = useSelector((state) => state.user);
   const [form, setForm] = useState({ customerName: '', riskLevel: 'Medium' });
+  const [transactionPage, setTransactionPage] = useState(0);
+  const [userTransactions, setUserTransactions] = useState({ items: [], totalItems: 0, page: 0, size: PAGE_SIZE, totalPages: 0 });
+  const [loadingTransactions, setLoadingTransactions] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
     user: null,
@@ -47,6 +54,35 @@ export default function UserManagementPage() {
       dispatch(clearUserCreateState());
     };
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!selectedUser?.customerId) {
+      setUserTransactions({ items: [], totalItems: 0, page: 0, size: PAGE_SIZE, totalPages: 0 });
+      setTransactionPage(0);
+      return;
+    }
+
+    let isCancelled = false;
+    setLoadingTransactions(true);
+
+    fetchPaginatedInvestmentHistory({
+      customerId: selectedUser.customerId,
+      page: transactionPage,
+      size: PAGE_SIZE,
+    }).then((data) => {
+      if (!isCancelled) {
+        setUserTransactions(data);
+      }
+    }).finally(() => {
+      if (!isCancelled) {
+        setLoadingTransactions(false);
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedUser?.customerId, transactionPage]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -106,19 +142,8 @@ export default function UserManagementPage() {
     : false;
 
   return (
-    <div className="p-6 max-w-[1500px] mx-auto flex flex-col gap-6 anim-fade-in">
-      <section
-        className="relative overflow-hidden rounded-3xl px-6 py-7"
-        style={{
-          background: 'linear-gradient(135deg, rgba(26,110,247,0.18) 0%, rgba(10,13,20,0.96) 56%, rgba(0,212,138,0.1) 100%)',
-          border: '1px solid var(--border-soft)',
-          boxShadow: 'var(--shadow-elevated)',
-        }}
-      >
-        <div
-          className="absolute inset-y-0 right-0 w-64 pointer-events-none"
-          style={{ background: 'radial-gradient(circle at center, rgba(26,110,247,0.24), transparent 70%)' }}
-        />
+    <div className="page-container anim-fade-in" style={{ maxWidth: 1440, margin: '0 auto' }}>
+      <section className="hero-section">
         <div className="relative flex items-start justify-between gap-5 flex-wrap">
           <div>
             <p className="text-[11px] uppercase tracking-[0.24em] font-bold" style={{ color: 'var(--accent-light)' }}>
@@ -133,8 +158,8 @@ export default function UserManagementPage() {
           </div>
 
           <div
-            className="min-w-[220px] rounded-2xl px-4 py-3"
-            style={{ background: 'rgba(10,13,20,0.72)', border: '1px solid var(--border-soft)' }}
+            className="min-w-[240px] rounded-2xl"
+            style={{ background: 'rgba(10,13,20,0.72)', border: '1px solid var(--border-soft)', padding: '14px 16px' }}
           >
             <p className="text-[10px] uppercase tracking-[0.18em] font-bold" style={{ color: 'var(--txt-muted)' }}>
               Current users
@@ -149,12 +174,9 @@ export default function UserManagementPage() {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_420px] gap-6 items-start">
-        <section
-          className="rounded-3xl p-5"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-card)' }}
-        >
-          <div className="flex items-center justify-between gap-4 mb-5">
+      <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_minmax(340px,420px)] gap-5 items-start">
+        <section className="card" style={{ padding: '16px 18px' }}>
+          <div className="flex items-center justify-between gap-4" style={{ marginBottom: 12, paddingInline: 2 }}>
             <div>
               <h2 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>Current users</h2>
               <p className="text-xs mt-1" style={{ color: 'var(--txt-secondary)' }}>
@@ -172,23 +194,12 @@ export default function UserManagementPage() {
               <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>No users found.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+            <div className="overflow-x-auto" style={{ marginTop: 2 }}>
+              <table className="data-table user-mgmt-table">
                 <thead>
                   <tr>
                     {['User', 'Customer ID', 'Risk Level', 'Status', 'Actions'].map((heading) => (
-                      <th
-                        key={heading}
-                        className="text-left pb-3 px-3"
-                        style={{
-                          color: 'var(--txt-muted)',
-                          fontSize: 10,
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.08em',
-                          borderBottom: '1px solid var(--border-subtle)',
-                        }}
-                      >
+                      <th key={heading}>
                         {heading}
                       </th>
                     ))}
@@ -203,12 +214,15 @@ export default function UserManagementPage() {
                       <tr
                         key={user.customerId}
                         className="cursor-pointer transition-colors"
-                        onClick={() => dispatch(setSelectedUser(user))}
+                        onClick={() => {
+                          dispatch(setSelectedUser(user));
+                          setTransactionPage(0);
+                        }}
                         onMouseEnter={(event) => { event.currentTarget.style.background = 'var(--bg-elevated)'; }}
                         onMouseLeave={(event) => { event.currentTarget.style.background = isActive ? 'rgba(26,110,247,0.08)' : 'transparent'; }}
                         style={isActive ? { background: 'rgba(26,110,247,0.08)' } : undefined}
                       >
-                        <td className="px-3 py-3.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                        <td>
                           <div className="flex items-center gap-3">
                             <div
                               className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
@@ -222,44 +236,50 @@ export default function UserManagementPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-3 py-3.5 text-xs font-medium" style={{ color: 'var(--txt-secondary)', borderBottom: '1px solid var(--border-subtle)' }}>
+                        <td className="text-xs font-medium" style={{ color: 'var(--txt-secondary)' }}>
                           #{user.customerId}
                         </td>
-                        <td className="px-3 py-3.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                        <td>
                           <span
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold"
+                            className="inline-flex items-center justify-center gap-1.5 rounded-xl text-xs font-semibold"
                             style={{
                               background: riskStyle.bg,
                               border: `1px solid ${riskStyle.border}`,
                               color: riskStyle.color,
+                              minWidth: 84,
+                              height: 28,
+                              padding: '0 10px',
                             }}
                           >
                             <RiShieldCheckLine />
                             {user.riskLevel}
                           </span>
                         </td>
-                        <td className="px-3 py-3.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                        <td>
                           <span
-                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold"
+                            className="inline-flex items-center justify-center gap-1 rounded-full text-[11px] font-semibold"
                             style={isActive
-                              ? { background: 'var(--accent-glow)', color: 'var(--accent)', border: '1px solid var(--border-active)' }
-                              : { background: 'transparent', color: 'var(--txt-muted)', border: '1px solid var(--border-subtle)' }}
+                              ? { background: 'var(--accent-glow)', color: 'var(--accent)', border: '1px solid var(--border-active)', minWidth: 86, height: 24, padding: '0 10px' }
+                              : { background: 'transparent', color: 'var(--txt-muted)', border: '1px solid var(--border-subtle)', minWidth: 86, height: 24, padding: '0 10px' }}
                           >
                             {isActive ? 'Active user' : 'Available'}
                           </span>
                         </td>
-                        <td className="px-3 py-3.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                        <td>
                           <button
                             type="button"
                             onClick={(event) => {
                               event.stopPropagation();
                               openDeleteDialog(user);
                             }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-opacity hover:opacity-85"
+                            className="inline-flex items-center justify-center gap-1.5 rounded-xl text-xs font-semibold transition-opacity hover:opacity-85"
                             style={{
                               color: 'var(--loss)',
                               background: 'var(--loss-bg)',
                               border: '1px solid var(--loss-border)',
+                              minWidth: 82,
+                              height: 28,
+                              padding: '0 10px',
                             }}
                           >
                             <RiDeleteBinLine />
@@ -275,45 +295,43 @@ export default function UserManagementPage() {
           )}
         </section>
 
-        <section
-          className="rounded-3xl p-5 sticky top-[calc(var(--topbar-height)+24px)]"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: 'var(--shadow-card)' }}
-        >
-          <div className="flex items-center gap-3 mb-5">
+        <section className="card sticky top-[calc(var(--topbar-height)+20px)]" style={{ padding: '18px 20px' }}>
+          <div className="flex items-start gap-3" style={{ marginBottom: 14 }}>
             <div
-              className="w-11 h-11 rounded-2xl flex items-center justify-center"
+              className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
               style={{ background: 'var(--accent-glow)', color: 'var(--accent)' }}
             >
-              <RiAddLine className="text-lg" />
+              <RiAddLine className="text-base" />
             </div>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <h2 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>Add user</h2>
-              <p className="text-xs mt-1" style={{ color: 'var(--txt-secondary)' }}>
-                Sends a POST to /api/customers/add (proxied to backend :8080 in dev).
-              </p>
             </div>
           </div>
 
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-            <label className="flex flex-col gap-2">
+          <div style={{ borderTop: '1px solid var(--border-subtle)', marginBottom: 12 }} />
+
+          <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+            <label className="flex flex-col gap-1.5">
               <span className="text-xs font-semibold" style={{ color: 'var(--txt-secondary)' }}>Customer name</span>
               <input
                 name="customerName"
                 value={form.customerName}
                 onChange={handleChange}
                 placeholder="Enter full name"
-                className="input px-3 py-3 text-sm rounded-xl"
+                className="input text-sm rounded-xl"
+                style={{ height: 38, paddingLeft: 12, paddingRight: 12 }}
                 maxLength={100}
               />
             </label>
 
-            <label className="flex flex-col gap-2">
+            <label className="flex flex-col gap-1.5">
               <span className="text-xs font-semibold" style={{ color: 'var(--txt-secondary)' }}>Risk level</span>
               <select
                 name="riskLevel"
                 value={form.riskLevel}
                 onChange={handleChange}
-                className="input px-3 py-3 text-sm rounded-xl"
+                className="input text-sm rounded-xl"
+                style={{ height: 38, paddingLeft: 12, paddingRight: 34 }}
               >
                 {RISK_OPTIONS.map((option) => (
                   <option key={option} value={option}>{option}</option>
@@ -353,8 +371,8 @@ export default function UserManagementPage() {
             <button
               type="submit"
               disabled={creatingUser || !form.customerName.trim()}
-              className="mt-2 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-semibold text-white transition-opacity disabled:opacity-55 disabled:cursor-not-allowed"
-              style={{ background: 'var(--accent)', boxShadow: 'var(--shadow-accent)' }}
+              className="mt-1 inline-flex items-center justify-center gap-2 px-4 rounded-2xl text-sm font-semibold text-white transition-opacity disabled:opacity-55 disabled:cursor-not-allowed"
+              style={{ background: 'var(--accent)', boxShadow: 'var(--shadow-accent)', minHeight: 38 }}
             >
               {creatingUser ? <RiLoaderLine className="animate-spin" /> : <RiAddLine />}
               {creatingUser ? 'Adding user...' : 'Add user'}
@@ -362,6 +380,76 @@ export default function UserManagementPage() {
           </form>
         </section>
       </div>
+
+      <section className="card" style={{ padding: '16px 18px' }}>
+        <div className="flex items-center justify-between gap-4 flex-wrap" style={{ marginBottom: 12, paddingInline: 2 }}>
+          <div>
+            <h2 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>User transactions</h2>
+            <p className="text-xs mt-1" style={{ color: 'var(--txt-secondary)' }}>
+              {selectedUser ? `Showing transactions for ${selectedUser.customerName}` : 'Select a user to view transaction history'}
+            </p>
+          </div>
+          {selectedUser ? (
+            <p className="text-xs font-semibold" style={{ color: 'var(--txt-muted)' }}>
+              Total: {userTransactions.totalItems}
+            </p>
+          ) : null}
+        </div>
+
+        <SectionLoader loading={loadingTransactions} minHeight={260}>
+          {!selectedUser ? (
+            <div className="rounded-2xl px-4 py-12 text-center" style={{ background: 'var(--bg-elevated)', border: '1px dashed var(--border-soft)' }}>
+              <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>Select a user to view all transactions.</p>
+            </div>
+          ) : userTransactions.items.length === 0 ? (
+            <div className="rounded-2xl px-4 py-12 text-center" style={{ background: 'var(--bg-elevated)', border: '1px dashed var(--border-soft)' }}>
+              <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>No transactions found for this user.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3.5">
+              <div className="overflow-x-auto" style={{ marginTop: 2 }}>
+                <table className="data-table user-mgmt-table">
+                  <thead>
+                    <tr>
+                      {['Asset ID', 'Stock ID', 'Type', 'Quantity', 'Amount', 'Date'].map((heading) => (
+                        <th key={heading}>
+                          {heading}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {userTransactions.items.map((item) => {
+                      const isBuy = item.transactionType === 'BUY';
+                      return (
+                        <tr key={item.assetId}>
+                          <td style={{ color: 'var(--txt-primary)' }}>#{item.assetId}</td>
+                          <td style={{ color: 'var(--txt-secondary)' }}>#{item.stockId}</td>
+                          <td>
+                            <span className="inline-flex items-center justify-center gap-1 rounded-full text-[11px] font-semibold" style={isBuy ? { background: 'var(--gain-bg)', color: 'var(--gain)', border: '1px solid var(--gain-border)', minWidth: 50, height: 24, padding: '0 9px' } : { background: 'var(--loss-bg)', color: 'var(--loss)', border: '1px solid var(--loss-border)', minWidth: 50, height: 24, padding: '0 9px' }}>
+                              {item.transactionType}
+                            </span>
+                          </td>
+                          <td style={{ color: 'var(--txt-primary)' }}>{Number(item.quantity ?? 0).toLocaleString('en-US')}</td>
+                          <td style={{ color: 'var(--txt-primary)' }}>{formatCurrency(item.transactionAmount, 2, 'INR')}</td>
+                          <td style={{ color: 'var(--txt-secondary)' }}>{formatDate(item.transactionTimestamp)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <PaginationControls
+                page={userTransactions.page}
+                totalPages={userTransactions.totalPages}
+                onPrevious={() => setTransactionPage((current) => Math.max(current - 1, 0))}
+                onNext={() => setTransactionPage((current) => current + 1)}
+              />
+            </div>
+          )}
+        </SectionLoader>
+      </section>
 
       {deleteDialog.open && deleteDialog.user ? (
         <div
@@ -449,6 +537,22 @@ export default function UserManagementPage() {
           </div>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function PaginationControls({ page, totalPages, onPrevious, onNext }) {
+  if (!totalPages || totalPages <= 1) return null;
+
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <p className="text-xs" style={{ color: 'var(--txt-muted)' }}>
+        Page {page + 1} of {totalPages}
+      </p>
+      <div className="flex items-center gap-2">
+        <button type="button" onClick={onPrevious} disabled={page <= 0} className="px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50" style={{ background: 'var(--bg-elevated)', color: 'var(--txt-primary)', border: '1px solid var(--border-subtle)' }}>Previous</button>
+        <button type="button" onClick={onNext} disabled={page + 1 >= totalPages} className="px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50" style={{ background: 'var(--bg-elevated)', color: 'var(--txt-primary)', border: '1px solid var(--border-subtle)' }}>Next</button>
+      </div>
     </div>
   );
 }

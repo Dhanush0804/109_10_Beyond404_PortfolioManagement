@@ -40,7 +40,7 @@ export default function UserProfilePage() {
   const riskStyle = RISK_COLORS[selectedUser?.riskLevel] ?? RISK_COLORS.Medium;
 
   return (
-    <div className="p-8 anim-fade-in max-w-[1000px] mx-auto">
+    <div className="page-container anim-fade-in" style={{ maxWidth: 1000, margin: '0 auto' }}>
       {/* Back */}
       <button
         onClick={() => navigate('/')}
@@ -74,14 +74,7 @@ export default function UserProfilePage() {
         ) : (
           <div className="flex flex-col gap-8">
             {/* Profile hero card */}
-            <div
-              className="rounded-2xl p-6 relative overflow-hidden"
-              style={{
-                background: 'linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card-hover) 100%)',
-                border: '1px solid var(--border-subtle)',
-                boxShadow: 'var(--shadow-elevated)',
-              }}
-            >
+            <div className="hero-section">
               {/* Decorative blob */}
               <div
                 className="absolute -top-10 -right-10 w-36 h-36 rounded-full pointer-events-none"
@@ -154,14 +147,7 @@ export default function UserProfilePage() {
             </div>
 
             {/* Transaction history */}
-            <div
-              className="rounded-2xl p-5"
-              style={{
-                background: 'var(--bg-card)',
-                border: '1px solid var(--border-subtle)',
-                boxShadow: 'var(--shadow-card)',
-              }}
-            >
+            <div className="card p-5">
               <p className="text-sm font-bold mb-5" style={{ color: 'var(--txt-primary)' }}>
                 Transaction History
               </p>
@@ -176,22 +162,11 @@ export default function UserProfilePage() {
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+                    <table className="data-table">
                       <thead>
                         <tr>
                           {['#', 'Stock ID', 'Type', 'Amount', 'Date'].map((h) => (
-                            <th
-                              key={h}
-                              className="text-left pb-3 pr-6"
-                              style={{
-                                color: 'var(--txt-muted)',
-                                fontSize: 10,
-                                fontWeight: 700,
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.08em',
-                                borderBottom: '1px solid var(--border-subtle)',
-                              }}
-                            >
+                            <th key={h}>
                               {h}
                             </th>
                           ))}
@@ -207,13 +182,10 @@ export default function UserProfilePage() {
                               onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-elevated)'; }}
                               onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                             >
-                              <td
-                                className="py-3.5 pr-6 text-xs"
-                                style={{ color: 'var(--txt-muted)', borderBottom: '1px solid var(--border-subtle)' }}
-                              >
+                              <td className="py-3.5 pr-6 text-xs" style={{ color: 'var(--txt-muted)' }}>
                                 {i + 1}
                               </td>
-                              <td className="py-3.5 pr-6" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                              <td className="py-3.5 pr-6">
                                 <span
                                   className="px-2 py-0.5 rounded-lg text-[10px] font-bold"
                                   style={{
@@ -225,7 +197,7 @@ export default function UserProfilePage() {
                                   #{inv.stockId}
                                 </span>
                               </td>
-                              <td className="py-3.5 pr-6" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                              <td className="py-3.5 pr-6">
                                 <span
                                   className="px-2.5 py-0.5 rounded-md text-[10px] font-bold"
                                   style={{
@@ -241,15 +213,11 @@ export default function UserProfilePage() {
                                 className="py-3.5 pr-6 text-xs font-bold"
                                 style={{
                                   color: isBuy ? 'var(--gain)' : 'var(--loss)',
-                                  borderBottom: '1px solid var(--border-subtle)',
                                 }}
                               >
                                 {isBuy ? '+' : '−'}{formatCurrency(inv.transactionAmount)}
                               </td>
-                              <td
-                                className="py-3.5 text-xs"
-                                style={{ color: 'var(--txt-secondary)', borderBottom: '1px solid var(--border-subtle)' }}
-                              >
+                              <td className="py-3.5 text-xs" style={{ color: 'var(--txt-secondary)' }}>
                                 <span className="flex items-center gap-1.5">
                                   <RiCalendarLine style={{ color: 'var(--txt-muted)' }} />
                                   {formatDate(inv.transactionTimestamp)}
