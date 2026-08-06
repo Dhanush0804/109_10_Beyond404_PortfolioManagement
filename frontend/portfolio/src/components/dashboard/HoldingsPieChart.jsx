@@ -1,6 +1,9 @@
 import { useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
+import { RiRefreshLine } from 'react-icons/ri';
+import { loadStockWisePnL } from '../../store/slices/analyticsSlice';
+import { loadAssetHoldings } from '../../store/slices/assetHoldingsSlice';
 import SectionLoader from '../common/SectionLoader';
 
 const PIE_COLORS = ['#1a6ef7', '#00c896', '#f59e0b', '#f0455a', '#38bdf8', '#a78bfa', '#14b8a6', '#fb7185'];
@@ -31,8 +34,16 @@ function PieTooltip({ active, payload }) {
 }
 
 export default function HoldingsPieChart() {
+  const dispatch = useDispatch();
+  const { selectedUser } = useSelector((s) => s.user);
   const { stockWise, loadingStockWise } = useSelector((s) => s.analytics);
   const { items: holdings, loading: loadingHoldings } = useSelector((s) => s.assetHoldings);
+
+  const handleRefresh = () => {
+    if (!selectedUser?.customerId || loadingStockWise || loadingHoldings) return;
+    dispatch(loadStockWisePnL(selectedUser.customerId));
+    dispatch(loadAssetHoldings(selectedUser.customerId));
+  };
 
   const data = useMemo(() => {
     const stockById = new Map(stockWise.map((stock) => [Number(stock.stockId), stock]));
@@ -76,19 +87,37 @@ export default function HoldingsPieChart() {
             Share quantity split across currently held stocks
           </p>
         </div>
-        <span
-          className="inline-flex items-center justify-center rounded-full text-[11px] font-semibold"
-          style={{
-            background: 'var(--bg-elevated)',
-            border: '1px solid var(--border-subtle)',
-            color: 'var(--txt-secondary)',
-            minWidth: 108,
-            height: 28,
-            padding: '0 10px',
-          }}
-        >
-          Total Shares: {totalShares.toLocaleString('en-US', { maximumFractionDigits: 4 })}
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={!selectedUser?.customerId || loadingStockWise || loadingHoldings}
+            className="inline-flex items-center justify-center rounded-md text-[10px] font-semibold disabled:opacity-50"
+            style={{
+              width: 28,
+              height: 28,
+              color: 'var(--txt-secondary)',
+              border: '1px solid var(--border-subtle)',
+              background: 'var(--bg-elevated)',
+            }}
+            title="Refresh holdings distribution"
+          >
+            <RiRefreshLine className={loadingStockWise || loadingHoldings ? 'animate-spin' : ''} />
+          </button>
+          <span
+            className="inline-flex items-center justify-center rounded-full text-[11px] font-semibold"
+            style={{
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border-subtle)',
+              color: 'var(--txt-secondary)',
+              minWidth: 108,
+              height: 28,
+              padding: '0 10px',
+            }}
+          >
+            Total Shares: {totalShares.toLocaleString('en-US', { maximumFractionDigits: 4 })}
+          </span>
+        </div>
       </div>
 
       <SectionLoader loading={loadingStockWise || loadingHoldings} minHeight={280}>

@@ -1,14 +1,15 @@
 import { useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { RiArrowUpLine, RiArrowDownLine, RiArrowRightSLine } from 'react-icons/ri';
+import { RiArrowUpLine, RiArrowDownLine, RiArrowRightSLine, RiRefreshLine } from 'react-icons/ri';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
 import { setSelectedStock } from '../../store/slices/stocksSlice';
-import { loadChartData, setChartMode } from '../../store/slices/analyticsSlice';
+import { loadChartData, loadStockWisePnL, setChartMode } from '../../store/slices/analyticsSlice';
+import { loadAssetHoldings } from '../../store/slices/assetHoldingsSlice';
 import SectionLoader from '../common/SectionLoader';
 
 function StockChip({ stock, isActive, onClick, sharesHeld = 0 }) {
-  const STOCKWISE_CURRENCY = 'INR';
+  const STOCKWISE_CURRENCY = 'USD';
   const current  = stock.currentPrice ?? stock.lastPrice ?? 0;
   const previous = stock.previousPrice ?? stock.prevPrice ?? 0;
   const gain     = current >= previous;
@@ -72,6 +73,7 @@ export default function MyPortfolioCards() {
   const { stockWise, loadingStockWise, chartRange } = useSelector((s) => s.analytics);
   const { items: holdings } = useSelector((s) => s.assetHoldings);
   const { selectedStock }                   = useSelector((s) => s.stocks);
+  const { selectedUser } = useSelector((s) => s.user);
 
   const holdingsByStockId = useMemo(() => {
     const map = new Map();
@@ -98,6 +100,12 @@ export default function MyPortfolioCards() {
     dispatch(loadChartData({ mode: 'stock', stockId: stock.stockId, ticker: stock.ticker, range: chartRange }));
   };
 
+  const handleRefresh = () => {
+    if (!selectedUser?.customerId || loadingStockWise) return;
+    dispatch(loadStockWisePnL(selectedUser.customerId));
+    dispatch(loadAssetHoldings(selectedUser.customerId));
+  };
+
   return (
     <div
       className="rounded-2xl"
@@ -115,16 +123,35 @@ export default function MyPortfolioCards() {
             Click a stock to view its chart
           </p>
         </div>
-        {stockWise.length > 4 && (
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => navigate('/portfolio')}
-            className="flex items-center gap-0.5 text-[10px] font-semibold transition-colors"
-            style={{ color: 'var(--accent)' }}
+            type="button"
+            onClick={handleRefresh}
+            disabled={!selectedUser?.customerId || loadingStockWise}
+            className="inline-flex items-center justify-center rounded-md text-[10px] font-semibold disabled:opacity-50"
+            style={{
+              width: 28,
+              height: 28,
+              color: 'var(--txt-secondary)',
+              border: '1px solid var(--border-subtle)',
+              background: 'var(--bg-elevated)',
+            }}
+            title="Refresh portfolio cards"
           >
-            {`View all (${stockWise.length})`}
-            <RiArrowRightSLine className="transition-transform" />
+            <RiRefreshLine className={loadingStockWise ? 'animate-spin' : ''} />
           </button>
-        )}
+
+          {stockWise.length > 4 && (
+            <button
+              onClick={() => navigate('/portfolio')}
+              className="flex items-center gap-0.5 text-[10px] font-semibold transition-colors"
+              style={{ color: 'var(--accent)' }}
+            >
+              {`View all (${stockWise.length})`}
+              <RiArrowRightSLine className="transition-transform" />
+            </button>
+          )}
+        </div>
       </div>
 
       <SectionLoader loading={loadingStockWise} minHeight={100}>

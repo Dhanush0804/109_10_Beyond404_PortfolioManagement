@@ -12,6 +12,7 @@ import {
   RiLineChartLine,
   RiLoaderLine,
   RiMoneyDollarCircleLine,
+  RiRefreshLine,
   RiShieldCheckLine,
   RiSubtractLine,
 } from 'react-icons/ri';
@@ -23,7 +24,7 @@ import { fetchStockAnalyticsDetails } from '../api/stocksApi';
 import { fetchPaginatedInvestmentHistory } from '../api/investmentApi';
 import MarketStockSearchPanel from '../components/portfolio/MarketStockSearchPanel';
 
-const INR = 'INR';
+const INR = 'USD';
 
 const RISK_STYLES = {
   HIGH: { color: 'var(--loss)', bg: 'var(--loss-bg)', border: 'var(--loss-border)' },
@@ -199,31 +200,32 @@ export default function PortfolioPage() {
     return (
       <div className="page-container flex items-center justify-center anim-fade-in" style={{ minHeight: 'calc(100vh - var(--topbar-height))' }}>
         <div
-          className="card w-full max-w-md p-6"
+          className="card w-full max-w-md"
+          style={{ padding: '18px 20px 16px' }}
         >
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-3" style={{ minWidth: 0 }}>
             <div
               className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
               style={{ color: 'var(--warn)', background: 'var(--warn-bg)', border: '1px solid rgba(245,158,11,0.25)' }}
             >
               <RiAlertLine />
             </div>
-            <div>
+            <div style={{ minWidth: 0, flex: 1 }}>
               <h2 className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>
                 Select user required
               </h2>
-              <p className="text-sm mt-1" style={{ color: 'var(--txt-secondary)' }}>
+              <p className="text-sm" style={{ color: 'var(--txt-secondary)', marginTop: 4, lineHeight: 1.45 }}>
                 Please select a user first to open the Portfolio page.
               </p>
             </div>
           </div>
 
-          <div className="mt-5 flex items-center justify-end">
+          <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'flex-end' }}>
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
-              style={{ background: 'var(--accent)', boxShadow: 'var(--shadow-accent)' }}
+              className="rounded-xl text-sm font-semibold text-white"
+              style={{ background: 'var(--accent)', boxShadow: 'var(--shadow-accent)', minHeight: 38, minWidth: 148, padding: '0 16px' }}
             >
               Go to Dashboard
             </button>
@@ -323,6 +325,28 @@ export default function PortfolioPage() {
       setOrderConfirmDialog({ open: false, type: null });
       setPlacingOrderType(null);
     }
+  };
+
+  const handleRefreshStockHistory = () => {
+    if (!selectedUser?.customerId || !selectedStock?.stockId || selectedSource !== 'owned' || loadingHistory) {
+      return;
+    }
+
+    setLoadingHistory(true);
+    setHistoryError(null);
+
+    fetchPaginatedInvestmentHistory({
+      customerId: selectedUser.customerId,
+      stockId: selectedStock.stockId,
+      page: historyPage,
+      size: PAGE_SIZE,
+    }).then((data) => {
+      setStockHistory(data);
+    }).catch((error) => {
+      setHistoryError(error?.message ?? 'Unable to load transaction history.');
+    }).finally(() => {
+      setLoadingHistory(false);
+    });
   };
 
   return (
@@ -685,22 +709,41 @@ export default function PortfolioPage() {
                           Paginated transactions for {selectedStock.ticker}
                         </p>
                       </div>
-                      <span
-                        className="inline-flex items-center justify-center shrink-0 rounded-full text-[11px] font-semibold"
-                        style={{
-                          color: 'var(--txt-muted)',
-                          background: 'var(--bg-card)',
-                          border: '1px solid var(--border-subtle)',
-                          minWidth: '76px',
-                          height: '30px',
-                          padding: '0.35rem 0.8rem',
-                          lineHeight: 1,
-                          marginTop: '0.2rem',
-                          marginRight: '0.4rem',
-                        }}
-                      >
-                        Total: {stockHistory.totalItems}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleRefreshStockHistory}
+                          disabled={loadingHistory}
+                          className="inline-flex items-center justify-center rounded-md text-[10px] font-semibold disabled:opacity-50"
+                          style={{
+                            width: 28,
+                            height: 28,
+                            color: 'var(--txt-secondary)',
+                            border: '1px solid var(--border-subtle)',
+                            background: 'var(--bg-card)',
+                            marginTop: '0.2rem',
+                          }}
+                          title="Refresh history"
+                        >
+                          <RiRefreshLine className={loadingHistory ? 'animate-spin' : ''} />
+                        </button>
+                        <span
+                          className="inline-flex items-center justify-center shrink-0 rounded-full text-[11px] font-semibold"
+                          style={{
+                            color: 'var(--txt-muted)',
+                            background: 'var(--bg-card)',
+                            border: '1px solid var(--border-subtle)',
+                            minWidth: '76px',
+                            height: '30px',
+                            padding: '0.35rem 0.8rem',
+                            lineHeight: 1,
+                            marginTop: '0.2rem',
+                            marginRight: '0.4rem',
+                          }}
+                        >
+                          Total: {stockHistory.totalItems}
+                        </span>
+                      </div>
                     </div>
 
                     <SectionLoader loading={loadingHistory} minHeight={220}>
