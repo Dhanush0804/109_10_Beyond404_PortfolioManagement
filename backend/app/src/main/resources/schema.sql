@@ -58,6 +58,9 @@ CREATE TABLE IF NOT EXISTS investments
     quantity DECIMAL(12,4) NOT NULL,
 
 
+    transaction_amount DECIMAL(15,2) NOT NULL,
+
+
     transaction_timestamp TIMESTAMP NOT NULL,
 
 
