@@ -5,6 +5,7 @@ import com.Beyond404.Portfolio.app.model.ChartDataPoint;
 import com.Beyond404.Portfolio.app.model.ChartDataResponse;
 import com.Beyond404.Portfolio.app.model.PortfolioData;
 import com.Beyond404.Portfolio.app.model.PortfolioPerformancePoint;
+import com.Beyond404.Portfolio.app.model.PortfolioPerformanceResponse;
 import com.Beyond404.Portfolio.app.model.StockPerformancePoint;
 import com.Beyond404.Portfolio.app.repository.PortfolioAnalysisRepository;
 import org.springframework.stereotype.Service;
@@ -12,11 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 
 
 @Service
@@ -45,7 +42,7 @@ public class PerformanceTrackingService {
     /*
      * Complete portfolio growth graph
      */
-    public List<PortfolioPerformancePoint> getPortfolioPerformance(
+    public PortfolioPerformanceResponse getPortfolioPerformance(
             Long customerId,
             String range) {
 
@@ -55,16 +52,20 @@ public class PerformanceTrackingService {
                         .getCustomerPortfolio(customerId);
 
 
+
         Map<LocalDate, Double> portfolioValues =
                 new HashMap<>();
 
 
-        Map<LocalDate, Double> investedValues =
-                new HashMap<>();
-
 
         Map<String, Double> holdings =
                 calculateCurrentHoldings(portfolio);
+
+
+
+        double investedAmount =
+                calculateTotalInvested(portfolio);
+
 
 
         for (String ticker : holdings.keySet()) {
@@ -74,11 +75,12 @@ public class PerformanceTrackingService {
                     holdings.get(ticker);
 
 
+
             ChartDataResponse response =
                     marketDataService
                             .getChartData(
                                     ticker,
-                                    "1Y"
+                                    range
                             );
 
 
@@ -87,14 +89,17 @@ public class PerformanceTrackingService {
             }
 
 
+
             List<ChartDataPoint> points =
                     response.getRanges()
-                            .get("1Y");
+                            .get(range);
+
 
 
             if (points == null) {
                 continue;
             }
+
 
 
             for (ChartDataPoint point : points) {
@@ -108,9 +113,11 @@ public class PerformanceTrackingService {
                                 .toLocalDate();
 
 
+
                 double value =
                         quantity *
                                 point.getPrice();
+
 
 
                 portfolioValues.put(
@@ -128,8 +135,11 @@ public class PerformanceTrackingService {
         }
 
 
+
+
         List<PortfolioPerformancePoint> result =
                 new ArrayList<>();
+
 
 
         for (LocalDate date : portfolioValues.keySet()) {
@@ -139,28 +149,25 @@ public class PerformanceTrackingService {
                     portfolioValues.get(date);
 
 
-            double invested =
-                    calculateTotalInvested(
-                            portfolio
-                    );
-
 
             double profit =
-                    value - invested;
+                    value - investedAmount;
+
 
 
             double returnPercentage =
-                    invested == 0
+                    investedAmount == 0
                             ? 0
                             :
-                            (profit / invested) * 100;
+                            (profit / investedAmount) * 100;
+
 
 
             result.add(
                     new PortfolioPerformancePoint(
                             date,
                             value,
-                            invested,
+                            investedAmount,
                             profit,
                             returnPercentage
                     )
@@ -169,7 +176,74 @@ public class PerformanceTrackingService {
         }
 
 
-        return result;
+
+        // Sort data chronologically for graph plotting
+        result.sort(
+                Comparator.comparing(
+                        PortfolioPerformancePoint::getDate
+                )
+        );
+
+
+
+        double currentValue =
+                result.isEmpty()
+                        ? 0
+                        :
+                        result.get(result.size() - 1)
+                                .getPortfolioValue();
+
+
+
+        double profitLoss =
+                currentValue - investedAmount;
+
+
+
+        double returnPercentage =
+                investedAmount == 0
+                        ? 0
+                        :
+                        (profitLoss / investedAmount) * 100;
+
+
+
+        Map<String, Double> summary =
+                new HashMap<>();
+
+
+
+        summary.put(
+                "totalInvested",
+                investedAmount
+        );
+
+
+        summary.put(
+                "currentValue",
+                currentValue
+        );
+
+
+        summary.put(
+                "profitLoss",
+                profitLoss
+        );
+
+
+        summary.put(
+                "returnPercentage",
+                returnPercentage
+        );
+
+
+
+        return new PortfolioPerformanceResponse(
+                customerId,
+                "USD",
+                summary,
+                result
+        );
 
     }
 

@@ -1,7 +1,7 @@
 package com.Beyond404.Portfolio.app.controller;
 
 
-import com.Beyond404.Portfolio.app.model.PortfolioPerformancePoint;
+import com.Beyond404.Portfolio.app.model.PortfolioPerformanceResponse;
 import com.Beyond404.Portfolio.app.model.StockPerformancePoint;
 import com.Beyond404.Portfolio.app.service.PerformanceTrackingService;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +29,7 @@ public class PerformanceController {
 
 
     @GetMapping("/{customerId}")
-    public List<PortfolioPerformancePoint> getPortfolioPerformance(
+    public PortfolioPerformanceResponse getPortfolioPerformance(
             @PathVariable Long customerId,
             @RequestParam(defaultValue = "1Y") String range) {
 
