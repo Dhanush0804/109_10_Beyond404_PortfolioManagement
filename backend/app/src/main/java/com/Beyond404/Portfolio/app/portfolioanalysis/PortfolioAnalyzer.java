@@ -206,6 +206,30 @@ public class PortfolioAnalyzer {
     /*
      * Current market value using live prices.
      */
+    private Map<String, PortfolioData> createStockMap(
+            List<PortfolioData> portfolio) {
+
+
+        Map<String, PortfolioData> stockMap =
+                new HashMap<>();
+
+
+        for(PortfolioData data : portfolio) {
+
+
+            stockMap.put(
+                    data.getTicker()
+                            .toUpperCase(),
+                    data
+            );
+
+        }
+
+
+        return stockMap;
+
+    }
+
     public double calculateCurrentValue(
             List<PortfolioData> portfolio) {
 
@@ -213,6 +237,9 @@ public class PortfolioAnalyzer {
 
         Map<String, Double> holdings =
                 calculateStockHoldings(portfolio);
+
+        Map<String, PortfolioData> stockMap =
+                createStockMap(portfolio);
 
 
         for (String ticker : holdings.keySet()) {
@@ -222,7 +249,7 @@ public class PortfolioAnalyzer {
 
 
             PortfolioData stock =
-                    getStockData(portfolio, ticker);
+                    stockMap.get(ticker.toUpperCase());
 
 
             if (stock == null) {
@@ -241,12 +268,7 @@ public class PortfolioAnalyzer {
                     quote.getPrice() != null) {
 
                 double priceInUSD =
-                        marketDataService.convertToUSD(
-                                quote.getPrice(),
-                                getCurrencyFromMarket(
-                                        stock.getStockMarket()
-                                )
-                        );
+                        quote.getPrice();
 
 
                 double stockValue =
@@ -267,10 +289,15 @@ public class PortfolioAnalyzer {
         Map<String, Double> holdings =
                 calculateStockHoldings(portfolio);
 
+        Map<String, PortfolioData> stockMap =
+                createStockMap(portfolio);
+
         for (String ticker : holdings.keySet()) {
 
             PortfolioData stock =
-                    getStockData(portfolio, ticker);
+                    stockMap.get(
+                            ticker.toUpperCase()
+                    );
 
             if (stock == null) {
                 continue;
@@ -288,12 +315,7 @@ public class PortfolioAnalyzer {
                         quote.getPrice() != null) {
 
                     double priceInUSD =
-                            marketDataService.convertToUSD(
-                                    quote.getPrice(),
-                                    getCurrencyFromMarket(
-                                            stock.getStockMarket()
-                                    )
-                            );
+                            quote.getPrice();
 
 
                     prices.put(
@@ -304,10 +326,10 @@ public class PortfolioAnalyzer {
 
             } catch (Exception e) {
 
-                System.out.println(
-                        "Price unavailable for "
-                                + ticker
-                );
+//                System.out.println(
+//                        "Price unavailable for "
+//                                + ticker
+//                );
             }
         }
 

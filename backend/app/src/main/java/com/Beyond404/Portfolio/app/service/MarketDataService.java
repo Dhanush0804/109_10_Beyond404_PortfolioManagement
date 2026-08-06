@@ -191,25 +191,25 @@ public class MarketDataService {
                     );
 
 
-            System.out.println(
-                    currency
-                            + " conversion rate: "
-                            + exchangeRate
-            );
+//            System.out.println(
+//                    currency
+//                            + " conversion rate: "
+//                            + exchangeRate
+//            );
 
 
             double convertedAmount =
                     amount * exchangeRate;
 
 
-            System.out.println(
-                    amount
-                            + " "
-                            + currency
-                            + " -> "
-                            + convertedAmount
-                            + " USD"
-            );
+//            System.out.println(
+//                    amount
+//                            + " "
+//                            + currency
+//                            + " -> "
+//                            + convertedAmount
+//                            + " USD"
+//            );
 
 
             return convertedAmount;
@@ -219,10 +219,10 @@ public class MarketDataService {
         catch(Exception e) {
 
 
-            System.out.println(
-                    "Currency conversion failed for "
-                            + currency
-            );
+//            System.out.println(
+//                    "Currency conversion failed for "
+//                            + currency
+//            );
 
 
             return amount;
@@ -297,27 +297,27 @@ public class MarketDataService {
             String startDate,
             String endDate) {
 
+
         String url = UriComponentsBuilder
                 .fromUriString(
                         marketDataBaseUrl
                                 + "/api/v1/market/history")
                 .queryParam(
-                        "ticker",
-                        ticker)
+                        "symbol",
+                        normalizeTicker(ticker))
                 .queryParam(
-                        "market",
-                        market)
-                .queryParam(
-                        "startDate",
+                        "start",
                         startDate)
                 .queryParam(
-                        "endDate",
+                        "end",
                         endDate)
                 .toUriString();
 
+
         return restTemplate.getForObject(
                 url,
-                Map.class);
+                Map.class
+        );
 
     }
 
@@ -387,12 +387,12 @@ public class MarketDataService {
 
 
 
-            System.out.println(
-                    "Trying NSE fallback for "
-                            + ticker
-                            + " -> "
-                            + nseTicker
-            );
+//            System.out.println(
+//                    "Trying NSE fallback for "
+//                            + ticker
+//                            + " -> "
+//                            + nseTicker
+//            );
 
 
 
@@ -423,10 +423,10 @@ public class MarketDataService {
 
 
 
-        System.out.println(
-                "Historical price unavailable for "
-                        + ticker
-        );
+//        System.out.println(
+//                "Historical price unavailable for "
+//                        + ticker
+//        );
 
 
         return null;
@@ -605,21 +605,21 @@ public class MarketDataService {
             String ticker,
             String market) {
 
+
         String url = UriComponentsBuilder
                 .fromUriString(
                         marketDataBaseUrl
                                 + "/api/v1/market/recent")
                 .queryParam(
-                        "ticker",
-                        ticker)
-                .queryParam(
-                        "market",
-                        market)
+                        "symbol",
+                        normalizeTicker(ticker))
                 .toUriString();
+
 
         return restTemplate.getForObject(
                 url,
-                Map.class);
+                Map.class
+        );
 
     }
 

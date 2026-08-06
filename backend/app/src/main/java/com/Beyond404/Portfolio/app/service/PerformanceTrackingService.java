@@ -51,7 +51,8 @@ public class PerformanceTrackingService {
                 portfolioAnalysisRepository
                         .getCustomerPortfolio(customerId);
 
-
+        Map<String, PortfolioData> stockMap =
+                createStockMap(portfolio);
 
         if(portfolio.isEmpty()) {
             return null;
@@ -87,8 +88,8 @@ public class PerformanceTrackingService {
 
 
 
-        double totalInvested =
-                calculateTotalInvested(portfolio);
+//        double totalInvested =
+//                calculateTotalInvested(portfolio);
 
 
 
@@ -126,13 +127,9 @@ public class PerformanceTrackingService {
 
 
                 PortfolioData stock =
-                        portfolio.stream()
-                                .filter(
-                                        p -> p.getTicker()
-                                                .equalsIgnoreCase(ticker)
-                                )
-                                .findFirst()
-                                .orElse(null);
+                        stockMap.get(
+                                ticker.toUpperCase()
+                        );
 
 
 
@@ -201,7 +198,7 @@ public class PerformanceTrackingService {
                 result.isEmpty()
                         ? 0
                         :
-                        result.get(result.size()-1)
+                        result.get(result.size() - 1)
                                 .getPortfolioValue();
 
 
@@ -213,10 +210,25 @@ public class PerformanceTrackingService {
                 );
 
 
+
+        double currentProfitLoss =
+                currentValue - currentInvested;
+
+
+
+        double currentReturnPercentage =
+                currentInvested == 0
+                        ? 0
+                        :
+                        (currentProfitLoss / currentInvested) * 100;
+
+
+
         summary.put(
                 "totalInvested",
                 currentInvested
         );
+
 
 
         summary.put(
@@ -225,21 +237,17 @@ public class PerformanceTrackingService {
         );
 
 
+
         summary.put(
                 "profitLoss",
-                currentValue-totalInvested
+                currentProfitLoss
         );
+
 
 
         summary.put(
                 "returnPercentage",
-                totalInvested == 0
-                        ? 0
-                        :
-                        ((currentValue-totalInvested)
-                                /
-                                totalInvested)
-                                *100
+                currentReturnPercentage
         );
 
 
@@ -251,6 +259,29 @@ public class PerformanceTrackingService {
                 result
         );
 
+    }
+
+    private Map<String, PortfolioData> createStockMap(
+            List<PortfolioData> portfolio) {
+
+
+        Map<String, PortfolioData> stockMap =
+                new HashMap<>();
+
+
+        for(PortfolioData data : portfolio) {
+
+
+            stockMap.put(
+                    data.getTicker()
+                            .toUpperCase(),
+                    data
+            );
+
+        }
+
+
+        return stockMap;
     }
 
     private Double getHistoricalPriceWithFallback(
