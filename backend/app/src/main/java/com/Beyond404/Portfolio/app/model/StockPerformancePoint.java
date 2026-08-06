@@ -19,11 +19,14 @@ public class StockPerformancePoint {
 
     private Double profitLoss;
 
+    private Double returnPercentage;
+
 
 
     public StockPerformancePoint() {
 
     }
+
 
     public StockPerformancePoint(
             LocalDate date,
@@ -32,7 +35,8 @@ public class StockPerformancePoint {
             Double stockPrice,
             Double holdingValue,
             Double investedAmount,
-            Double profitLoss) {
+            Double profitLoss,
+            Double returnPercentage) {
 
 
         this.date = date;
@@ -49,7 +53,10 @@ public class StockPerformancePoint {
 
         this.profitLoss = profitLoss;
 
+        this.returnPercentage = returnPercentage;
+
     }
+
 
     public LocalDate getDate() {
 
@@ -57,11 +64,13 @@ public class StockPerformancePoint {
 
     }
 
+
     public void setDate(LocalDate date) {
 
         this.date = date;
 
     }
+
 
     public String getTicker() {
 
@@ -69,11 +78,13 @@ public class StockPerformancePoint {
 
     }
 
+
     public void setTicker(String ticker) {
 
         this.ticker = ticker;
 
     }
+
 
     public Double getQuantity() {
 
@@ -81,11 +92,13 @@ public class StockPerformancePoint {
 
     }
 
+
     public void setQuantity(Double quantity) {
 
         this.quantity = quantity;
 
     }
+
 
     public Double getStockPrice() {
 
@@ -93,11 +106,13 @@ public class StockPerformancePoint {
 
     }
 
+
     public void setStockPrice(Double stockPrice) {
 
         this.stockPrice = stockPrice;
 
     }
+
 
     public Double getHoldingValue() {
 
@@ -105,11 +120,13 @@ public class StockPerformancePoint {
 
     }
 
+
     public void setHoldingValue(Double holdingValue) {
 
         this.holdingValue = holdingValue;
 
     }
+
 
     public Double getInvestedAmount() {
 
@@ -117,11 +134,13 @@ public class StockPerformancePoint {
 
     }
 
+
     public void setInvestedAmount(Double investedAmount) {
 
         this.investedAmount = investedAmount;
 
     }
+
 
     public Double getProfitLoss() {
 
@@ -129,9 +148,24 @@ public class StockPerformancePoint {
 
     }
 
+
     public void setProfitLoss(Double profitLoss) {
 
         this.profitLoss = profitLoss;
+
+    }
+
+
+    public Double getReturnPercentage() {
+
+        return returnPercentage;
+
+    }
+
+
+    public void setReturnPercentage(Double returnPercentage) {
+
+        this.returnPercentage = returnPercentage;
 
     }
 }

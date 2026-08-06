@@ -31,7 +31,7 @@ public class PerformanceController {
     @GetMapping("/{customerId}")
     public PortfolioPerformanceResponse getPortfolioPerformance(
             @PathVariable Long customerId,
-            @RequestParam(defaultValue = "1Y") String range) {
+            @RequestParam(defaultValue = "MONTHLY") String range) {
 
 
         return performanceTrackingService
@@ -48,7 +48,7 @@ public class PerformanceController {
     public List<StockPerformancePoint> getStockPerformance(
             @PathVariable Long customerId,
             @PathVariable String ticker,
-            @RequestParam(defaultValue = "1Y") String range) {
+            @RequestParam(defaultValue = "MONTHLY") String range) {
 
 
         return performanceTrackingService
