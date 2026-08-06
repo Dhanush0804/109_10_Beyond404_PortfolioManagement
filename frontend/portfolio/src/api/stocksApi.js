@@ -17,7 +17,7 @@ const mapStockEntity = (stock) => ({
 
 export const fetchAllStocks = async () => {
   try {
-    const { data } = await axiosInstance.get('/beyond404/stocks/all');
+    const { data } = await axiosInstance.get(`/beyond404/stocks/all?_t=${Date.now()}`);
     if (!Array.isArray(data)) return [];
     return data.map(mapStockEntity).filter((item) => item.ticker);
   } catch {
