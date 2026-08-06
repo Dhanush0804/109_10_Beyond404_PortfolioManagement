@@ -1,120 +1,120 @@
-import React from 'react';
-
-// Contributors and their personal use‑cases for the Beyond404 app
-const CONTRIBUTORS = [
-  {
-    name: 'Abhinav',
-    useCase: 'I use the analytics dashboard to monitor my tech‑stock allocations and set alerts for sudden price moves.',
-  },
-  {
-    name: 'Dhanush',
-    useCase: 'The historical investment view helps me evaluate long‑term performance of my mutual‑fund portfolio.',
-  },
-  {
-    name: 'Divyansh',
-    useCase: 'I love the market‑quote explorer – it gives me quick snapshots before I place a trade.',
-  },
-  {
-    name: 'Tushar',
-    useCase: 'The clean UI lets me share portfolio summaries with clients without any extra tools.',
-  },
-];
-
-export default function CommunityPage() {
-  return (
-    <section className="flex flex-col items-center justify-center min-h-[80vh] gap-8 p-8 anim-fade-in" style={{ background: 'var(--bg-canvas)' }}>
-      <h2 className="text-3xl font-bold mb-6" style={{ color: 'var(--txt-primary)' }}>
-        Made by Team: Beyond404
-      </h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
-        {CONTRIBUTORS.map((c, idx) => (
-          <div
-            key={c.name}
-            className="p-4 rounded-lg"
-            style={{
-              background: idx % 2 === 0 ? 'var(--bg-elevated)' : 'var(--bg-surface)',
-              border: '1px solid var(--border-subtle)',
-              boxShadow: 'var(--shadow-accent)',
-            }}
-          >
-            <h4 className="text-lg font-medium mb-2" style={{ color: 'var(--txt-primary)' }}>
-              {c.name}
-            </h4>
-            <p className="text-sm" style={{ color: 'var(--txt-secondary)' }}>
-              {c.useCase}
-            </p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-
-// Feature overview for the Beyond404 Portfolio Management app
-const FEATURES = [
-  'Real‑time portfolio analytics and stock‑wise P&L',
-  'Historical investment tracking with customizable date ranges',
-  'Market data lookup and quote aggregation',
-  'User‑friendly dashboard with interactive charts',
-];
+﻿import React from 'react';
 
 const CONTRIBUTORS = [
   {
     name: 'Abhinav',
-    useCase: 'I use the analytics dashboard to monitor my tech‑stock allocations and set alerts for sudden price moves.',
+    initials: 'AB',
+    useCase: 'I use the analytics dashboard to monitor my tech‑stock allocations and spot sudden price moves before anyone else.',
   },
   {
     name: 'Dhanush',
-    useCase: 'The historical investment view helps me evaluate long‑term performance of my mutual‑fund portfolio.',
+    initials: 'DH',
+    useCase: 'The historical investment view helps me evaluate long‑term performance of my mutual‑fund portfolio with ease.',
   },
   {
     name: 'Divyansh',
-    useCase: 'I love the market‑quote explorer – it gives me quick snapshots before I place a trade.',
+    initials: 'DV',
+    useCase: 'I love the market‑quote explorer — it gives me quick price snapshots right before I place a trade.',
   },
   {
     name: 'Tushar',
-    useCase: 'The clean UI lets me share portfolio summaries with clients without any extra tools.',
+    initials: 'TU',
+    useCase: 'The clean portfolio summary lets me share reports with clients instantly without any extra tools.',
   },
+];
+
+const ACCENT_COLORS = [
+  'var(--accent)',
+  '#10b981',
+  '#6366f1',
+  '#f59e0b',
 ];
 
 export default function CommunityPage() {
   return (
-    <section className="flex flex-col items-center justify-center min-h-[80vh] gap-8 p-8 anim-fade-in" style={{ background: 'var(--bg-canvas)' }}>
-      <h2 className="text-3xl font-bold" style={{ color: 'var(--txt-primary)' }}>
-        Made by Team: Beyond404
-      </h2>
-
-      {/* Feature list */}
-      <div className="w-full max-w-3xl" style={{ background: 'var(--bg-elevated)', borderRadius: '0.75rem', boxShadow: 'var(--shadow-elevated)', padding: '1.5rem' }}>
-        <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--txt-primary)' }}>
-          What you can do with this app
-        </h3>
-        <ul className="list-disc list-inside space-y-2" style={{ color: 'var(--txt-secondary)' }}>
-          {FEATURES.map((feat, i) => (
-            <li key={i}>{feat}</li>
-          ))}
-        </ul>
+    <section
+      style={{
+        minHeight: '80vh',
+        background: 'var(--bg-canvas)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '3rem 2rem',
+        gap: '2.5rem',
+      }}
+      className="anim-fade-in"
+    >
+      {/* Header */}
+      <div style={{ textAlign: 'center' }}>
+        <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--txt-primary)', marginBottom: '0.5rem' }}>
+          Made by Team: <span style={{ color: 'var(--accent)' }}>Beyond404</span>
+        </h1>
+        <p style={{ fontSize: '0.95rem', color: 'var(--txt-muted)' }}>
+          How our contributors use this portfolio management platform
+        </p>
       </div>
 
-      {/* Contributors and their use‑cases */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+      {/* Cards */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '1.25rem',
+          width: '100%',
+          maxWidth: '900px',
+        }}
+      >
         {CONTRIBUTORS.map((c, idx) => (
           <div
             key={c.name}
-            className="p-4 rounded-lg"
             style={{
-              background: idx % 2 === 0 ? 'var(--bg-elevated)' : 'var(--bg-surface)',
+              background: 'var(--bg-surface)',
               border: '1px solid var(--border-subtle)',
-              boxShadow: 'var(--shadow-accent)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.75rem',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-3px)';
+              e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.25)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.15)';
             }}
           >
-            <h4 className="text-lg font-medium mb-2" style={{ color: 'var(--txt-primary)' }}>
-              {c.name}
-            </h4>
-            <p className="text-sm" style={{ color: 'var(--txt-secondary)' }}>
-              {c.useCase}
+            {/* Avatar + Name */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '50%',
+                  background: ACCENT_COLORS[idx % ACCENT_COLORS.length],
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  color: '#fff',
+                  flexShrink: 0,
+                }}
+              >
+                {c.initials}
+              </div>
+              <h4 style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--txt-primary)', margin: 0 }}>
+                {c.name}
+              </h4>
+            </div>
+
+            {/* Quote */}
+            <p style={{ fontSize: '0.875rem', color: 'var(--txt-secondary)', lineHeight: 1.6, margin: 0 }}>
+              &ldquo;{c.useCase}&rdquo;
             </p>
           </div>
         ))}
