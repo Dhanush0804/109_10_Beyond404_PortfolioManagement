@@ -23,27 +23,27 @@ pipeline {
 
         stage('Show Environment') {
             steps {
-                bat 'git branch --show-current'
-                bat 'docker --version'
-                bat 'docker compose version'
+                sh 'git branch --show-current || true'
+                sh 'docker --version'
+                sh 'docker compose version'
             }
         }
 
         stage('Build Services') {
             steps {
-                bat 'docker compose -f %COMPOSE_FILE% build'
+                sh 'docker compose -f $COMPOSE_FILE build'
             }
         }
 
         stage('Deploy Services') {
             steps {
-                bat 'docker compose -f %COMPOSE_FILE% up -d'
+                sh 'docker compose -f $COMPOSE_FILE up -d'
             }
         }
 
         stage('Verify Deployment') {
             steps {
-                bat 'docker compose -f %COMPOSE_FILE% ps'
+                sh 'docker compose -f $COMPOSE_FILE ps'
             }
         }
     }
@@ -54,7 +54,7 @@ pipeline {
         }
         failure {
             echo 'Deployment failed.'
-            bat 'docker compose -f %COMPOSE_FILE% ps'
+            sh 'docker compose -f $COMPOSE_FILE ps || true'
         }
         always {
             cleanWs()
