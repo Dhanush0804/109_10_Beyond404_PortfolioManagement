@@ -1,5 +1,57 @@
 import React from 'react';
 
+// Contributors and their personal use‑cases for the Beyond404 app
+const CONTRIBUTORS = [
+  {
+    name: 'Abhinav',
+    useCase: 'I use the analytics dashboard to monitor my tech‑stock allocations and set alerts for sudden price moves.',
+  },
+  {
+    name: 'Dhanush',
+    useCase: 'The historical investment view helps me evaluate long‑term performance of my mutual‑fund portfolio.',
+  },
+  {
+    name: 'Divyansh',
+    useCase: 'I love the market‑quote explorer – it gives me quick snapshots before I place a trade.',
+  },
+  {
+    name: 'Tushar',
+    useCase: 'The clean UI lets me share portfolio summaries with clients without any extra tools.',
+  },
+];
+
+export default function CommunityPage() {
+  return (
+    <section className="flex flex-col items-center justify-center min-h-[80vh] gap-8 p-8 anim-fade-in" style={{ background: 'var(--bg-canvas)' }}>
+      <h2 className="text-3xl font-bold mb-6" style={{ color: 'var(--txt-primary)' }}>
+        Made by Team: Beyond404
+      </h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+        {CONTRIBUTORS.map((c, idx) => (
+          <div
+            key={c.name}
+            className="p-4 rounded-lg"
+            style={{
+              background: idx % 2 === 0 ? 'var(--bg-elevated)' : 'var(--bg-surface)',
+              border: '1px solid var(--border-subtle)',
+              boxShadow: 'var(--shadow-accent)',
+            }}
+          >
+            <h4 className="text-lg font-medium mb-2" style={{ color: 'var(--txt-primary)' }}>
+              {c.name}
+            </h4>
+            <p className="text-sm" style={{ color: 'var(--txt-secondary)' }}>
+              {c.useCase}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+
 // Feature overview for the Beyond404 Portfolio Management app
 const FEATURES = [
   'Real‑time portfolio analytics and stock‑wise P&L',
