@@ -20,7 +20,7 @@ const analyticsSlice = createSlice({
     stockWise:        [],
     chartData:        [],
     chartMode:        'portfolio',  // 'portfolio' | 'stock'
-    chartRange:       '1Y',
+    chartRange:       'YEARLY',
     loadingSummary:   false,
     loadingStockWise: false,
     loadingChart:     false,
