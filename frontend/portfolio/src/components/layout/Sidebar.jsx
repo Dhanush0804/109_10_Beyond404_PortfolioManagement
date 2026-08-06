@@ -89,7 +89,7 @@ export default function Sidebar() {
         </div>
         <div>
           <p className="font-extrabold text-[18px] leading-none tracking-tight" style={{ color: 'var(--txt-primary)' }}>
-            Sto<span style={{ color: 'var(--accent)' }}>vest</span>
+            Beyond<span style={{ color: 'var(--accent)' }}>404</span>
           </p>
           <p className="text-[11px] mt-1.5 font-medium tracking-wide leading-tight" style={{ color: 'var(--txt-muted)' }}>
             Portfolio Manager
