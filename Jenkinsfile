@@ -25,25 +25,25 @@ pipeline {
             steps {
                 sh 'git branch --show-current || true'
                 sh 'docker --version'
-                sh 'docker compose version'
+                sh 'docker-compose version'
             }
         }
 
         stage('Build Services') {
             steps {
-                sh 'docker compose -f $COMPOSE_FILE build'
+                sh 'docker-compose -f $COMPOSE_FILE build'
             }
         }
 
         stage('Deploy Services') {
             steps {
-                sh 'docker compose -f $COMPOSE_FILE up -d'
+                sh 'docker-compose -f $COMPOSE_FILE up -d'
             }
         }
 
         stage('Verify Deployment') {
             steps {
-                sh 'docker compose -f $COMPOSE_FILE ps'
+                sh 'docker-compose -f $COMPOSE_FILE ps'
             }
         }
     }
@@ -54,7 +54,7 @@ pipeline {
         }
         failure {
             echo 'Deployment failed.'
-            sh 'docker compose -f $COMPOSE_FILE ps || true'
+            sh 'docker-compose -f $COMPOSE_FILE ps || true'
         }
         always {
             cleanWs()
