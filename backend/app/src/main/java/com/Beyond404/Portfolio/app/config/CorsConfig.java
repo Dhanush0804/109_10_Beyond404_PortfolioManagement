@@ -12,7 +12,7 @@ public class CorsConfig implements WebMvcConfigurer {
 
     private final String[] allowedOriginPatterns;
 
-    public CorsConfig(@Value("${app.cors.allowed-origin-patterns:http://localhost:*,http://127.0.0.1:*}") String[] allowedOriginPatterns) {
+    public CorsConfig(@Value("${app.cors.allowed-origin-patterns:*}") String[] allowedOriginPatterns) {
         this.allowedOriginPatterns = Arrays.stream(allowedOriginPatterns)
                 .map(String::trim)
                 .toArray(String[]::new);
