@@ -40,6 +40,7 @@ pipeline {
 
         stage('Deploy Services') {
             steps {
+                sh 'docker-compose -f $COMPOSE_FILE down --remove-orphans || true'
                 sh 'docker-compose -f $COMPOSE_FILE up -d'
             }
         }
@@ -59,7 +60,7 @@ pipeline {
             echo 'Deployment failed.'
             sh 'docker-compose -f $COMPOSE_FILE ps || true'
         }
-        always {
+        cleanup {
             cleanWs()
         }
     }
