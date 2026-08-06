@@ -12,6 +12,7 @@ import {
   RiLineChartLine,
   RiLoaderLine,
   RiMoneyDollarCircleLine,
+  RiRefreshLine,
   RiShieldCheckLine,
   RiSubtractLine,
 } from 'react-icons/ri';
@@ -324,6 +325,28 @@ export default function PortfolioPage() {
       setOrderConfirmDialog({ open: false, type: null });
       setPlacingOrderType(null);
     }
+  };
+
+  const handleRefreshStockHistory = () => {
+    if (!selectedUser?.customerId || !selectedStock?.stockId || selectedSource !== 'owned' || loadingHistory) {
+      return;
+    }
+
+    setLoadingHistory(true);
+    setHistoryError(null);
+
+    fetchPaginatedInvestmentHistory({
+      customerId: selectedUser.customerId,
+      stockId: selectedStock.stockId,
+      page: historyPage,
+      size: PAGE_SIZE,
+    }).then((data) => {
+      setStockHistory(data);
+    }).catch((error) => {
+      setHistoryError(error?.message ?? 'Unable to load transaction history.');
+    }).finally(() => {
+      setLoadingHistory(false);
+    });
   };
 
   return (
@@ -686,22 +709,41 @@ export default function PortfolioPage() {
                           Paginated transactions for {selectedStock.ticker}
                         </p>
                       </div>
-                      <span
-                        className="inline-flex items-center justify-center shrink-0 rounded-full text-[11px] font-semibold"
-                        style={{
-                          color: 'var(--txt-muted)',
-                          background: 'var(--bg-card)',
-                          border: '1px solid var(--border-subtle)',
-                          minWidth: '76px',
-                          height: '30px',
-                          padding: '0.35rem 0.8rem',
-                          lineHeight: 1,
-                          marginTop: '0.2rem',
-                          marginRight: '0.4rem',
-                        }}
-                      >
-                        Total: {stockHistory.totalItems}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleRefreshStockHistory}
+                          disabled={loadingHistory}
+                          className="inline-flex items-center justify-center rounded-md text-[10px] font-semibold disabled:opacity-50"
+                          style={{
+                            width: 28,
+                            height: 28,
+                            color: 'var(--txt-secondary)',
+                            border: '1px solid var(--border-subtle)',
+                            background: 'var(--bg-card)',
+                            marginTop: '0.2rem',
+                          }}
+                          title="Refresh history"
+                        >
+                          <RiRefreshLine className={loadingHistory ? 'animate-spin' : ''} />
+                        </button>
+                        <span
+                          className="inline-flex items-center justify-center shrink-0 rounded-full text-[11px] font-semibold"
+                          style={{
+                            color: 'var(--txt-muted)',
+                            background: 'var(--bg-card)',
+                            border: '1px solid var(--border-subtle)',
+                            minWidth: '76px',
+                            height: '30px',
+                            padding: '0.35rem 0.8rem',
+                            lineHeight: 1,
+                            marginTop: '0.2rem',
+                            marginRight: '0.4rem',
+                          }}
+                        >
+                          Total: {stockHistory.totalItems}
+                        </span>
+                      </div>
                     </div>
 
                     <SectionLoader loading={loadingHistory} minHeight={220}>

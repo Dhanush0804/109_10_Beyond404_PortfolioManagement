@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { RiToolsLine } from 'react-icons/ri';
 import Sidebar        from './components/layout/Sidebar';
 import Topbar         from './components/layout/Topbar';
@@ -33,6 +33,7 @@ export default function App() {
           <Route path="/analysis"  element={<ComingSoon label="Analysis" />} />
           <Route path="/community" element={<ComingSoon label="Community" />} />
           <Route path="/help"      element={<ComingSoon label="Help & Support" />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </BrowserRouter>

@@ -1,8 +1,11 @@
 import { useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ResponsiveContainer, Treemap, Tooltip } from 'recharts';
 import SectionLoader from '../common/SectionLoader';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
+import { RiRefreshLine } from 'react-icons/ri';
+import { loadStockWisePnL } from '../../store/slices/analyticsSlice';
+import { loadAssetHoldings } from '../../store/slices/assetHoldingsSlice';
 
 const CURRENCY = 'USD';
 
@@ -132,8 +135,16 @@ function TreemapTile(props) {
 }
 
 export default function HoldingsTreemap() {
+  const dispatch = useDispatch();
+  const { selectedUser } = useSelector((s) => s.user);
   const { stockWise, loadingStockWise } = useSelector((s) => s.analytics);
   const { items: holdings, loading: loadingHoldings } = useSelector((s) => s.assetHoldings);
+
+  const handleRefresh = () => {
+    if (!selectedUser?.customerId || loadingStockWise || loadingHoldings) return;
+    dispatch(loadStockWisePnL(selectedUser.customerId));
+    dispatch(loadAssetHoldings(selectedUser.customerId));
+  };
 
   const data = useMemo(() => {
     const stockById = new Map(stockWise.map((stock) => [Number(stock.stockId), stock]));
@@ -188,19 +199,37 @@ export default function HoldingsTreemap() {
             Rectangle size = shares held × current stock price
           </p>
         </div>
-        <span
-          className="inline-flex items-center justify-center rounded-full text-[11px] font-semibold"
-          style={{
-            background: 'var(--bg-elevated)',
-            border: '1px solid var(--border-subtle)',
-            color: 'var(--txt-secondary)',
-            minWidth: 152,
-            height: 28,
-            padding: '0 10px',
-          }}
-        >
-          Total Value: {formatCurrency(totalValue, 2, CURRENCY)}
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={!selectedUser?.customerId || loadingStockWise || loadingHoldings}
+            className="inline-flex items-center justify-center rounded-md text-[10px] font-semibold disabled:opacity-50"
+            style={{
+              width: 28,
+              height: 28,
+              color: 'var(--txt-secondary)',
+              border: '1px solid var(--border-subtle)',
+              background: 'var(--bg-elevated)',
+            }}
+            title="Refresh holdings heatmap"
+          >
+            <RiRefreshLine className={loadingStockWise || loadingHoldings ? 'animate-spin' : ''} />
+          </button>
+          <span
+            className="inline-flex items-center justify-center rounded-full text-[11px] font-semibold"
+            style={{
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border-subtle)',
+              color: 'var(--txt-secondary)',
+              minWidth: 152,
+              height: 28,
+              padding: '0 10px',
+            }}
+          >
+            Total Value: {formatCurrency(totalValue, 2, CURRENCY)}
+          </span>
+        </div>
       </div>
 
       <SectionLoader loading={loadingStockWise || loadingHoldings} minHeight={300}>

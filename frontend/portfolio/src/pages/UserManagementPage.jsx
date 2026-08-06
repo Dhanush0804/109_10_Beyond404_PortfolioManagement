@@ -7,6 +7,7 @@ import {
   RiCloseLine,
   RiDeleteBinLine,
   RiLoaderLine,
+  RiRefreshLine,
   RiShieldCheckLine,
   RiUserLine,
 } from 'react-icons/ri';
@@ -141,6 +142,25 @@ export default function UserManagementPage() {
     ? deleteDialog.confirmText.trim() === deleteDialog.user.customerName
     : false;
 
+  const handleRefreshUsers = () => {
+    if (loadingUsers || creatingUser || deletingUser) return;
+    dispatch(loadAllUsers());
+  };
+
+  const handleRefreshTransactions = () => {
+    if (!selectedUser?.customerId || loadingTransactions) return;
+    setLoadingTransactions(true);
+    fetchPaginatedInvestmentHistory({
+      customerId: selectedUser.customerId,
+      page: transactionPage,
+      size: PAGE_SIZE,
+    }).then((data) => {
+      setUserTransactions(data);
+    }).finally(() => {
+      setLoadingTransactions(false);
+    });
+  };
+
   return (
     <div className="page-container anim-fade-in" style={{ maxWidth: 1440, margin: '0 auto' }}>
       <section className="hero-section">
@@ -183,7 +203,25 @@ export default function UserManagementPage() {
                 Click a row to make that customer the active user in the app.
               </p>
             </div>
-            {loadingUsers ? <RiLoaderLine className="animate-spin text-lg" style={{ color: 'var(--accent)' }} /> : null}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleRefreshUsers}
+                disabled={loadingUsers || creatingUser || deletingUser}
+                className="inline-flex items-center justify-center rounded-md text-[10px] font-semibold disabled:opacity-50"
+                style={{
+                  width: 28,
+                  height: 28,
+                  color: 'var(--txt-secondary)',
+                  border: '1px solid var(--border-subtle)',
+                  background: 'var(--bg-elevated)',
+                }}
+                title="Refresh users"
+              >
+                <RiRefreshLine className={loadingUsers ? 'animate-spin' : ''} />
+              </button>
+              {loadingUsers ? <RiLoaderLine className="animate-spin text-lg" style={{ color: 'var(--accent)' }} /> : null}
+            </div>
           </div>
 
           {allUsers.length === 0 && !loadingUsers ? (
@@ -389,11 +427,29 @@ export default function UserManagementPage() {
               {selectedUser ? `Showing transactions for ${selectedUser.customerName}` : 'Select a user to view transaction history'}
             </p>
           </div>
-          {selectedUser ? (
-            <p className="text-xs font-semibold" style={{ color: 'var(--txt-muted)' }}>
-              Total: {userTransactions.totalItems}
-            </p>
-          ) : null}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleRefreshTransactions}
+              disabled={!selectedUser?.customerId || loadingTransactions}
+              className="inline-flex items-center justify-center rounded-md text-[10px] font-semibold disabled:opacity-50"
+              style={{
+                width: 28,
+                height: 28,
+                color: 'var(--txt-secondary)',
+                border: '1px solid var(--border-subtle)',
+                background: 'var(--bg-elevated)',
+              }}
+              title="Refresh transactions"
+            >
+              <RiRefreshLine className={loadingTransactions ? 'animate-spin' : ''} />
+            </button>
+            {selectedUser ? (
+              <p className="text-xs font-semibold" style={{ color: 'var(--txt-muted)' }}>
+                Total: {userTransactions.totalItems}
+              </p>
+            ) : null}
+          </div>
         </div>
 
         <SectionLoader loading={loadingTransactions} minHeight={260}>

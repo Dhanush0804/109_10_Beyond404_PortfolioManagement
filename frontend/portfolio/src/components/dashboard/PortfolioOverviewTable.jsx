@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { RiArrowUpLine, RiArrowDownLine } from 'react-icons/ri';
+import { RiArrowUpLine, RiArrowDownLine, RiRefreshLine } from 'react-icons/ri';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
 import { setSelectedStock } from '../../store/slices/stocksSlice';
-import { loadChartData, setChartMode } from '../../store/slices/analyticsSlice';
+import { loadChartData, loadStockWisePnL, setChartMode } from '../../store/slices/analyticsSlice';
+import { loadAssetHoldings } from '../../store/slices/assetHoldingsSlice';
 import SectionLoader from '../common/SectionLoader';
 import { Sparklines, SparklinesLine } from 'react-sparklines';
 
@@ -23,6 +24,7 @@ export default function PortfolioOverviewTable() {
   const { stockWise, loadingStockWise, chartRange } = useSelector((s) => s.analytics);
   const { items: holdings } = useSelector((s) => s.assetHoldings);
   const { selectedStock } = useSelector((s) => s.stocks);
+  const { selectedUser } = useSelector((s) => s.user);
   const [filter, setFilter] = useState('All');
 
   const holdingsByStockId = useMemo(() => {
@@ -45,6 +47,12 @@ export default function PortfolioOverviewTable() {
     dispatch(loadChartData({ mode: 'stock', stockId: stock.stockId, ticker: stock.ticker, range: chartRange }));
   };
 
+  const handleRefresh = () => {
+    if (!selectedUser?.customerId || loadingStockWise) return;
+    dispatch(loadStockWisePnL(selectedUser.customerId));
+    dispatch(loadAssetHoldings(selectedUser.customerId));
+  };
+
   return (
     <div
       className="rounded-2xl"
@@ -63,15 +71,33 @@ export default function PortfolioOverviewTable() {
             Click any row to view stock chart
           </p>
         </div>
-        <div
-          className="flex items-center rounded-xl"
-          style={{
-            background: 'var(--bg-elevated)',
-            border: '1px solid var(--border-subtle)',
-            padding: '0.25rem',
-            gap: '0.25rem',
-          }}
-        >
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={!selectedUser?.customerId || loadingStockWise}
+            className="inline-flex items-center justify-center rounded-md text-[10px] font-semibold disabled:opacity-50"
+            style={{
+              width: 28,
+              height: 28,
+              color: 'var(--txt-secondary)',
+              border: '1px solid var(--border-subtle)',
+              background: 'var(--bg-elevated)',
+            }}
+            title="Refresh overview"
+          >
+            <RiRefreshLine className={loadingStockWise ? 'animate-spin' : ''} />
+          </button>
+
+          <div
+            className="flex items-center rounded-xl"
+            style={{
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border-subtle)',
+              padding: '0.25rem',
+              gap: '0.25rem',
+            }}
+          >
           {FILTERS.map((f) => (
             <button
               key={f}
@@ -96,6 +122,7 @@ export default function PortfolioOverviewTable() {
               {f}
             </button>
           ))}
+          </div>
         </div>
       </div>
 

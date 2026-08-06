@@ -1,6 +1,7 @@
-import { useSelector } from 'react-redux';
-import { RiArrowUpLine, RiArrowDownLine, RiWalletLine, RiPieChartLine, RiExchangeLine } from 'react-icons/ri';
+import { useDispatch, useSelector } from 'react-redux';
+import { RiArrowUpLine, RiArrowDownLine, RiWalletLine, RiPieChartLine, RiExchangeLine, RiRefreshLine } from 'react-icons/ri';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
+import { loadPortfolioSummary } from '../../store/slices/analyticsSlice';
 import SectionLoader from '../common/SectionLoader';
 
 const STAT_CONFIGS = [
@@ -38,11 +39,37 @@ const STAT_CONFIGS = [
 ];
 
 export default function StatsSummaryBar() {
+  const dispatch = useDispatch();
+  const { selectedUser } = useSelector((s) => s.user);
   const { summary, loadingSummary } = useSelector((s) => s.analytics);
   const SUMMARY_CURRENCY = 'USD';
 
+  const handleRefresh = () => {
+    if (!selectedUser?.customerId || loadingSummary) return;
+    dispatch(loadPortfolioSummary(selectedUser.customerId));
+  };
+
   return (
     <SectionLoader loading={loadingSummary} minHeight={88}>
+      <div className="flex items-center justify-end" style={{ marginBottom: 8 }}>
+        <button
+          type="button"
+          onClick={handleRefresh}
+          disabled={!selectedUser?.customerId || loadingSummary}
+          className="inline-flex items-center justify-center rounded-md text-[10px] font-semibold disabled:opacity-50"
+          style={{
+            width: 28,
+            height: 28,
+            color: 'var(--txt-secondary)',
+            border: '1px solid var(--border-subtle)',
+            background: 'var(--bg-elevated)',
+          }}
+          title="Refresh summary"
+        >
+          <RiRefreshLine className={loadingSummary ? 'animate-spin' : ''} />
+        </button>
+      </div>
+
       {!summary ? (
         <div
           className="rounded-2xl p-4 flex items-center justify-center"

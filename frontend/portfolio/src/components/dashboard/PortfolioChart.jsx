@@ -6,7 +6,7 @@ import {
 import { loadChartData, setChartRange, setChartMode } from '../../store/slices/analyticsSlice';
 import { formatCurrency, formatShortDate } from '../../utils/formatters';
 import SectionLoader from '../common/SectionLoader';
-import { RiArrowLeftLine } from 'react-icons/ri';
+import { RiArrowLeftLine, RiRefreshLine } from 'react-icons/ri';
 
 const RANGES = ['1D', '1W', '1M', '6M', '1Y'];
 
@@ -56,6 +56,23 @@ export default function PortfolioChart() {
   const handleModeToggle = () => {
     dispatch(setChartMode('portfolio'));
     dispatch(loadChartData({ mode: 'portfolio', customerId: selectedUser?.customerId, range: chartRange }));
+  };
+
+  const handleRefresh = () => {
+    if (loadingChart) return;
+    if (chartMode === 'stock' && selectedStock) {
+      dispatch(loadChartData({
+        mode: 'stock',
+        stockId: selectedStock.stockId,
+        ticker: selectedStock.ticker,
+        range: chartRange,
+      }));
+      return;
+    }
+
+    if (selectedUser?.customerId) {
+      dispatch(loadChartData({ mode: 'portfolio', customerId: selectedUser.customerId, range: chartRange }));
+    }
   };
 
   const dataKey  = chartMode === 'stock' ? 'price' : 'value';
@@ -124,41 +141,60 @@ export default function PortfolioChart() {
         </div>
 
         {/* Range pills */}
-        <div
-          className="flex items-center rounded-xl"
-          style={{
-            background: 'var(--bg-elevated)',
-            border: '1px solid var(--border-subtle)',
-            padding: '0.25rem',
-            gap: '0.25rem',
-          }}
-        >
-          {RANGES.map((r) => (
-            <button
-              key={r}
-              onClick={() => handleRange(r)}
-              className="rounded-md font-semibold transition-all duration-200"
-              style={chartRange === r ? {
-                background: 'var(--accent)',
-                color: '#fff',
-                boxShadow: 'var(--shadow-accent)',
-                minWidth: '32px',
-                height: '28px',
-                padding: '0 0.5rem',
-                fontSize: '11px',
-                lineHeight: 1,
-              } : {
-                color: 'var(--txt-secondary)',
-                minWidth: '32px',
-                height: '28px',
-                padding: '0 0.5rem',
-                fontSize: '11px',
-                lineHeight: 1,
-              }}
-            >
-              {r}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={loadingChart || (!selectedUser?.customerId && chartMode !== 'stock')}
+            className="inline-flex items-center justify-center rounded-md text-[10px] font-semibold disabled:opacity-50"
+            style={{
+              width: 28,
+              height: 28,
+              color: 'var(--txt-secondary)',
+              border: '1px solid var(--border-subtle)',
+              background: 'var(--bg-elevated)',
+            }}
+            title="Refresh chart"
+          >
+            <RiRefreshLine className={loadingChart ? 'animate-spin' : ''} />
+          </button>
+
+          <div
+            className="flex items-center rounded-xl"
+            style={{
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border-subtle)',
+              padding: '0.25rem',
+              gap: '0.25rem',
+            }}
+          >
+            {RANGES.map((r) => (
+              <button
+                key={r}
+                onClick={() => handleRange(r)}
+                className="rounded-md font-semibold transition-all duration-200"
+                style={chartRange === r ? {
+                  background: 'var(--accent)',
+                  color: '#fff',
+                  boxShadow: 'var(--shadow-accent)',
+                  minWidth: '32px',
+                  height: '28px',
+                  padding: '0 0.5rem',
+                  fontSize: '11px',
+                  lineHeight: 1,
+                } : {
+                  color: 'var(--txt-secondary)',
+                  minWidth: '32px',
+                  height: '28px',
+                  padding: '0 0.5rem',
+                  fontSize: '11px',
+                  lineHeight: 1,
+                }}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
