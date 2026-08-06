@@ -1,6 +1,7 @@
 package com.Beyond404.Portfolio.app.repository;
 
 import com.Beyond404.Portfolio.app.model.Investment;
+import com.Beyond404.Portfolio.app.model.InvestmentPageResponse;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -28,6 +29,73 @@ public class InvestmentRepository {
                         investmentRowMapper
                 )
         );
+    }
+
+    public ArrayList<Investment> getInvestmentsByCustomer(Long customerId) {
+        return new ArrayList<>(
+                jdbcTemplate.query(
+                        "SELECT asset_id, customer_id, stock_id, transaction_type, transaction_amount, quantity, transaction_timestamp FROM investments WHERE customer_id = ? ORDER BY transaction_timestamp DESC, asset_id DESC",
+                        investmentRowMapper,
+                        customerId
+                )
+        );
+    }
+
+    public ArrayList<Investment> getInvestmentsByCustomerAndStock(Long customerId, Long stockId) {
+        return new ArrayList<>(
+                jdbcTemplate.query(
+                        "SELECT asset_id, customer_id, stock_id, transaction_type, transaction_amount, quantity, transaction_timestamp FROM investments WHERE customer_id = ? AND stock_id = ? ORDER BY transaction_timestamp DESC, asset_id DESC",
+                        investmentRowMapper,
+                        customerId,
+                        stockId
+                )
+        );
+    }
+
+    public InvestmentPageResponse getPaginatedInvestments(Long customerId, Long stockId, int page, int size) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.max(size, 1);
+        int offset = safePage * safeSize;
+
+        String baseSql = " FROM investments WHERE customer_id = ?";
+        Object[] params;
+
+        if (stockId != null) {
+            baseSql += " AND stock_id = ?";
+            params = new Object[]{customerId, stockId};
+        } else {
+            params = new Object[]{customerId};
+        }
+
+        Long totalItems = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*)" + baseSql,
+                Long.class,
+                params
+        );
+
+        ArrayList<Investment> items = new ArrayList<>(
+                jdbcTemplate.query(
+                        "SELECT asset_id, customer_id, stock_id, transaction_type, transaction_amount, quantity, transaction_timestamp"
+                                + baseSql
+                                + " ORDER BY transaction_timestamp DESC, asset_id DESC LIMIT ? OFFSET ?",
+                        ps -> {
+                            int index = 1;
+                            ps.setLong(index++, customerId);
+                            if (stockId != null) {
+                                ps.setLong(index++, stockId);
+                            }
+                            ps.setInt(index++, safeSize);
+                            ps.setInt(index, offset);
+                        },
+                        investmentRowMapper
+                )
+        );
+
+        int totalPages = totalItems == null || totalItems == 0
+                ? 0
+                : (int) Math.ceil((double) totalItems / safeSize);
+
+        return new InvestmentPageResponse(items, totalItems == null ? 0L : totalItems, safePage, safeSize, totalPages);
     }
 
     public Investment findById(Long id) {

@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { RiArrowUpLine, RiArrowDownLine, RiArrowRightSLine } from 'react-icons/ri';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
 import { setSelectedStock } from '../../store/slices/stocksSlice';
 import { loadChartData, setChartMode } from '../../store/slices/analyticsSlice';
 import SectionLoader from '../common/SectionLoader';
 
-function StockChip({ stock, isActive, onClick }) {
+function StockChip({ stock, isActive, onClick, sharesHeld = 0 }) {
+  const STOCKWISE_CURRENCY = 'INR';
   const current  = stock.currentPrice ?? stock.lastPrice ?? 0;
   const previous = stock.previousPrice ?? stock.prevPrice ?? 0;
   const gain     = current >= previous;
@@ -17,26 +19,29 @@ function StockChip({ stock, isActive, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="flex-shrink-0 flex flex-col gap-1.5 p-3.5 rounded-xl text-left transition-all duration-200 min-w-[120px]"
+      className="flex-shrink-0 flex flex-col gap-2.5 rounded-xl text-left transition-all duration-200"
       style={{
         background: isActive ? 'var(--accent-glow)' : 'var(--bg-elevated)',
         border: `1px solid ${isActive ? 'var(--border-active)' : 'var(--border-subtle)'}`,
         boxShadow: isActive ? 'var(--shadow-accent)' : 'none',
+        minWidth: '156px',
+        padding: '0.75rem 0.8rem',
       }}
     >
       {/* Ticker */}
       <div className="flex items-center justify-between gap-2">
         <span
-          className="text-[10px] font-black uppercase tracking-wide px-1.5 py-0.5 rounded"
+          className="text-[10px] font-extrabold uppercase tracking-wide px-2 py-0.5 rounded-md"
           style={{
             background: isActive ? 'var(--accent)' : 'var(--bg-card)',
             color: isActive ? '#fff' : 'var(--accent)',
+            border: isActive ? 'none' : '1px solid var(--border-subtle)',
           }}
         >
           {ticker}
         </span>
         <span
-          className="text-[9px] font-bold flex items-center gap-0.5"
+          className="text-[10px] font-bold flex items-center gap-0.5"
           style={{ color: gain ? 'var(--gain)' : 'var(--loss)' }}
         >
           {gain ? <RiArrowUpLine /> : <RiArrowDownLine />}
@@ -45,13 +50,17 @@ function StockChip({ stock, isActive, onClick }) {
       </div>
 
       {/* Price */}
-      <p className="text-sm font-bold" style={{ color: 'var(--txt-primary)' }}>
-        {formatCurrency(current)}
+      <p className="text-base font-extrabold tracking-tight mt-0.5" style={{ color: 'var(--txt-primary)' }}>
+        {formatCurrency(current, 2, STOCKWISE_CURRENCY)}
       </p>
 
       {/* Company name */}
-      <p className="text-[9px] truncate max-w-[100px]" style={{ color: 'var(--txt-secondary)' }}>
+      <p className="text-[10px] font-medium truncate max-w-[132px]" style={{ color: 'var(--txt-secondary)' }}>
         {stock.companyName ?? '—'}
+      </p>
+
+      <p className="text-[10px] font-semibold" style={{ color: 'var(--txt-muted)' }}>
+        Shares own: {Number(sharesHeld).toLocaleString('en-US', { maximumFractionDigits: 4 })}
       </p>
     </button>
   );
@@ -59,11 +68,29 @@ function StockChip({ stock, isActive, onClick }) {
 
 export default function MyPortfolioCards() {
   const dispatch                            = useDispatch();
+  const navigate = useNavigate();
   const { stockWise, loadingStockWise, chartRange } = useSelector((s) => s.analytics);
+  const { items: holdings } = useSelector((s) => s.assetHoldings);
   const { selectedStock }                   = useSelector((s) => s.stocks);
-  const [showAll, setShowAll]               = useState(false);
 
-  const visible = showAll ? stockWise : stockWise.slice(0, 6);
+  const holdingsByStockId = useMemo(() => {
+    const map = new Map();
+    holdings.forEach((item) => {
+      map.set(Number(item.stockId), Number(item.quantity ?? 0));
+    });
+    return map;
+  }, [holdings]);
+
+  // Dashboard should surface the most urgent movers by absolute return impact.
+  const visible = useMemo(() => {
+    const ranked = [...stockWise].sort((a, b) => {
+      const aImpact = Math.abs(Number(a?.pnlPercent ?? 0)) || Math.abs(Number(a?.pnl ?? 0));
+      const bImpact = Math.abs(Number(b?.pnlPercent ?? 0)) || Math.abs(Number(b?.pnl ?? 0));
+      return bImpact - aImpact;
+    });
+
+    return ranked.slice(0, 4);
+  }, [stockWise]);
 
   const handleStockClick = (stock) => {
     dispatch(setSelectedStock(stock));
@@ -73,28 +100,29 @@ export default function MyPortfolioCards() {
 
   return (
     <div
-      className="rounded-xl p-5"
+      className="rounded-2xl"
       style={{
+        padding: '16px 18px',
         background: 'var(--bg-card)',
         border: '1px solid var(--border-subtle)',
         boxShadow: 'var(--shadow-card)',
       }}
     >
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
         <div>
           <p className="text-sm font-bold" style={{ color: 'var(--txt-primary)' }}>My Portfolio</p>
           <p className="text-[10px] mt-0.5" style={{ color: 'var(--txt-secondary)' }}>
             Click a stock to view its chart
           </p>
         </div>
-        {stockWise.length > 6 && (
+        {stockWise.length > 4 && (
           <button
-            onClick={() => setShowAll((p) => !p)}
+            onClick={() => navigate('/portfolio')}
             className="flex items-center gap-0.5 text-[10px] font-semibold transition-colors"
             style={{ color: 'var(--accent)' }}
           >
-            {showAll ? 'Show less' : `See all (${stockWise.length})`}
-            <RiArrowRightSLine className={`transition-transform ${showAll ? 'rotate-180' : ''}`} />
+            {`View all (${stockWise.length})`}
+            <RiArrowRightSLine className="transition-transform" />
           </button>
         )}
       </div>
@@ -105,12 +133,19 @@ export default function MyPortfolioCards() {
             <p className="text-sm" style={{ color: 'var(--txt-muted)' }}>Select a user to view portfolio</p>
           </div>
         ) : (
-          <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: 'thin' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
+              gap: '0.85rem',
+            }}
+          >
             {visible.map((stock) => (
               <StockChip
                 key={stock.stockId}
                 stock={stock}
                 isActive={selectedStock?.stockId === stock.stockId}
+                sharesHeld={holdingsByStockId.get(Number(stock.stockId)) ?? 0}
                 onClick={() => handleStockClick(stock)}
               />
             ))}

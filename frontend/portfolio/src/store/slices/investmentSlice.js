@@ -1,8 +1,16 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchInvestmentsByCustomer } from '../../api/investmentApi';
+import { fetchInvestmentsByCustomer, placeDummyBuyOrder as placeDummyBuyOrderApi, placeDummySellOrder as placeDummySellOrderApi } from '../../api/investmentApi';
 
 export const loadInvestments = createAsyncThunk('investments/load', async (customerId) => {
   return await fetchInvestmentsByCustomer(customerId);
+});
+
+export const placeDummyBuyOrder = createAsyncThunk('investments/dummyBuy', async (payload) => {
+  return await placeDummyBuyOrderApi(payload);
+});
+
+export const placeDummySellOrder = createAsyncThunk('investments/dummySell', async (payload) => {
+  return await placeDummySellOrderApi(payload);
 });
 
 const investmentSlice = createSlice({

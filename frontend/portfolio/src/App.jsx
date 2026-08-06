@@ -5,6 +5,7 @@ import Topbar         from './components/layout/Topbar';
 import DashboardPage  from './pages/DashboardPage';
 import UserProfilePage from './pages/UserProfilePage';
 import UserManagementPage from './pages/UserManagementPage';
+import PortfolioPage from './pages/PortfolioPage';
 
 export default function App() {
   return (
@@ -17,7 +18,7 @@ export default function App() {
 
       {/* Scrollable page content */}
       <main
-        className="min-h-screen pb-12"
+        className="app-main pb-12"
         style={{
           marginLeft: 'var(--sidebar-width)',
           paddingTop: 'var(--topbar-height)',
@@ -28,9 +29,8 @@ export default function App() {
           <Route path="/"         element={<DashboardPage />} />
           <Route path="/profile"  element={<UserProfilePage />} />
           <Route path="/users"    element={<UserManagementPage />} />
-          <Route path="/portfolio" element={<ComingSoon label="Portfolio" />} />
+          <Route path="/portfolio" element={<PortfolioPage />} />
           <Route path="/analysis"  element={<ComingSoon label="Analysis" />} />
-          <Route path="/market"    element={<ComingSoon label="Market" />} />
           <Route path="/community" element={<ComingSoon label="Community" />} />
           <Route path="/help"      element={<ComingSoon label="Help & Support" />} />
         </Routes>

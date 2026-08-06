@@ -6,13 +6,16 @@ import SectionLoader from '../common/SectionLoader';
 export default function TotalHoldingCard() {
   const { summary, loadingSummary } = useSelector((s) => s.analytics);
   const isGain = (summary?.netPnL ?? 0) >= 0;
+  const totalHoldingQty = Math.round(Number(summary?.totalPositions ?? 0));
+  const SUMMARY_CURRENCY = 'INR';
 
   return (
     <SectionLoader loading={loadingSummary} minHeight={180}>
       {summary ? (
         <div
-          className="rounded-xl p-5 flex flex-col gap-3 anim-slide-up relative overflow-hidden"
+          className="rounded-2xl anim-slide-up relative overflow-hidden"
           style={{
+            padding: '16px 18px',
             background: 'linear-gradient(145deg, var(--bg-card) 0%, var(--bg-card-hover) 100%)',
             border: '1px solid var(--border-subtle)',
             boxShadow: 'var(--shadow-card)',
@@ -28,29 +31,38 @@ export default function TotalHoldingCard() {
           />
 
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
             <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'var(--txt-muted)' }}>
               Total Holding
             </p>
             <span
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold"
+              className="inline-flex items-center rounded text-[9px] font-bold"
               style={{
                 background: 'var(--accent-glow)',
                 border: '1px solid var(--border-active)',
                 color: 'var(--accent)',
+                padding: '0.2rem 0.5rem',
+                minHeight: '22px',
+                gap: '0.3rem',
+                lineHeight: 1,
               }}
             >
-              <RiPulseLine className="text-xs" /> LIVE
+              <span
+                className="w-1.5 h-1.5 rounded-full animate-pulse"
+                style={{ background: 'var(--loss)' }}
+              />
+              <RiPulseLine className="text-xs" />
+              LIVE
             </span>
           </div>
 
           {/* Big value */}
-          <div>
+          <div style={{ marginBottom: 14 }}>
             <p
               className="text-3xl font-extrabold tracking-tight anim-count"
               style={{ color: 'var(--txt-primary)' }}
             >
-              {formatCurrency(summary.totalPositions)}
+              {totalHoldingQty.toLocaleString('en-US')}
             </p>
             <div className="flex items-center gap-2 mt-1.5">
               <span
@@ -65,20 +77,25 @@ export default function TotalHoldingCard() {
                 {formatPercent(summary.returnPercent)}
               </span>
               <span className="text-[10px]" style={{ color: 'var(--txt-secondary)' }}>
-                {isGain ? '+' : ''}{formatCurrency(summary.netPnL)} all time
+                {isGain ? '+' : ''}{formatCurrency(summary.netPnL, 2, SUMMARY_CURRENCY)} all time
               </span>
             </div>
           </div>
 
           {/* Stats row */}
           <div
-            className="grid grid-cols-3 gap-4 pt-4"
-            style={{ borderTop: '1px solid var(--border-subtle)' }}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: 12,
+              paddingTop: 14,
+              borderTop: '1px solid var(--border-subtle)',
+            }}
           >
             {[
-              { label: 'Invested',  val: formatCurrency(summary.totalInvested), color: 'var(--txt-primary)' },
+              { label: 'Invested',  val: formatCurrency(summary.totalInvested, 2, SUMMARY_CURRENCY), color: 'var(--txt-primary)' },
               { label: 'Positions', val: summary.totalPositions ?? '—',         color: 'var(--txt-primary)' },
-              { label: 'Today P&L', val: (isGain ? '+' : '') + formatCurrency(summary.netPnL), color: isGain ? 'var(--gain)' : 'var(--loss)' },
+              { label: 'Today P&L', val: (isGain ? '+' : '') + formatCurrency(summary.netPnL, 2, SUMMARY_CURRENCY), color: isGain ? 'var(--gain)' : 'var(--loss)' },
             ].map(({ label, val, color }) => (
               <div key={label}>
                 <p className="text-[9px] font-semibold uppercase tracking-wider" style={{ color: 'var(--txt-muted)' }}>
@@ -91,8 +108,10 @@ export default function TotalHoldingCard() {
         </div>
       ) : (
         <div
-          className="rounded-xl p-5 flex flex-col items-center justify-center min-h-[160px] gap-2"
+          className="rounded-2xl flex flex-col items-center justify-center gap-2"
           style={{
+            padding: '20px 24px',
+            minHeight: 180,
             background: 'var(--bg-card)',
             border: '1px solid var(--border-subtle)',
           }}

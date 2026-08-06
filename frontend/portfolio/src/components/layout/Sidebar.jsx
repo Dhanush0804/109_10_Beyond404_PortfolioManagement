@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import {
-  RiDashboardLine, RiLineChartLine, RiBarChartBoxLine, RiStockLine,
+  RiDashboardLine, RiLineChartLine, RiBarChartBoxLine,
   RiTeamLine, RiCustomerService2Line, RiShieldLine, RiUserLine,
 } from 'react-icons/ri';
 import { TbChartDonut4 } from 'react-icons/tb';
@@ -9,7 +9,6 @@ const MAIN_NAV = [
   { to: '/',          icon: RiDashboardLine,      label: 'Dashboard'  },
   { to: '/portfolio', icon: RiLineChartLine,       label: 'Portfolio'  },
   { to: '/analysis',  icon: RiBarChartBoxLine,     label: 'Analysis'   },
-  { to: '/market',    icon: RiStockLine,            label: 'Market'     },
   { to: '/users',     icon: RiUserLine,             label: 'User Management' },
 ];
 
@@ -24,7 +23,7 @@ function NavItem({ to, icon: Icon, label }) {
       to={to}
       end={to === '/'}
       className={({ isActive }) =>
-        `relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group
+        `relative flex items-center rounded-xl text-sm font-semibold transition-all duration-200 group
         ${isActive
           ? 'text-white'
           : 'hover:text-[var(--txt-primary)]'
@@ -34,12 +33,27 @@ function NavItem({ to, icon: Icon, label }) {
         background: 'var(--accent)',
         boxShadow: 'var(--shadow-accent)',
         color: '#fff',
+        paddingTop: '0.85rem',
+        paddingBottom: '0.85rem',
+        paddingLeft: '1rem',
+        paddingRight: '1rem',
+        gap: '0.75rem',
       } : {
         color: 'var(--txt-secondary)',
+        paddingTop: '0.85rem',
+        paddingBottom: '0.85rem',
+        paddingLeft: '1rem',
+        paddingRight: '1rem',
+        gap: '0.75rem',
       }}
     >
-      <Icon className="text-base shrink-0" />
-      <span className="tracking-tight">{label}</span>
+      <span
+        className="w-[30px] h-[30px] rounded-lg flex items-center justify-center shrink-0"
+        style={{ background: 'var(--bg-elevated)' }}
+      >
+        <Icon className="text-[15px] shrink-0" />
+      </span>
+      <span className="tracking-tight text-[15px] font-semibold leading-none">{label}</span>
     </NavLink>
   );
 }
@@ -56,46 +70,70 @@ export default function Sidebar() {
     >
       {/* Logo */}
       <div
-        className="flex items-center gap-3 px-5 py-[18px]"
-        style={{ borderBottom: '1px solid var(--border-subtle)' }}
+        className="flex items-center gap-4 px-5"
+        style={{
+          paddingTop: '1.5rem',
+          paddingBottom: '1.5rem',
+          borderBottom: '1px solid var(--border-subtle)',
+          marginBottom: '0.25rem',
+        }}
       >
         <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+          className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
           style={{
             background: 'var(--accent)',
             boxShadow: 'var(--shadow-accent)',
           }}
         >
-          <TbChartDonut4 className="text-white text-lg" />
+          <TbChartDonut4 className="text-white text-[22px]" />
         </div>
         <div>
-          <p className="font-bold text-[15px] leading-none" style={{ color: 'var(--txt-primary)' }}>
+          <p className="font-extrabold text-[18px] leading-none tracking-tight" style={{ color: 'var(--txt-primary)' }}>
             Sto<span style={{ color: 'var(--accent)' }}>vest</span>
           </p>
-          <p className="text-[10px] mt-0.5 font-medium" style={{ color: 'var(--txt-muted)' }}>
+          <p className="text-[11px] mt-1.5 font-medium tracking-wide leading-tight" style={{ color: 'var(--txt-muted)' }}>
             Portfolio Manager
           </p>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-5 space-y-0.5">
+      <nav
+        className="flex-1 px-3.5"
+        style={{
+          paddingTop: '1.4rem',
+          paddingBottom: '1.7rem',
+        }}
+      >
         <p
-          className="text-[10px] font-bold uppercase tracking-widest px-3 mb-2"
-          style={{ color: 'var(--txt-muted)' }}
+          className="text-xs font-bold uppercase tracking-[0.18em] px-2"
+          style={{
+            color: 'var(--txt-muted)',
+            marginTop: '0.45rem',
+            marginBottom: '0.95rem',
+            paddingLeft: '0.35rem',
+          }}
         >
           Main Menu
         </p>
-        {MAIN_NAV.map((n) => <NavItem key={n.to} {...n} />)}
+        <div className="flex flex-col" style={{ gap: '0.8rem' }}>
+          {MAIN_NAV.map((n) => <NavItem key={n.to} {...n} />)}
+        </div>
 
-        <div className="pt-5">
+        <div style={{ marginTop: '2.3rem' }}>
           <p
-            className="text-[10px] font-bold uppercase tracking-widest px-3 mb-2"
-            style={{ color: 'var(--txt-muted)' }}
+            className="text-xs font-bold uppercase tracking-[0.18em] px-2"
+            style={{
+              color: 'var(--txt-muted)',
+              marginBottom: '0.95rem',
+              paddingLeft: '0.35rem',
+            }}
           >
             Support
           </p>
-          {SUPPORT_NAV.map((n) => <NavItem key={n.to} {...n} />)}
+          <div className="flex flex-col" style={{ gap: '0.8rem' }}>
+            {SUPPORT_NAV.map((n) => <NavItem key={n.to} {...n} />)}
+          </div>
         </div>
       </nav>
 
@@ -105,13 +143,13 @@ export default function Sidebar() {
         style={{ borderTop: '1px solid var(--border-subtle)' }}
       >
         <div
-          className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
+          className="flex items-center gap-3 px-3.5 py-3 rounded-xl"
           style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
         >
-          <RiShieldLine className="text-sm shrink-0" style={{ color: 'var(--accent)' }} />
+          <RiShieldLine className="text-base shrink-0" style={{ color: 'var(--accent)' }} />
           <div>
-            <p className="text-[10px] font-semibold" style={{ color: 'var(--txt-primary)' }}>Beyond404</p>
-            <p className="text-[9px]" style={{ color: 'var(--txt-muted)' }}>© 2024 · v1.0</p>
+            <p className="text-xs font-bold leading-tight" style={{ color: 'var(--txt-primary)' }}>Beyond404</p>
+            <p className="text-[10px] mt-0.5" style={{ color: 'var(--txt-muted)' }}>© 2024 · v1.0</p>
           </div>
         </div>
       </div>

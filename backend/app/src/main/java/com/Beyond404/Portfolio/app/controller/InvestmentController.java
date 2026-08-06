@@ -1,6 +1,7 @@
 package com.Beyond404.Portfolio.app.controller;
 
 import com.Beyond404.Portfolio.app.model.Investment;
+import com.Beyond404.Portfolio.app.model.InvestmentPageResponse;
 import com.Beyond404.Portfolio.app.model.StockTransactionRequest;
 import com.Beyond404.Portfolio.app.model.StockTransactionResponse;
 import com.Beyond404.Portfolio.app.service.InvestmentService;
@@ -21,8 +22,29 @@ public class InvestmentController {
     }
 
     @GetMapping
-    public ArrayList<Investment> getAllInvestments() {
+    public ArrayList<Investment> getInvestments(
+            @RequestParam(required = false) Long customerId,
+            @RequestParam(required = false) Long stockId) {
+
+        if (customerId != null && stockId != null) {
+            return investmentService.getInvestmentsByCustomerAndStock(customerId, stockId);
+        }
+
+        if (customerId != null) {
+            return investmentService.getInvestmentsByCustomer(customerId);
+        }
+
         return investmentService.getAllInvestments();
+    }
+
+    @GetMapping("/history")
+    public InvestmentPageResponse getInvestmentHistory(
+            @RequestParam Long customerId,
+            @RequestParam(required = false) Long stockId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size) {
+
+        return investmentService.getPaginatedInvestments(customerId, stockId, page, size);
     }
 
     @GetMapping("/{investmentId}")

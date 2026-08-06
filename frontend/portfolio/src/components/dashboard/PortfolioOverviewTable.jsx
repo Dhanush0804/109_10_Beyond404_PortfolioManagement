@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RiArrowUpLine, RiArrowDownLine } from 'react-icons/ri';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
@@ -19,9 +19,19 @@ function getSparkData(stock, count = 7) {
 
 export default function PortfolioOverviewTable() {
   const dispatch = useDispatch();
+  const STOCKWISE_CURRENCY = 'INR';
   const { stockWise, loadingStockWise, chartRange } = useSelector((s) => s.analytics);
+  const { items: holdings } = useSelector((s) => s.assetHoldings);
   const { selectedStock } = useSelector((s) => s.stocks);
   const [filter, setFilter] = useState('All');
+
+  const holdingsByStockId = useMemo(() => {
+    const map = new Map();
+    holdings.forEach((item) => {
+      map.set(Number(item.stockId), Number(item.quantity ?? 0));
+    });
+    return map;
+  }, [holdings]);
 
   const filtered = stockWise.filter((s) => {
     if (filter === 'Gainers') return (s.pnl ?? 0) >= 0;
@@ -37,38 +47,50 @@ export default function PortfolioOverviewTable() {
 
   return (
     <div
-      className="rounded-xl p-5"
+      className="rounded-2xl"
       style={{
+        padding: '16px 18px',
         background: 'var(--bg-card)',
         border: '1px solid var(--border-subtle)',
         boxShadow: 'var(--shadow-card)',
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+      <div className="flex items-center justify-between flex-wrap gap-3" style={{ marginBottom: 14 }}>
         <div>
-          <p className="text-sm font-bold" style={{ color: 'var(--txt-primary)' }}>Portfolio Overview</p>
-          <p className="text-[11px] mt-0.5" style={{ color: 'var(--txt-secondary)' }}>
+          <p className="text-base font-bold" style={{ color: 'var(--txt-primary)' }}>Portfolio Overview</p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--txt-secondary)' }}>
             Click any row to view stock chart
           </p>
         </div>
         <div
-          className="flex items-center gap-0.5 p-1 rounded-xl"
+          className="flex items-center rounded-xl"
           style={{
             background: 'var(--bg-elevated)',
             border: '1px solid var(--border-subtle)',
+            padding: '0.25rem',
+            gap: '0.25rem',
           }}
         >
           {FILTERS.map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200"
+              className="rounded-lg text-xs font-semibold transition-all duration-200"
               style={filter === f ? {
                 background: f === 'Gainers' ? 'var(--gain)' : f === 'Losers' ? 'var(--loss)' : 'var(--accent)',
                 color: '#fff',
+                minWidth: '62px',
+                height: '28px',
+                padding: '0 0.55rem',
+                lineHeight: 1,
               } : {
                 color: 'var(--txt-secondary)',
+                background: 'transparent',
+                minWidth: '62px',
+                height: '28px',
+                padding: '0 0.55rem',
+                lineHeight: 1,
               }}
             >
               {f}
@@ -89,22 +111,11 @@ export default function PortfolioOverviewTable() {
           </div>
         ) : (
           <div className="overflow-x-auto" style={{ scrollbarWidth: 'thin' }}>
-            <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+            <table className="data-table">
               <thead>
                 <tr>
-                  {['Stock', 'Last Price', 'Change', 'P&L', 'Volume', '7D Trend'].map((h) => (
-                    <th
-                      key={h}
-                      className="text-left pb-3 pr-5 whitespace-nowrap"
-                      style={{
-                        color: 'var(--txt-muted)',
-                        fontSize: 10,
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.08em',
-                        borderBottom: '1px solid var(--border-subtle)',
-                      }}
-                    >
+                  {['Stock', 'Last Price', 'Change', 'P&L', 'Shares', '7D Trend'].map((h) => (
+                    <th key={h}>
                       {h}
                     </th>
                   ))}
@@ -124,17 +135,10 @@ export default function PortfolioOverviewTable() {
                       className="cursor-pointer transition-all duration-150"
                       style={{
                         background: isSelected ? 'var(--accent-glow)' : 'transparent',
-                        animationDelay: `${idx * 40}ms`,
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isSelected) e.currentTarget.style.background = 'var(--bg-elevated)';
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isSelected) e.currentTarget.style.background = 'transparent';
                       }}
                     >
                       {/* Stock */}
-                      <td className="py-2.5 pr-5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <td>
                         <div className="flex items-center gap-3">
                           <div
                             className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
@@ -165,15 +169,12 @@ export default function PortfolioOverviewTable() {
                       </td>
 
                       {/* Last price */}
-                      <td
-                        className="py-2.5 pr-5 text-[11px] font-semibold"
-                        style={{ color: 'var(--txt-primary)', borderBottom: '1px solid var(--border-subtle)' }}
-                      >
-                        {formatCurrency(stock.lastPrice ?? stock.currentValue ?? 0)}
+                      <td className="text-[12px] font-semibold" style={{ color: 'var(--txt-primary)' }}>
+                        {formatCurrency(stock.lastPrice ?? stock.currentValue ?? 0, 2, STOCKWISE_CURRENCY)}
                       </td>
 
                       {/* Change % */}
-                      <td className="py-2.5 pr-5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <td>
                         <span
                           className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded"
                           style={{
@@ -188,23 +189,17 @@ export default function PortfolioOverviewTable() {
                       </td>
 
                       {/* P&L */}
-                      <td
-                        className="py-2.5 pr-5 text-[11px] font-semibold"
-                        style={{ color: gain ? 'var(--gain)' : 'var(--loss)', borderBottom: '1px solid var(--border-subtle)' }}
-                      >
-                        {gain ? '+' : ''}{formatCurrency(stock.pnl)}
+                      <td className="text-[12px] font-semibold" style={{ color: gain ? 'var(--gain)' : 'var(--loss)' }}>
+                        {gain ? '+' : ''}{formatCurrency(stock.pnl, 2, STOCKWISE_CURRENCY)}
                       </td>
 
-                      {/* Volume */}
-                      <td
-                        className="py-2.5 pr-5 text-[11px]"
-                        style={{ color: 'var(--txt-secondary)', borderBottom: '1px solid var(--border-subtle)' }}
-                      >
-                        {stock.volume ?? '—'}
+                      {/* Shares */}
+                      <td className="text-[12px]" style={{ color: 'var(--txt-secondary)' }}>
+                        {(holdingsByStockId.get(Number(stock.stockId)) ?? 0).toLocaleString('en-US', { maximumFractionDigits: 4 })}
                       </td>
 
                       {/* Sparkline */}
-                      <td className="py-2.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <td>
                         <div className="w-20 h-7">
                           <Sparklines data={sparkData} min={0}>
                             <SparklinesLine

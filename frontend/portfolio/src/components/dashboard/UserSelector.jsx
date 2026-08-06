@@ -4,9 +4,10 @@ import { loadAllUsers, setSelectedUser } from '../../store/slices/userSlice';
 import { loadAllStocks } from '../../store/slices/stocksSlice';
 import { loadInvestments } from '../../store/slices/investmentSlice';
 import { loadPortfolioSummary, loadStockWisePnL, loadChartData } from '../../store/slices/analyticsSlice';
+import { loadAssetHoldings } from '../../store/slices/assetHoldingsSlice';
 import { RiUserLine, RiArrowDownSLine, RiLoaderLine } from 'react-icons/ri';
 
-export default function UserSelector() {
+export default function UserSelector({ onSelected = null }) {
   const dispatch = useDispatch();
   const { allUsers, loadingUsers, selectedUser } = useSelector((s) => s.user);
 
@@ -22,13 +23,15 @@ export default function UserSelector() {
     dispatch(loadPortfolioSummary(id));
     dispatch(loadStockWisePnL(id));
     dispatch(loadChartData({ mode: 'portfolio', customerId: id, range: '1Y' }));
+    dispatch(loadAssetHoldings(id));
+    onSelected?.(user);
   };
 
   return (
     <div className="relative">
       {/* Icon left */}
       <span
-        className="absolute left-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none z-10"
+        className="absolute left-4 top-1/2 -translate-y-1/2 text-base pointer-events-none z-10"
         style={{ color: 'var(--accent)' }}
       >
         {loadingUsers
@@ -41,11 +44,20 @@ export default function UserSelector() {
         id="user-selector"
         onChange={handleSelect}
         value={selectedUser?.customerId ?? ''}
-        className="w-full appearance-none text-xs font-medium pl-8 pr-9 py-2.5 rounded-lg outline-none cursor-pointer transition-all duration-200"
+        className="w-full h-11 text-sm font-medium rounded-lg outline-none cursor-pointer transition-all duration-200"
         style={{
+          WebkitAppearance: 'none',
+          MozAppearance: 'none',
+          appearance: 'none',
           background: 'var(--bg-elevated)',
           border: '1px solid var(--border-soft)',
           color: 'var(--txt-primary)',
+          lineHeight: '1.25',
+          paddingLeft: '2.95rem',
+          paddingRight: '2.5rem',
+          textIndent: '0.01px',
+          paddingTop: '0.65rem',
+          paddingBottom: '0.65rem',
         }}
         onFocus={(e) => { e.target.style.borderColor = 'var(--border-active)'; e.target.style.boxShadow = '0 0 0 3px var(--accent-glow)'; }}
         onBlur={(e)  => { e.target.style.borderColor = 'var(--border-soft)';   e.target.style.boxShadow = 'none'; }}
