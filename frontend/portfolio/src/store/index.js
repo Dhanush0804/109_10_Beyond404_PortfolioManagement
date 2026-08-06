@@ -4,6 +4,7 @@ import stocksReducer     from './slices/stocksSlice';
 import investmentReducer from './slices/investmentSlice';
 import analyticsReducer  from './slices/analyticsSlice';
 import assetHoldingsReducer from './slices/assetHoldingsSlice';
+import algoReducer from './slices/algoSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     investments: investmentReducer,
     analytics:   analyticsReducer,
     assetHoldings: assetHoldingsReducer,
+    algo: algoReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }),

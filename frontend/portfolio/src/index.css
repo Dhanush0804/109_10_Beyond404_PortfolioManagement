@@ -267,6 +267,48 @@ select option {
   border-bottom: none;
 }
 
+.analysis-signals-table {
+  table-layout: fixed;
+}
+
+.analysis-signals-table th,
+.analysis-signals-table td {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.analysis-signals-table th:nth-child(1),
+.analysis-signals-table td:nth-child(1) { width: 78px; }
+.analysis-signals-table th:nth-child(2),
+.analysis-signals-table td:nth-child(2) { width: 84px; }
+.analysis-signals-table th:nth-child(3),
+.analysis-signals-table td:nth-child(3) { width: 72px; }
+.analysis-signals-table th:nth-child(4),
+.analysis-signals-table td:nth-child(4) { width: 92px; }
+.analysis-signals-table th:nth-child(5),
+.analysis-signals-table td:nth-child(5) { width: 110px; }
+.analysis-signals-table th:nth-child(6),
+.analysis-signals-table td:nth-child(6) { width: 92px; }
+.analysis-signals-table th:nth-child(7),
+.analysis-signals-table td:nth-child(7) { width: 90px; }
+.analysis-signals-table th:nth-child(8),
+.analysis-signals-table td:nth-child(8) { width: 104px; }
+
+.analysis-signals-table td:nth-child(9) {
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.35;
+}
+
+@media (max-width: 1280px) {
+  .analysis-signals-table th,
+  .analysis-signals-table td {
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 12px;
+  }
+}
+
 /* User Management tables: slightly wider insets for pill-heavy columns */
 .user-mgmt-table th,
 .user-mgmt-table td {
