@@ -90,6 +90,7 @@ public class MarketDataService {
             String ticker,
             String market) {
 
+
         String url = UriComponentsBuilder
                 .fromUriString(
                         marketDataBaseUrl
@@ -99,18 +100,37 @@ public class MarketDataService {
                         ticker)
                 .toUriString();
 
-        return restTemplate.getForObject(
-                url,
-                MarketQuote.class);
+
+
+        MarketQuote quote =
+                restTemplate.getForObject(
+                        url,
+                        MarketQuote.class);
+
+
+
+        if(quote != null &&
+                quote.getPrice() != null) {
+
+
+            Double usdPrice =
+                    normalizePriceToUSD(
+                            quote.getPrice(),
+                            ticker
+                    );
+
+
+            quote.setPrice(
+                    usdPrice
+            );
+
+        }
+
+
+        return quote;
+
     }
 
-    /**
-     * Convert foreign currency amount to INR
-     *
-     * Example:
-     *
-     * 100 USD -> INR
-     */
     /**
      * Converts any currency amount into USD
      *
@@ -210,6 +230,61 @@ public class MarketDataService {
 
     }
 
+    private Double normalizePriceToUSD(
+            Double price,
+            String ticker) {
+
+
+        if(price == null) {
+
+            return null;
+
+        }
+
+
+        String currency =
+                getCurrencyFromTicker(ticker);
+
+
+        return convertToUSD(
+                price,
+                currency
+        );
+
+    }
+
+    private String getCurrencyFromTicker(
+            String ticker) {
+
+
+        if(ticker == null) {
+
+            return "USD";
+
+        }
+
+
+        if(ticker.endsWith(".NS")
+                || ticker.endsWith(".BO")) {
+
+            return "INR";
+
+        }
+
+
+        if(ticker.endsWith(".PA")
+                || ticker.endsWith(".AS")
+                || ticker.endsWith(".DE")) {
+
+            return "EUR";
+
+        }
+
+
+        return "USD";
+
+    }
+
     /**
      * Get historical stock market data
      *
@@ -267,7 +342,9 @@ public class MarketDataService {
         };
 
 
-        // First try original ticker
+        /*
+         * First try original ticker
+         */
         for (int days : ranges) {
 
 
@@ -281,9 +358,14 @@ public class MarketDataService {
 
             if(price != null) {
 
-                return price;
+
+                return normalizePriceToUSD(
+                        price,
+                        ticker
+                );
 
             }
+
         }
 
 
@@ -328,13 +410,17 @@ public class MarketDataService {
                 if(price != null) {
 
 
-                    return price;
+                    return normalizePriceToUSD(
+                            price,
+                            nseTicker
+                    );
 
                 }
 
             }
 
         }
+
 
 
         System.out.println(
@@ -550,12 +636,29 @@ public class MarketDataService {
             ChartDataResponse response = new ChartDataResponse();
             response.setTickerId(normalizedTicker);
             response.setCompanyName(resolveCompanyName(normalizedTicker));
-            response.setCurrency(quote.getCurrency());
-            response.setCurrentPrice(quote.getPrice());
-            response.setPreviousClose(quote.getPreviousClose());
+            response.setCurrency("USD");
+            response.setCurrentPrice(
+                    normalizePriceToUSD(
+                            quote.getPrice(),
+                            normalizedTicker
+                    )
+            );
+            response.setPreviousClose(
+                    normalizePriceToUSD(
+                            quote.getPreviousClose(),
+                            normalizedTicker
+                    )
+            );
 
             Map<String, List<ChartDataPoint>> ranges = ChartDataResponse.defaultRanges();
-            ranges.put(normalizedRange, toChartDataPoints(history.getData(), normalizedRange));
+            ranges.put(
+                    normalizedRange,
+                    toChartDataPoints(
+                            history.getData(),
+                            normalizedRange,
+                            normalizedTicker
+                    )
+            );
             response.setRanges(ranges);
 
             return response;
@@ -643,7 +746,10 @@ public class MarketDataService {
         }
     }
 
-    private List<ChartDataPoint> toChartDataPoints(List<FastApiCandleData> candles, String range) {
+    private List<ChartDataPoint> toChartDataPoints(
+            List<FastApiCandleData> candles,
+            String range,
+            String ticker) {
         if (candles == null || candles.isEmpty()) {
             return Collections.emptyList();
         }
@@ -657,7 +763,10 @@ public class MarketDataService {
             points.add(new ChartDataPoint(
                     candle.getTimestamp(),
                     formatDateLabel(candle.getTimestamp(), range),
-                    candle.getClose(),
+                    normalizePriceToUSD(
+                            candle.getClose(),
+                            ticker
+                    ),
                     candle.getVolume()));
         }
 

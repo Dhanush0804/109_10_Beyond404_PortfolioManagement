@@ -53,87 +53,32 @@ public class PerformanceTrackingService {
 
 
 
-        Map<LocalDate, Double> portfolioValues =
-                new HashMap<>();
-
-
-
-        Map<String, Double> holdings =
-                calculateCurrentHoldings(portfolio);
-
-
-
-        double investedAmount =
-                calculateTotalInvested(portfolio);
-
-
-
-        for (String ticker : holdings.keySet()) {
-
-
-            Double quantity =
-                    holdings.get(ticker);
-
-
-
-            ChartDataResponse response =
-                    marketDataService
-                            .getChartData(
-                                    ticker,
-                                    range
-                            );
-
-
-            if (response == null) {
-                continue;
-            }
-
-
-
-            List<ChartDataPoint> points =
-                    response.getRanges()
-                            .get(range);
-
-
-
-            if (points == null) {
-                continue;
-            }
-
-
-
-            for (ChartDataPoint point : points) {
-
-
-                LocalDate date =
-                        OffsetDateTime
-                                .parse(
-                                        point.getTimestamp()
-                                )
-                                .toLocalDate();
-
-
-
-                double value =
-                        quantity *
-                                point.getPrice();
-
-
-
-                portfolioValues.put(
-                        date,
-                        portfolioValues.getOrDefault(
-                                date,
-                                0.0
-                        )
-                                +
-                                value
-                );
-
-            }
-
+        if(portfolio.isEmpty()) {
+            return null;
         }
 
+
+
+        LocalDate startDate =
+                portfolio.stream()
+                        .map(
+                                p -> p.getTransactionTimestamp()
+                                        .toLocalDate()
+                        )
+                        .min(
+                                LocalDate::compareTo
+                        )
+                        .orElse(
+                                LocalDate.now()
+                        );
+
+
+
+        List<LocalDate> timeline =
+                generateTimeline(
+                        startDate,
+                        range
+                );
 
 
 
@@ -142,33 +87,104 @@ public class PerformanceTrackingService {
 
 
 
-        for (LocalDate date : portfolioValues.keySet()) {
-
-
-            double value =
-                    portfolioValues.get(date);
+        double totalInvested =
+                calculateTotalInvested(portfolio);
 
 
 
-            double profit =
-                    value - investedAmount;
+        for(LocalDate date : timeline) {
 
+
+            Map<String, Double> holdings =
+                    calculateHoldingsUntilDate(
+                            portfolio,
+                            date
+                    );
+
+            double invested =
+                    calculateInvestedAmountUntilDate(
+                            portfolio,
+                            date
+                    );
+
+            double portfolioValue = 0;
+
+
+
+            for(String ticker : holdings.keySet()) {
+
+
+                double quantity =
+                        holdings.get(ticker);
+
+
+
+                if(quantity <= 0) {
+                    continue;
+                }
+
+
+
+                PortfolioData stock =
+                        portfolio.stream()
+                                .filter(
+                                        p -> p.getTicker()
+                                                .equalsIgnoreCase(ticker)
+                                )
+                                .findFirst()
+                                .orElse(null);
+
+
+
+                if(stock == null) {
+                    continue;
+                }
+
+
+
+                Double price =
+                        getHistoricalPriceWithFallback(
+                                ticker,
+                                date
+                        );
+
+
+
+                if(price == null) {
+                    continue;
+                }
+
+
+
+                double value =
+                        quantity * price;
+
+
+
+                portfolioValue += value;
+
+            }
+
+
+
+            double profitLoss =
+                    portfolioValue - invested;
 
 
             double returnPercentage =
-                    investedAmount == 0
+                    invested == 0
                             ? 0
                             :
-                            (profit / investedAmount) * 100;
+                            (profitLoss / invested) * 100;
 
 
 
             result.add(
                     new PortfolioPerformancePoint(
                             date,
-                            value,
-                            investedAmount,
-                            profit,
+                            portfolioValue,
+                            invested,
+                            profitLoss,
                             returnPercentage
                     )
             );
@@ -177,45 +193,29 @@ public class PerformanceTrackingService {
 
 
 
-        // Sort data chronologically for graph plotting
-        result.sort(
-                Comparator.comparing(
-                        PortfolioPerformancePoint::getDate
-                )
-        );
-
+        Map<String, Double> summary =
+                new HashMap<>();
 
 
         double currentValue =
                 result.isEmpty()
                         ? 0
                         :
-                        result.get(result.size() - 1)
+                        result.get(result.size()-1)
                                 .getPortfolioValue();
 
 
 
-        double profitLoss =
-                currentValue - investedAmount;
-
-
-
-        double returnPercentage =
-                investedAmount == 0
-                        ? 0
-                        :
-                        (profitLoss / investedAmount) * 100;
-
-
-
-        Map<String, Double> summary =
-                new HashMap<>();
-
+        double currentInvested =
+                calculateInvestedAmountUntilDate(
+                        portfolio,
+                        LocalDate.now()
+                );
 
 
         summary.put(
                 "totalInvested",
-                investedAmount
+                currentInvested
         );
 
 
@@ -227,13 +227,19 @@ public class PerformanceTrackingService {
 
         summary.put(
                 "profitLoss",
-                profitLoss
+                currentValue-totalInvested
         );
 
 
         summary.put(
                 "returnPercentage",
-                returnPercentage
+                totalInvested == 0
+                        ? 0
+                        :
+                        ((currentValue-totalInvested)
+                                /
+                                totalInvested)
+                                *100
         );
 
 
@@ -244,6 +250,178 @@ public class PerformanceTrackingService {
                 summary,
                 result
         );
+
+    }
+
+    private Double getHistoricalPriceWithFallback(
+            String ticker,
+            LocalDate date) {
+
+
+        /*
+         * Step 1:
+         * Try original ticker
+         * with nearby dates
+         */
+        Double price =
+                getNearestHistoricalPrice(
+                        ticker,
+                        date
+                );
+
+
+        if(price != null) {
+
+            return price;
+
+        }
+
+
+
+        /*
+         * Step 2:
+         * If .BO failed,
+         * try corresponding .NS
+         *
+         * Example:
+         * RELIANCE.BO
+         *        |
+         *        ↓
+         * RELIANCE.NS
+         */
+        if(ticker.endsWith(".BO")) {
+
+
+            String nsTicker =
+                    ticker.replace(
+                            ".BO",
+                            ".NS"
+                    );
+
+
+            price =
+                    getNearestHistoricalPrice(
+                            nsTicker,
+                            date
+                    );
+
+
+            if(price != null) {
+
+                return price;
+
+            }
+
+        }
+
+
+
+        /*
+         * Step 3:
+         * If .NS failed,
+         * try corresponding .BO
+         *
+         * Example:
+         * RELIANCE.NS
+         *        |
+         *        ↓
+         * RELIANCE.BO
+         */
+        if(ticker.endsWith(".NS")) {
+
+
+            String boTicker =
+                    ticker.replace(
+                            ".NS",
+                            ".BO"
+                    );
+
+
+            price =
+                    getNearestHistoricalPrice(
+                            boTicker,
+                            date
+                    );
+
+
+            if(price != null) {
+
+                return price;
+
+            }
+
+        }
+
+
+
+        return null;
+
+    }
+
+    private Double getNearestHistoricalPrice(
+            String ticker,
+            LocalDate date) {
+
+
+        int[] offsets = {
+
+                0,
+
+                -1,
+                1,
+
+                -2,
+                2,
+
+                -3,
+                3,
+
+                -7,
+                7
+
+        };
+
+
+        for(int offset : offsets) {
+
+
+            LocalDate adjustedDate =
+                    date.plusDays(offset);
+
+
+
+            try {
+
+
+                Double price =
+                        marketDataService
+                                .getHistoricalPrice(
+                                        ticker,
+                                        adjustedDate.atStartOfDay()
+                                );
+
+
+
+                if(price != null) {
+
+                    return price;
+
+                }
+
+
+            }
+            catch(Exception e) {
+
+
+                // Ignore failed date
+                // continue searching
+
+            }
+
+        }
+
+
+        return null;
 
     }
 
@@ -262,57 +440,110 @@ public class PerformanceTrackingService {
                         .getCustomerPortfolio(customerId);
 
 
-        double quantity =
-                calculateStockQuantity(
-                        portfolio,
-                        ticker
-                );
-
-
-        double invested =
-                calculateStockInvestment(
-                        portfolio,
-                        ticker
-                );
-
-
-        ChartDataResponse response =
-                marketDataService
-                        .getChartData(
-                                ticker,
-                                range
-                        );
-
 
         List<StockPerformancePoint> result =
                 new ArrayList<>();
 
 
-        if (response == null ||
-                response.getRanges()
-                        .get("1Y") == null) {
+
+        if(portfolio.isEmpty()) {
 
             return result;
 
         }
 
 
-        for (ChartDataPoint point :
-                response.getRanges()
-                        .get("1Y")) {
+
+        // Find first transaction date for this stock
+        LocalDate startDate =
+                portfolio.stream()
+                        .filter(
+                                p -> p.getTicker()
+                                        .equalsIgnoreCase(ticker)
+                        )
+                        .map(
+                                p -> p.getTransactionTimestamp()
+                                        .toLocalDate()
+                        )
+                        .min(
+                                LocalDate::compareTo
+                        )
+                        .orElse(
+                                LocalDate.now()
+                        );
 
 
-            LocalDate date =
-                    OffsetDateTime
-                            .parse(
-                                    point.getTimestamp()
-                            )
-                            .toLocalDate();
+
+        List<LocalDate> timeline =
+                generateTimeline(
+                        startDate,
+                        range
+                );
 
 
-            double value =
+
+        for(LocalDate date : timeline) {
+
+
+            double quantity =
+                    calculateStockQuantityUntilDate(
+                            portfolio,
+                            ticker,
+                            date
+                    );
+
+
+
+            // No holding yet
+            if(quantity <= 0) {
+
+                continue;
+
+            }
+
+
+
+            Double stockPrice =
+                    getHistoricalPriceWithFallback(
+                            ticker,
+                            date
+                    );
+
+
+
+            if(stockPrice == null) {
+
+                continue;
+
+            }
+
+
+
+            double holdingValue =
                     quantity *
-                            point.getPrice();
+                            stockPrice;
+
+
+
+            double investedAmount =
+                    calculateStockInvestedAmountUntilDate(
+                            portfolio,
+                            ticker,
+                            date
+                    );
+
+
+
+            double profitLoss =
+                    holdingValue -
+                            investedAmount;
+
+            double returnPercentage =
+                    investedAmount == 0
+                            ? 0
+                            :
+                            (profitLoss / investedAmount) * 100;
+
 
 
             result.add(
@@ -320,14 +551,16 @@ public class PerformanceTrackingService {
                             date,
                             ticker,
                             quantity,
-                            point.getPrice(),
-                            value,
-                            invested,
-                            value - invested
+                            stockPrice,
+                            holdingValue,
+                            investedAmount,
+                            profitLoss,
+                            returnPercentage
                     )
             );
 
         }
+
 
 
         return result;
@@ -504,6 +737,368 @@ public class PerformanceTrackingService {
 
 
         return total;
+
+    }
+
+    private Map<String, Double> calculateHoldingsUntilDate(
+            List<PortfolioData> portfolio,
+            LocalDate date) {
+
+
+        Map<String, Double> holdings =
+                new HashMap<>();
+
+
+        for (PortfolioData transaction : portfolio) {
+
+
+            LocalDate transactionDate =
+                    transaction.getTransactionTimestamp()
+                            .toLocalDate();
+
+
+
+            if(transactionDate.isAfter(date)) {
+
+                continue;
+
+            }
+
+
+
+            String ticker =
+                    transaction.getTicker();
+
+
+
+            double quantity =
+                    transaction.getQuantity();
+
+
+
+            if(transaction.getTransactionType()
+                    .equalsIgnoreCase("BUY")) {
+
+
+                holdings.put(
+                        ticker,
+                        holdings.getOrDefault(
+                                ticker,
+                                0.0
+                        )
+                                +
+                                quantity
+                );
+
+
+            }
+            else {
+
+
+                holdings.put(
+                        ticker,
+                        holdings.getOrDefault(
+                                ticker,
+                                0.0
+                        )
+                                -
+                                quantity
+                );
+
+            }
+
+        }
+
+
+        return holdings;
+    }
+
+    private List<LocalDate> generateTimeline(
+            LocalDate startDate,
+            String range) {
+
+
+        List<LocalDate> dates =
+                new ArrayList<>();
+
+
+        LocalDate today =
+                LocalDate.now();
+
+
+        LocalDate current =
+                startDate;
+
+
+
+        while (!current.isAfter(today)) {
+
+
+            dates.add(current);
+
+
+
+            switch(range.toUpperCase()) {
+
+
+                case "WEEKLY":
+
+                    current =
+                            current.plusWeeks(1);
+
+                    break;
+
+
+
+                case "MONTHLY":
+
+                    current =
+                            current.plusMonths(1);
+
+                    break;
+
+
+
+                case "YEARLY":
+
+                    current =
+                            current.plusYears(1);
+
+                    break;
+
+
+
+                default:
+
+                    current =
+                            current.plusMonths(1);
+
+            }
+
+        }
+
+
+
+        /*
+         * Add today's point if the next interval
+         * has not completed yet
+         */
+        if (!dates.isEmpty()) {
+
+
+            LocalDate lastDate =
+                    dates.get(
+                            dates.size() - 1
+                    );
+
+
+            if (!lastDate.equals(today)
+                    &&
+                    lastDate.isBefore(today)) {
+
+
+                dates.add(today);
+
+            }
+
+        }
+
+
+        return dates;
+
+    }
+
+    private double calculateInvestedAmountUntilDate(
+            List<PortfolioData> portfolio,
+            LocalDate date) {
+
+
+        double invested = 0;
+
+
+        for (PortfolioData transaction : portfolio) {
+
+
+            LocalDate transactionDate =
+                    transaction.getTransactionTimestamp()
+                            .toLocalDate();
+
+
+            if (transactionDate.isAfter(date)) {
+                continue;
+            }
+
+
+
+            Double price =
+                    getHistoricalPriceWithFallback(
+                            transaction.getTicker(),
+                            transactionDate
+                    );
+
+
+            if (price == null) {
+                continue;
+            }
+
+
+
+            double amount =
+                    price * transaction.getQuantity();
+
+
+
+            if (transaction.getTransactionType()
+                    .equalsIgnoreCase("BUY")) {
+
+
+                invested += amount;
+
+
+            } else {
+
+
+                invested -= amount;
+
+            }
+
+        }
+
+
+        return invested;
+
+    }
+
+    private double calculateStockQuantityUntilDate(
+            List<PortfolioData> portfolio,
+            String ticker,
+            LocalDate date) {
+
+
+        double quantity = 0;
+
+
+        for(PortfolioData transaction : portfolio) {
+
+
+            if(!transaction.getTicker()
+                    .equalsIgnoreCase(ticker)) {
+
+                continue;
+
+            }
+
+
+            LocalDate transactionDate =
+                    transaction.getTransactionTimestamp()
+                            .toLocalDate();
+
+
+
+            if(transactionDate.isAfter(date)) {
+
+                continue;
+
+            }
+
+
+
+            if(transaction.getTransactionType()
+                    .equalsIgnoreCase("BUY")) {
+
+
+                quantity += transaction.getQuantity();
+
+
+            }
+            else {
+
+
+                quantity -= transaction.getQuantity();
+
+            }
+
+        }
+
+
+        return quantity;
+
+    }
+
+    private double calculateStockInvestedAmountUntilDate(
+            List<PortfolioData> portfolio,
+            String ticker,
+            LocalDate date) {
+
+
+        double invested = 0;
+
+
+        for (PortfolioData transaction : portfolio) {
+
+
+            if (!transaction.getTicker()
+                    .equalsIgnoreCase(ticker)) {
+
+                continue;
+            }
+
+
+
+            LocalDate transactionDate =
+                    transaction.getTransactionTimestamp()
+                            .toLocalDate();
+
+
+
+            if (transactionDate.isAfter(date)) {
+
+                continue;
+
+            }
+
+
+
+            Double price =
+                    getHistoricalPriceWithFallback(
+                            ticker,
+                            transactionDate
+                    );
+
+
+            if(price == null) {
+
+                continue;
+
+            }
+
+
+
+            double amount =
+                    price *
+                            transaction.getQuantity();
+
+
+
+            if(transaction.getTransactionType()
+                    .equalsIgnoreCase("BUY")) {
+
+
+                invested += amount;
+
+
+            }
+            else {
+
+
+                invested -= amount;
+
+            }
+
+        }
+
+
+        return invested;
 
     }
 }

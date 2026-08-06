@@ -14,7 +14,68 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pn3u3da!"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 20
+
+  services:
+  mysql:
+    image: mysql:8.0
+    container_name: beyond404-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "n3u3da!"
+      MYSQL_DATABASE: beyond404
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pn3u3da!"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  market-data-server:
+    build:
+      context: ./market-data-server
+    container_name: beyond404-market-data
+    restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8000
+      LOG_LEVEL: INFO
+      ENV: production
+    ports:
+      - "8000:8000"
+
+  backend:
+    build:
+      context: ./backend/app
+    container_name: beyond404-backend
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/beyond404
+      DB_USERNAME: root
+      DB_PASSWORD: "n3u3da!"
+      MARKET_DATA_BASE_URL: http://market-data-server:8000
+      APP_CORS_ALLOWED_ORIGIN_PATTERNS: http://localhost:5173,http://127.0.0.1:5173,http://localhost:5144,http://127.0.0.1:5144
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      market-data-server:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend/portfolio
+    container_name: beyond404-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_started
 
 volumes:
-  mysql_data:
+  mysql_data:    
