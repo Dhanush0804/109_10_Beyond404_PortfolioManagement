@@ -8,7 +8,19 @@ import { formatCurrency, formatShortDate } from '../../utils/formatters';
 import SectionLoader from '../common/SectionLoader';
 import { RiArrowLeftLine, RiRefreshLine } from 'react-icons/ri';
 
-const RANGES = ['1D', '1W', '1M', '6M', '1Y'];
+const PORTFOLIO_RANGES = ['WEEKLY', 'MONTHLY', 'YEARLY'];
+const STOCK_RANGE_MAP = {
+  WEEKLY: '1W',
+  MONTHLY: '1M',
+  YEARLY: '1Y',
+};
+
+const rangeLabel = (range) => {
+  if (range === 'WEEKLY') return 'W';
+  if (range === 'MONTHLY') return 'M';
+  if (range === 'YEARLY') return 'Y';
+  return range;
+};
 
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
@@ -42,11 +54,12 @@ export default function PortfolioChart() {
   const handleRange = (r) => {
     dispatch(setChartRange(r));
     if (chartMode === 'stock' && selectedStock) {
+      const stockRange = STOCK_RANGE_MAP[r] ?? '1Y';
       dispatch(loadChartData({
         mode: 'stock',
         stockId: selectedStock.stockId,
         ticker: selectedStock.ticker,
-        range: r,
+        range: stockRange,
       }));
     } else {
       dispatch(loadChartData({ mode: 'portfolio', customerId: selectedUser?.customerId, range: r }));
@@ -61,11 +74,12 @@ export default function PortfolioChart() {
   const handleRefresh = () => {
     if (loadingChart) return;
     if (chartMode === 'stock' && selectedStock) {
+      const stockRange = STOCK_RANGE_MAP[chartRange] ?? '1Y';
       dispatch(loadChartData({
         mode: 'stock',
         stockId: selectedStock.stockId,
         ticker: selectedStock.ticker,
-        range: chartRange,
+        range: stockRange,
       }));
       return;
     }
@@ -93,7 +107,7 @@ export default function PortfolioChart() {
 
   const title = chartMode === 'stock' && selectedStock
     ? `${selectedStock.ticker ?? selectedStock.companyName} · Chart`
-    : 'Portfolio Overview';
+    : 'Your overall performance';
 
   const changeAmt = last - first;
   const changePct = first > 0 ? (changeAmt / first) * 100 : 0;
@@ -168,7 +182,7 @@ export default function PortfolioChart() {
               gap: '0.25rem',
             }}
           >
-            {RANGES.map((r) => (
+            {PORTFOLIO_RANGES.map((r) => (
               <button
                 key={r}
                 onClick={() => handleRange(r)}
@@ -191,7 +205,7 @@ export default function PortfolioChart() {
                   lineHeight: 1,
                 }}
               >
-                {r}
+                {rangeLabel(r)}
               </button>
             ))}
           </div>
@@ -200,6 +214,12 @@ export default function PortfolioChart() {
 
       {/* Chart */}
       <SectionLoader loading={loadingChart} minHeight={280}>
+        {loadingChart && chartMode === 'portfolio' ? (
+          <p className="text-[11px] mb-2" style={{ color: 'var(--txt-muted)' }}>
+            Loading overall performance data. This endpoint may take up to 30-40 seconds.
+          </p>
+        ) : null}
+
         {isEmpty ? (
           <div
             className="flex flex-col items-center justify-center gap-3 rounded-xl"

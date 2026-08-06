@@ -89,6 +89,29 @@ const normalizeRangeParam = (range) => {
   return '1Y';
 };
 
+const normalizePerformanceRange = (range) => {
+  const normalized = String(range ?? 'YEARLY').trim().toUpperCase();
+  if (normalized === 'WEEKLY' || normalized === 'MONTHLY' || normalized === 'YEARLY') {
+    return normalized;
+  }
+  if (normalized === '1W') return 'WEEKLY';
+  if (normalized === '1M') return 'MONTHLY';
+  return 'YEARLY';
+};
+
+const PERFORMANCE_REQUEST_TIMEOUT_MS = 70000;
+
+const mapPerformanceChartResponse = (responseData) => {
+  const points = Array.isArray(responseData?.chartData) ? responseData.chartData : [];
+  return points.map((point) => ({
+    date: point?.date,
+    value: toNumber(point?.portfolioValue),
+    investedAmount: toNumber(point?.investedAmount),
+    profitLoss: toNumber(point?.profitLoss),
+    returnPercentage: toNumber(point?.returnPercentage),
+  }));
+};
+
 const mapStockChartResponse = (responseData, requestedRange) => {
   const rangeKey = normalizeRangeParam(requestedRange);
   const ranges = responseData?.ranges ?? {};
@@ -169,8 +192,17 @@ export const fetchChartData = async ({ mode = 'portfolio', stockId = null, ticke
       });
       return mapStockChartResponse(data, normalizedRange);
     }
-    const { data } = await axiosInstance.get('/api/analytics/portfolio-chart', { params: { customerId, range } });
-    return data;
+
+    if (!customerId) {
+      return [];
+    }
+
+    const performanceRange = normalizePerformanceRange(range);
+    const { data } = await axiosInstance.get(`/api/performance/${customerId}`, {
+      params: { range: performanceRange },
+      timeout: PERFORMANCE_REQUEST_TIMEOUT_MS,
+    });
+    return mapPerformanceChartResponse(data);
   } catch {
     console.warn('fetchChartData → using mock JSON response structure');
     return mode === 'stock' ? getMockStockChartData(stockId, ticker, range) : buildDummyPortfolioChart();
