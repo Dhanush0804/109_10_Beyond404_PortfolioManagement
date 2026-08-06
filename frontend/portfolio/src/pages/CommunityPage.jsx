@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 const CONTRIBUTORS = [
   {
@@ -21,6 +21,16 @@ const CONTRIBUTORS = [
     initials: 'TU',
     useCase: 'The clean portfolio summary lets me share reports with clients instantly without any extra tools.',
   },
+  {
+    name: 'Rahul Mehta',
+    initials: 'RM',
+    useCase: 'My entire options strategy revolves around tracking IV spikes — this platform\'s real-time quote view lets me catch the perfect entry window for covered calls before the market even blinks.',
+  },
+  {
+    name: 'Priya Sharma',
+    initials: 'PS',
+    useCase: 'I run a momentum swing-trading strategy across mid-cap stocks. The historical P&L charts here help me back-test my thesis and fine-tune my stop-loss levels with actual portfolio data.',
+  },
 ];
 
 const ACCENT_COLORS = [
@@ -28,6 +38,8 @@ const ACCENT_COLORS = [
   '#10b981',
   '#6366f1',
   '#f59e0b',
+  '#ec4899',
+  '#14b8a6',
 ];
 
 export default function CommunityPage() {
