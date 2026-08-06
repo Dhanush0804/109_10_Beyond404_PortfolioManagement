@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        COMPOSE_FILE = 'docker-compose.yml'
+        COMPOSE_FILE = "${WORKSPACE}/docker-compose.yml"
     }
 
     options {
@@ -26,6 +26,9 @@ pipeline {
                 sh 'git branch --show-current || true'
                 sh 'docker --version'
                 sh 'docker-compose version'
+                sh 'pwd'
+                sh 'ls -la'
+                sh 'test -f "$COMPOSE_FILE"'
             }
         }
 
