@@ -22,7 +22,7 @@ export default function UserSelector({ onSelected = null }) {
     dispatch(loadInvestments(id));
     dispatch(loadPortfolioSummary(id));
     dispatch(loadStockWisePnL(id));
-    dispatch(loadChartData({ mode: 'portfolio', customerId: id, range: '1Y' }));
+    dispatch(loadChartData({ mode: 'portfolio', customerId: id, range: 'YEARLY' }));
     dispatch(loadAssetHoldings(id));
     onSelected?.(user);
   };

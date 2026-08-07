@@ -7,6 +7,8 @@ import UserProfilePage from './pages/UserProfilePage';
 import UserManagementPage from './pages/UserManagementPage';
 import PortfolioPage from './pages/PortfolioPage';
 import AnalysisPage from './pages/AnalysisPage';
+import CommunityPage from './pages/CommunityPage';
+import HelpPage from './pages/HelpPage';
 
 export default function App() {
   return (
@@ -32,8 +34,8 @@ export default function App() {
           <Route path="/users"    element={<UserManagementPage />} />
           <Route path="/portfolio" element={<PortfolioPage />} />
           <Route path="/analysis"  element={<AnalysisPage />} />
-          <Route path="/community" element={<ComingSoon label="Community" />} />
-          <Route path="/help"      element={<ComingSoon label="Help & Support" />} />
+          <Route path="/community" element={<CommunityPage />} />
+          <Route path="/help"      element={<HelpPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

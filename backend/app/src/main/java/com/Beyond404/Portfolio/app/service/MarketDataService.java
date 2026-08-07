@@ -458,6 +458,14 @@ public class MarketDataService {
             LocalDateTime end =
                     transactionTime.plusDays(rangeDays);
 
+            LocalDateTime nowUtc = LocalDateTime.now(ZoneOffset.UTC);
+            if (end.isAfter(nowUtc)) {
+                end = nowUtc;
+            }
+            if (!start.isBefore(end)) {
+                return null;
+            }
+
 
 
             String url =

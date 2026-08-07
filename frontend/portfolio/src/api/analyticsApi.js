@@ -89,6 +89,29 @@ const normalizeRangeParam = (range) => {
   return '1Y';
 };
 
+const normalizePerformanceRange = (range) => {
+  const normalized = String(range ?? 'YEARLY').trim().toUpperCase();
+  if (normalized === 'WEEKLY' || normalized === 'MONTHLY' || normalized === 'YEARLY') {
+    return normalized;
+  }
+  if (normalized === '1W') return 'WEEKLY';
+  if (normalized === '1M') return 'MONTHLY';
+  return 'YEARLY';
+};
+
+const PERFORMANCE_REQUEST_TIMEOUT_MS = 70000;
+
+const mapPerformanceChartResponse = (responseData) => {
+  const points = Array.isArray(responseData?.chartData) ? responseData.chartData : [];
+  return points.map((point) => ({
+    date: point?.date,
+    value: toNumber(point?.portfolioValue),
+    investedAmount: toNumber(point?.investedAmount),
+    profitLoss: toNumber(point?.profitLoss),
+    returnPercentage: toNumber(point?.returnPercentage),
+  }));
+};
+
 const mapStockChartResponse = (responseData, requestedRange) => {
   const rangeKey = normalizeRangeParam(requestedRange);
   const ranges = responseData?.ranges ?? {};
@@ -121,33 +144,23 @@ const mapStockChartResponse = (responseData, requestedRange) => {
 };
 
 export const fetchPortfolioSummary = async (customerId) => {
-  try {
-    const { data } = await axiosInstance.get(`/beyond404/Portfolio/analysis/${customerId}/summary`);
-    return mapPortfolioSummary(data);
-  } catch {
-    console.warn('fetchPortfolioSummary → using dummy data');
-    return buildDummySummary();
-  }
+  const { data } = await axiosInstance.get(`/beyond404/Portfolio/analysis/${customerId}/summary?_t=${Date.now()}`);
+  return mapPortfolioSummary(data);
 };
 
 export const fetchStockWisePnL = async (customerId) => {
-  try {
-    const { data } = await axiosInstance.get('/api/portfolio-analytics/stock-wise', { params: { customerId } });
-    if (!Array.isArray(data)) return [];
+  const { data } = await axiosInstance.get('/api/portfolio-analytics/stock-wise', { params: { customerId } });
+  if (!Array.isArray(data)) return [];
 
-    return data.map((stock) => ({
-      ...stock,
-      invested: toNumber(stock?.invested),
-      currentValue: toNumber(stock?.currentValue),
-      pnl: toNumber(stock?.pnl),
-      pnlPercent: toNumber(stock?.pnlPercent),
-      lastPrice: toNumber(stock?.lastPrice),
-      prevPrice: toNumber(stock?.prevPrice),
-    }));
-  } catch {
-    console.warn('fetchStockWisePnL → using dummy data');
-    return buildDummyStockWise();
-  }
+  return data.map((stock) => ({
+    ...stock,
+    invested: toNumber(stock?.invested),
+    currentValue: toNumber(stock?.currentValue),
+    pnl: toNumber(stock?.pnl),
+    pnlPercent: toNumber(stock?.pnlPercent),
+    lastPrice: toNumber(stock?.lastPrice),
+    prevPrice: toNumber(stock?.prevPrice),
+  }));
 };
 
 /**
@@ -169,8 +182,17 @@ export const fetchChartData = async ({ mode = 'portfolio', stockId = null, ticke
       });
       return mapStockChartResponse(data, normalizedRange);
     }
-    const { data } = await axiosInstance.get('/api/analytics/portfolio-chart', { params: { customerId, range } });
-    return data;
+
+    if (!customerId) {
+      return [];
+    }
+
+    const performanceRange = normalizePerformanceRange(range);
+    const { data } = await axiosInstance.get(`/api/performance/${customerId}`, {
+      params: { range: performanceRange },
+      timeout: PERFORMANCE_REQUEST_TIMEOUT_MS,
+    });
+    return mapPerformanceChartResponse(data);
   } catch {
     console.warn('fetchChartData → using mock JSON response structure');
     return mode === 'stock' ? getMockStockChartData(stockId, ticker, range) : buildDummyPortfolioChart();

@@ -1,0 +1,36 @@
+name: CI Build Only
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop, "feature/**"]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-services:
+    name: Build services
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: frontend
+            context: ./frontend/portfolio
+            dockerfile: ./frontend/portfolio/Dockerfile
+          - name: backend
+            context: ./backend/app
+            dockerfile: ./backend/app/Dockerfile
+          - name: market-data-server
+            context: ./market-data-server
+            dockerfile: ./market-data-server/Dockerfile
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Build ${{ matrix.name }}
+        run: docker build -f "${{ matrix.dockerfile }}" "${{ matrix.context }}"

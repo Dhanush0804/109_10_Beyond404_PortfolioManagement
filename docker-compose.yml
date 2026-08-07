@@ -6,30 +6,12 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: "n3u3da!"
       MYSQL_DATABASE: beyond404
-    ports:
-      - "3306:3306"
+      MYSQL_USER: beyond404
+      MYSQL_PASSWORD: "beyond404-app!"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pn3u3da!"]
-      interval: 10s
-      timeout: 5s
-      retries: 20
-
-  services:
-  mysql:
-    image: mysql:8.0
-    container_name: beyond404-mysql
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: "n3u3da!"
-      MYSQL_DATABASE: beyond404
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pn3u3da!"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pn3u3da!"]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -37,6 +19,7 @@ services:
   market-data-server:
     build:
       context: ./market-data-server
+      dockerfile: Dockerfile
     container_name: beyond404-market-data
     restart: unless-stopped
     environment:
@@ -45,21 +28,22 @@ services:
       LOG_LEVEL: INFO
       ENV: production
     ports:
-      - "8000:8000"
+      - "8083:8000"
 
   backend:
     build:
       context: ./backend/app
+      dockerfile: Dockerfile
     container_name: beyond404-backend
     restart: unless-stopped
     environment:
       DB_URL: jdbc:mysql://mysql:3306/beyond404
-      DB_USERNAME: root
-      DB_PASSWORD: "n3u3da!"
+      DB_USERNAME: beyond404
+      DB_PASSWORD: "beyond404-app!"
       MARKET_DATA_BASE_URL: http://market-data-server:8000
-      APP_CORS_ALLOWED_ORIGIN_PATTERNS: http://localhost:5173,http://127.0.0.1:5173,http://localhost:5144,http://127.0.0.1:5144
+      APP_CORS_ALLOWED_ORIGIN_PATTERNS: "*"
     ports:
-      - "8080:8080"
+      - "8081:8080"
     depends_on:
       mysql:
         condition: service_healthy
@@ -69,13 +53,14 @@ services:
   frontend:
     build:
       context: ./frontend/portfolio
+      dockerfile: Dockerfile
     container_name: beyond404-frontend
     restart: unless-stopped
     ports:
-      - "5173:80"
+      - "8082:80"
     depends_on:
       backend:
         condition: service_started
 
 volumes:
-  mysql_data:    
+  mysql_data:
